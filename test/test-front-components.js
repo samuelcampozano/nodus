@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const appSource = fs.readFileSync(path.join(rootDir, "public", "app.js"), "utf8");
 const htmlSource = fs.readFileSync(path.join(rootDir, "public", "index.html"), "utf8");
-const styleSource = fs.readFileSync(path.join(rootDir, "public", "style.css"), "utf8");
+const styleSource = fs.readFileSync(path.join(rootDir, "public", "style.css"), "utf8").replace(/\r\n/g, "\n");
 
 function assert(condition, message) {
   if (!condition) throw new Error(message);

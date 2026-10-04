@@ -38,6 +38,7 @@
         <div class="nd-nav-links">
           <a href="#architecture" class="nd-nav-link" data-i18n="nav_architecture">Architecture</a>
           <a href="#storage" class="nd-nav-link" data-i18n="nav_storage">Storage</a>
+          <a href="#demo" class="nd-nav-link" data-i18n="nav_demo">Interactive Demo</a>
           <a href="#how-it-works" class="nd-nav-link" data-i18n="nav_how_it_works">How It Works</a>
           <a href="#verification" class="nd-nav-link" data-i18n="nav_verification">Verification</a>
           <a href="#developers" class="nd-nav-link" data-i18n="nav_developers">Developers</a>
@@ -67,10 +68,10 @@
             <span data-i18n="launch_app_sovereign">Launch Sovereign App</span>
             <i data-lucide="arrow-right"></i>
           </button>
-          <button class="btn btn-secondary btn-launch-app-lg" id="landingDemoBtn" title="Instant 1-Click Sovereign Demo">
+          <a href="#demo" class="btn btn-secondary btn-launch-app-lg" id="landingDemoBtn" title="Interactive Sovereign Demo">
             <i data-lucide="sparkles"></i>
-            <span data-i18n="demo_btn">1-Click Demo</span>
-          </button>
+            <span data-i18n="demo_btn">Interactive Demo</span>
+          </a>
           <a href="#architecture" class="btn btn-ghost">
             <span data-i18n="view_arch">Architecture</span>
             <i data-lucide="chevron-down"></i>
@@ -158,6 +159,170 @@
           <span class="nd-verb-pill">VERIFY</span>
           <h3 data-i18n="verb_verify_title">Verifiable Attestation</h3>
           <p data-i18n="verb_verify_desc">Audit blob roots on Walruscan, verify Sui policy state on SuiVision, and confirm Anchor RBAC on Solana Devnet Explorer with 1-click inspection.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Interactive Sovereign Encryption Playground Section -->
+    <section class="nd-section nd-demo-section" id="demo">
+      <div class="nd-section-header">
+        <div class="nd-hero-badge" style="margin-bottom: 12px;">
+          <span class="badge-dot"></span>
+          <span data-i18n="demo_badge">INTERACTIVE PLAYGROUND — NO ACCOUNT REQUIRED</span>
+        </div>
+        <h2 class="nd-section-title" data-i18n="demo_title">Experience Sovereign Encryption in Real Time</h2>
+        <p class="nd-section-desc" data-i18n="demo_desc">
+          Select a sample memory or drop any photo below. Watch it get sealed with AES-256-GCM, dispersed into Walrus 2D Reed-Solomon slivers, and decrypted in browser memory.
+        </p>
+      </div>
+
+      <div class="nd-playground-card">
+        <!-- Playground Top Bar: Preset Picker & Auto-Loop Controls -->
+        <div class="nd-playground-toolbar">
+          <div class="nd-preset-group">
+            <span class="nd-toolbar-label">Sample Memory:</span>
+            <button class="nd-preset-btn active" data-preset="guardian" id="presetGuardianBtn">
+              <i data-lucide="shield"></i> <span>Guardian AI</span>
+            </button>
+            <button class="nd-preset-btn" data-preset="sunset" id="presetSunsetBtn">
+              <i data-lucide="sunset"></i> <span>Golden Gate</span>
+            </button>
+            <button class="nd-preset-btn" data-preset="space" id="presetSpaceBtn">
+              <i data-lucide="orbit"></i> <span>Deep Space</span>
+            </button>
+            <label class="nd-preset-btn nd-upload-custom-btn" for="playgroundFileInput" id="presetUploadLabel">
+              <i data-lucide="upload"></i> <span>Drop Any Photo</span>
+              <input type="file" id="playgroundFileInput" accept="image/*" class="hidden">
+            </label>
+          </div>
+
+          <div class="nd-toolbar-actions">
+            <button class="btn btn-secondary btn-sm" id="playgroundLoopBtn" title="Toggle Auto-Play Loop">
+              <i data-lucide="repeat"></i> <span id="playgroundLoopText">Auto Loop: On</span>
+            </button>
+            <button class="btn btn-primary btn-sm" id="playgroundRunBtn">
+              <i data-lucide="play"></i> <span>Run Pipeline</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Playground Main Split: Visual Transformation & Live Telemetry -->
+        <div class="nd-playground-body">
+          <!-- Left: Visual Transformation Stage (Interactive Reveal Slider) -->
+          <div class="nd-playground-visual">
+            <div class="nd-visual-viewport" id="playgroundViewport">
+              <!-- Original Image Layer -->
+              <img src="/assets/guardian-blue.png" id="playgroundPlainImage" class="nd-plain-layer" alt="Plaintext Media">
+              
+              <!-- Ciphertext Matrix Overlay Layer -->
+              <div class="nd-cipher-layer" id="playgroundCipherLayer">
+                <canvas id="playgroundCipherCanvas" class="nd-cipher-canvas"></canvas>
+                <div class="nd-cipher-badge">
+                  <i data-lucide="lock"></i>
+                  <span>AES-256-GCM SEALED CIPHERTEXT</span>
+                </div>
+              </div>
+
+              <!-- Interactive Split / Lens Slider Handle -->
+              <div class="nd-split-handle" id="playgroundSplitHandle">
+                <div class="nd-split-line"></div>
+                <div class="nd-split-knob">
+                  <i data-lucide="chevrons-left-right"></i>
+                </div>
+              </div>
+
+              <!-- Interactive Status Toast Overlay -->
+              <div class="nd-visual-status" id="playgroundVisualStatus">
+                <span class="status-indicator-dot"></span>
+                <span id="playgroundStatusText">Plaintext Loaded — Ready to Seal</span>
+              </div>
+            </div>
+
+            <!-- Slider Instruction -->
+            <div class="nd-slider-hint">
+              <i data-lucide="move-horizontal"></i>
+              <span>Drag slider left/right to inspect Plaintext vs. AES-256-GCM Ciphertext slivers</span>
+            </div>
+          </div>
+
+          <!-- Right: Cryptographic Telemetry & Pipeline Stepper -->
+          <div class="nd-playground-telemetry">
+            <div class="nd-pipeline-stepper">
+              <!-- Step 1: Seal Client Encryption -->
+              <div class="nd-tele-step active" id="teleStep1">
+                <div class="nd-step-marker"><i data-lucide="lock"></i></div>
+                <div class="nd-step-details">
+                  <div class="nd-step-header">
+                    <h4>1. Client-Side Envelope Encryption</h4>
+                    <span class="nd-tele-badge" id="teleTimeSeal">1.2 ms</span>
+                  </div>
+                  <p>Derived 256-bit symmetric key locally in browser memory using WebCrypto subtle API.</p>
+                  <div class="nd-tele-meta">
+                    <div><span>Key:</span> <code id="teleKeyPreview">0x3b89...f19a</code></div>
+                    <div><span>Nonce/IV:</span> <code id="teleIvPreview">0x91da...6482</code></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Step 2: Walrus 2D Red Stuff Dispersal -->
+              <div class="nd-tele-step" id="teleStep2">
+                <div class="nd-step-marker"><i data-lucide="layers"></i></div>
+                <div class="nd-step-details">
+                  <div class="nd-step-header">
+                    <h4>2. Walrus 2D Red Stuff Dispersal</h4>
+                    <span class="nd-tele-badge" id="teleSliversBadge">45 Slivers</span>
+                  </div>
+                  <p>2D Reed-Solomon fountain erasure coding split into resilient sliver matrices.</p>
+                  <div class="nd-tele-meta">
+                    <div><span>Blob Digest:</span> <code id="teleBlobId">walrus:blob:bK9x...</code></div>
+                    <div><span>Storage Nodes:</span> <span class="nd-node-dots"><span class="dot-live"></span><span class="dot-live"></span><span class="dot-live"></span><span class="dot-live"></span><span class="dot-live"></span></span></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Step 3: Multi-Chain Attestation -->
+              <div class="nd-tele-step" id="teleStep3">
+                <div class="nd-step-marker"><i data-lucide="shield-check"></i></div>
+                <div class="nd-step-details">
+                  <div class="nd-step-header">
+                    <h4>3. Multi-Chain Attestation</h4>
+                    <span class="nd-tele-badge">Anchored</span>
+                  </div>
+                  <p>Cryptographic ownership certificates anchored on Sui with Solana Anchor RBAC boundary.</p>
+                  <div class="nd-tele-meta">
+                    <div><span>Sui Object:</span> <code id="teleSuiObj">0x7cd0...9856</code></div>
+                    <div><span>Solana PDA:</span> <code id="teleSolanaPda">NodUs...7e41</code></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Step 4: Zero-Knowledge Decryption -->
+              <div class="nd-tele-step" id="teleStep4">
+                <div class="nd-step-marker"><i data-lucide="sparkles"></i></div>
+                <div class="nd-step-details">
+                  <div class="nd-step-header">
+                    <h4>4. In-Memory Decryption & Verification</h4>
+                    <span class="nd-tele-badge badge-green" id="teleIntegrityBadge">Verified</span>
+                  </div>
+                  <p>Decrypted 100% in browser RAM. Zero cleartext bytes exposed during network transit.</p>
+                  <div class="nd-tele-meta">
+                    <div><span>Integrity:</span> <span style="color: var(--nd-cyan);">Bit-for-Bit 100% Match ✅</span></div>
+                    <div><span>Blake2b:</span> <code id="teleBlakeDigest">0x8f19...d093</code></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Pipeline Action Footer -->
+            <div class="nd-telemetry-footer">
+              <button class="btn btn-secondary btn-block" id="playgroundDecryptBtn">
+                <i data-lucide="unlock"></i> <span>Decrypt in Browser Memory</span>
+              </button>
+              <button class="btn-launch-app btn-block" id="playgroundLaunchBtn">
+                <span>Open Full Sovereign Cloud App</span> <i data-lucide="arrow-right"></i>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -364,10 +529,6 @@ npm run dev
               <path fill="#34A853" d="M12 23.5c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2.4-6.4-5.3L1.9 16.5C3.7 20.2 7.5 23.5 12 23.5z"/>
             </svg>
             <span data-i18n="signin_zklogin">Sign In</span>
-          </button>
-          <button class="btn btn-secondary demo-nav-btn" id="instantDemoBtn" title="Instant 1-Click Sovereign Demo">
-            <i data-lucide="sparkles"></i>
-            <span data-i18n="demo_btn">1-Click Demo</span>
           </button>
 
           <!-- Authenticated State: User Profile Pill -->

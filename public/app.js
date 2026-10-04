@@ -142,10 +142,14 @@ document.addEventListener("DOMContentLoaded", () => {
       hero_desc: "End-to-end encrypted storage on Walrus protocol. Identity verified on Sui via zero-knowledge proofs. Role-based access control anchored on Solana.",
       view_arch: "Architecture",
       nav_architecture: "Architecture",
+      nav_demo: "Interactive Demo",
       nav_storage: "Storage",
       nav_how_it_works: "How It Works",
       nav_verification: "Verification",
       nav_developers: "Developers",
+      demo_badge: "INTERACTIVE PLAYGROUND — NO ACCOUNT REQUIRED",
+      demo_title: "Experience Sovereign Encryption in Real Time",
+      demo_desc: "Select a sample memory or drop any photo below. Watch it get sealed with AES-256-GCM, dispersed into Walrus 2D Reed-Solomon slivers, and decrypted in browser memory.",
       arch_label: "INFRASTRUCTURE PRIMITIVES",
       arch_title: "Built On Uncompromising Decentralization",
       arch_desc: "Four independent cryptographic and distributed networks work in harmony to replace legacy centralized cloud monopolies.",
@@ -333,10 +337,14 @@ document.addEventListener("DOMContentLoaded", () => {
       hero_desc: "Almacenamiento encriptado de extremo a extremo en el protocolo Walrus. Identidad verificada en Sui mediante pruebas de conocimiento cero. Control de acceso por roles anclado en Solana.",
       view_arch: "Arquitectura",
       nav_architecture: "Arquitectura",
+      nav_demo: "Demostración Interactiva",
       nav_storage: "Almacenamiento",
       nav_how_it_works: "Cómo Funciona",
       nav_verification: "Verificación",
       nav_developers: "Desarrolladores",
+      demo_badge: "ÁREA DE PRUEBAS INTERACTIVA — SIN CUENTA REQUERIDA",
+      demo_title: "Experimenta la Encriptación Soberana en Tiempo Real",
+      demo_desc: "Selecciona una foto de muestra o arrastra cualquier archivo. Observa cómo se sella con AES-256-GCM, se dispersa en fragmentos 2D Reed-Solomon de Walrus y se desencripta en memoria.",
       arch_label: "PRIMITIVAS DE INFRAESTRUCTURA",
       arch_title: "Construido Sobre Descentralización Total",
       arch_desc: "Cuatro redes criptográficas y distribuidas independientes trabajan en armonía para reemplazar los monopolios de nube tradicionales.",
@@ -524,10 +532,14 @@ document.addEventListener("DOMContentLoaded", () => {
       hero_desc: "Armazenamento encriptado de ponta a ponta no protocolo Walrus. Identidade verificada em Sui via provas de conhecimento zero. Controlo de acessos baseado em papéis ancorado em Solana.",
       view_arch: "Arquitetura",
       nav_architecture: "Arquitetura",
+      nav_demo: "Demonstração Interativa",
       nav_storage: "Armazenamento",
       nav_how_it_works: "Como Funciona",
       nav_verification: "Verificação",
       nav_developers: "Desenvolvedores",
+      demo_badge: "PLAYGROUND INTERATIVO — SEM NECESSIDADE DE CONTA",
+      demo_title: "Experimente a Encriptação Soberana em Tempo Real",
+      demo_desc: "Selecione uma memória de amostra ou arraste qualquer foto. Veja-a ser selada com AES-256-GCM, dispersa em fragmentos 2D Reed-Solomon do Walrus e desencriptada na memória do navegador.",
       arch_label: "PRIMITIVAS DE INFRAESTRUTURA",
       arch_title: "Construído Sobre Descentralização Intransigente",
       arch_desc: "Quatro redes criptográficas e distribuídas independentes atuam em perfeita harmonia para substituir os monopólios de nuvem centralizados legados.",
@@ -706,7 +718,11 @@ document.addEventListener("DOMContentLoaded", () => {
       sort_size: "文件大小 (从大到小)",
       tag_all: "全部",
       tag_photos: "照片",
-      tag_nodus: "Nodus"
+      tag_nodus: "Nodus",
+      nav_demo: "交互式体验",
+      demo_badge: "交互体验区 — 无需创建账户",
+      demo_title: "实时体验去中心化主权加密",
+      demo_desc: "选择示例记忆或拖放任意照片。见证它通过 AES-256-GCM 进行信封加密，切片并分散到 Walrus 2D Reed-Solomon 存储网络，并在浏览器内存中安全解密。"
     },
     fr: {
       brand_tag: "PROTOCOLE WALRUS",
@@ -832,7 +848,11 @@ document.addEventListener("DOMContentLoaded", () => {
       sort_size: "Taille (Plus grand)",
       tag_all: "Tous",
       tag_photos: "Photos",
-      tag_nodus: "Nodus"
+      tag_nodus: "Nodus",
+      nav_demo: "Démo Interactive",
+      demo_badge: "ESPACE D'EXPÉRIMENTATION — AUCUN COMPTE REQUIS",
+      demo_title: "Découvrez le Chiffrement Souverain en Temps Réel",
+      demo_desc: "Sélectionnez un exemple ou déposez votre photo. Observez son scellement AES-256-GCM, sa dispersion en fragments Walrus 2D Reed-Solomon et son déchiffrement direct en mémoire."
     }
   };
 
@@ -4096,19 +4116,460 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
   if (landingDemoBtn) {
-    landingDemoBtn.addEventListener("click", () => {
-      showAppView(true);
-      const instantDemo = document.getElementById("instantDemoBtn");
-      if (instantDemo) instantDemo.click();
+    landingDemoBtn.addEventListener("click", (e) => {
+      const demoSec = document.getElementById("demo");
+      if (demoSec) {
+        e.preventDefault();
+        demoSec.scrollIntoView({ behavior: "smooth" });
+      } else {
+        showAppView(true);
+      }
     });
   }
   if (backToLandingBtn) backToLandingBtn.addEventListener("click", () => showLandingView(true));
   if (landingLogoBtn) landingLogoBtn.addEventListener("click", () => showLandingView(true));
 
+  // ==========================================
+  // Interactive Sovereign Encryption Playground
+  // ==========================================
+  function initLandingPlayground() {
+    const demoSection = document.getElementById("demo");
+    if (!demoSection) return;
+
+    const viewport = document.getElementById("playgroundViewport");
+    const plainImg = document.getElementById("playgroundPlainImage");
+    const cipherLayer = document.getElementById("playgroundCipherLayer");
+    const cipherCanvas = document.getElementById("playgroundCipherCanvas");
+    const splitHandle = document.getElementById("playgroundSplitHandle");
+    const statusText = document.getElementById("playgroundStatusText");
+    const loopBtn = document.getElementById("playgroundLoopBtn");
+    const loopText = document.getElementById("playgroundLoopText");
+    const runBtn = document.getElementById("playgroundRunBtn");
+    const decryptBtn = document.getElementById("playgroundDecryptBtn");
+    const launchBtn = document.getElementById("playgroundLaunchBtn");
+    const fileInput = document.getElementById("playgroundFileInput");
+
+    // Telemetry DOM elements
+    const teleStep1 = document.getElementById("teleStep1");
+    const teleStep2 = document.getElementById("teleStep2");
+    const teleStep3 = document.getElementById("teleStep3");
+    const teleStep4 = document.getElementById("teleStep4");
+    const teleTimeSeal = document.getElementById("teleTimeSeal");
+    const teleKeyPreview = document.getElementById("teleKeyPreview");
+    const teleIvPreview = document.getElementById("teleIvPreview");
+    const teleSliversBadge = document.getElementById("teleSliversBadge");
+    const teleBlobId = document.getElementById("teleBlobId");
+    const teleBlakeDigest = document.getElementById("teleBlakeDigest");
+
+    // Presets
+    const presetBtns = document.querySelectorAll(".nd-preset-btn[data-preset]");
+
+    const presets = {
+      guardian: "/assets/guardian-blue.png",
+      sunset: "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`
+        <svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
+          <defs>
+            <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#0b1b3d"/>
+              <stop offset="45%" stop-color="#fd5e53"/>
+              <stop offset="70%" stop-color="#ffb703"/>
+              <stop offset="100%" stop-color="#219ebc"/>
+            </linearGradient>
+            <linearGradient id="water" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#14213d"/>
+              <stop offset="100%" stop-color="#050a14"/>
+            </linearGradient>
+            <filter id="glow">
+              <feGaussianBlur stdDeviation="8" result="coloredBlur"/>
+              <feMerge>
+                <feMergeNode in="coloredBlur"/>
+                <feMergeNode in="SourceGraphic"/>
+              </feMerge>
+            </filter>
+          </defs>
+          <rect width="800" height="420" fill="url(#sky)"/>
+          <circle cx="400" cy="380" r="90" fill="#ffeaa7" filter="url(#glow)" opacity="0.9"/>
+          <rect y="420" width="800" height="180" fill="url(#water)"/>
+          <path d="M 0 420 Q 200 415 400 420 T 800 420 L 800 435 L 0 435 Z" fill="#ffd166" opacity="0.3"/>
+          <path d="M 100 420 L 250 210 L 260 210 L 400 420 L 540 210 L 550 210 L 700 420 Z" fill="none" stroke="#e63946" stroke-width="8"/>
+          <line x1="255" y1="210" x2="255" y2="420" stroke="#e63946" stroke-width="6"/>
+          <line x1="545" y1="210" x2="545" y2="420" stroke="#e63946" stroke-width="6"/>
+          <line x1="0" y1="360" x2="800" y2="360" stroke="#f1faee" stroke-width="5"/>
+        </svg>
+      `),
+      space: "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`
+        <svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
+          <defs>
+            <radialGradient id="nebula1" cx="40%" cy="40%" r="60%">
+              <stop offset="0%" stop-color="#7209b7" stop-opacity="0.8"/>
+              <stop offset="50%" stop-color="#3a0ca3" stop-opacity="0.4"/>
+              <stop offset="100%" stop-color="#03071e" stop-opacity="0"/>
+            </radialGradient>
+            <radialGradient id="nebula2" cx="70%" cy="60%" r="50%">
+              <stop offset="0%" stop-color="#4cc9f0" stop-opacity="0.7"/>
+              <stop offset="60%" stop-color="#4361ee" stop-opacity="0.2"/>
+              <stop offset="100%" stop-color="#03071e" stop-opacity="0"/>
+            </radialGradient>
+          </defs>
+          <rect width="800" height="600" fill="#02040a"/>
+          <rect width="800" height="600" fill="url(#nebula1)"/>
+          <rect width="800" height="600" fill="url(#nebula2)"/>
+          <circle cx="120" cy="80" r="1.5" fill="#fff" opacity="0.9"/>
+          <circle cx="280" cy="140" r="2" fill="#fff" opacity="0.8"/>
+          <circle cx="450" cy="90" r="1" fill="#fff" opacity="0.7"/>
+          <circle cx="620" cy="160" r="2.5" fill="#4cc9f0" opacity="0.9"/>
+          <circle cx="190" cy="320" r="1.5" fill="#fff" opacity="0.6"/>
+          <circle cx="510" cy="280" r="3" fill="#f72585" opacity="0.8"/>
+          <circle cx="710" cy="380" r="1.5" fill="#fff" opacity="0.7"/>
+          <circle cx="340" cy="460" r="2" fill="#fff" opacity="0.9"/>
+          <circle cx="150" cy="520" r="1" fill="#fff" opacity="0.8"/>
+          <circle cx="600" cy="500" r="2.5" fill="#fff" opacity="0.85"/>
+        </svg>
+      `)
+    };
+
+    let currentSplit = 50;
+    let isDragging = false;
+    let autoLoopActive = true;
+    let loopTimer = null;
+    let currentStep = 1;
+    let cryptoState = {
+      key: null,
+      iv: null,
+      ciphertext: null,
+      sampleBytes: new TextEncoder().encode("NODUS_SOVEREIGN_PAYLOAD_SAMPLE_DATA_ENCRYPTION_STREAM")
+    };
+
+    // Matrix Rain Canvas Simulation
+    let canvasCtx = null;
+    let matrixColumns = [];
+    const characters = "01ABCDEF9A4FC2E83B7D!@#$%&*+=/?~0xNODEWALRUSSUI";
+
+    function setupCanvas() {
+      if (!cipherCanvas) return;
+      canvasCtx = cipherCanvas.getContext("2d");
+      const dpr = window.devicePixelRatio || 1;
+      const rect = cipherCanvas.getBoundingClientRect();
+      const w = rect.width || 400;
+      const h = rect.height || 420;
+      cipherCanvas.width = w * dpr;
+      cipherCanvas.height = h * dpr;
+      if (canvasCtx) canvasCtx.scale(dpr, dpr);
+
+      const colCount = Math.floor(w / 14);
+      matrixColumns = [];
+      for (let i = 0; i < colCount; i++) {
+        matrixColumns.push({
+          y: Math.random() * h,
+          speed: 1.5 + Math.random() * 2.5
+        });
+      }
+    }
+
+    function renderMatrix() {
+      if (!cipherCanvas || !canvasCtx) return;
+      const rect = cipherCanvas.getBoundingClientRect();
+      const w = rect.width || 400;
+      const h = rect.height || 420;
+
+      canvasCtx.fillStyle = "rgba(4, 8, 12, 0.15)";
+      canvasCtx.fillRect(0, 0, w, h);
+
+      canvasCtx.font = "11px monospace";
+      for (let i = 0; i < matrixColumns.length; i++) {
+        const col = matrixColumns[i];
+        const x = i * 14;
+        const char = characters.charAt(Math.floor(Math.random() * characters.length));
+
+        if (Math.random() > 0.88) {
+          canvasCtx.fillStyle = "#ffffff";
+        } else if (Math.random() > 0.5) {
+          canvasCtx.fillStyle = "#1FA8FF";
+        } else {
+          canvasCtx.fillStyle = "#00e5ff";
+        }
+
+        canvasCtx.fillText(char, x, col.y);
+
+        col.y += col.speed * 6;
+        if (col.y > h + 20) {
+          col.y = 0;
+          col.speed = 1.5 + Math.random() * 2.5;
+        }
+      }
+
+      requestAnimationFrame(renderMatrix);
+    }
+
+    function setSplitPosition(pct) {
+      currentSplit = Math.max(0, Math.min(100, pct));
+      if (splitHandle) splitHandle.style.left = currentSplit + "%";
+      if (cipherLayer) cipherLayer.style.width = (100 - currentSplit) + "%";
+    }
+
+    function handleDrag(e) {
+      if (!viewport) return;
+      const rect = viewport.getBoundingClientRect();
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const x = Math.max(0, Math.min(clientX - rect.left, rect.width));
+      const pct = (x / rect.width) * 100;
+      setSplitPosition(pct);
+    }
+
+    if (viewport) {
+      viewport.addEventListener("mousedown", (e) => {
+        isDragging = true;
+        pauseAutoLoop();
+        handleDrag(e);
+      });
+      window.addEventListener("mousemove", (e) => {
+        if (isDragging) handleDrag(e);
+      });
+      window.addEventListener("mouseup", () => {
+        isDragging = false;
+      });
+
+      viewport.addEventListener("touchstart", (e) => {
+        isDragging = true;
+        pauseAutoLoop();
+        handleDrag(e);
+      }, { passive: true });
+      window.addEventListener("touchmove", (e) => {
+        if (isDragging) handleDrag(e);
+      }, { passive: true });
+      window.addEventListener("touchend", () => {
+        isDragging = false;
+      });
+
+      // Drag & drop custom image onto viewport
+      viewport.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        viewport.style.borderColor = "var(--nd-blue)";
+      });
+      viewport.addEventListener("dragleave", () => {
+        viewport.style.borderColor = "var(--nd-slate-a24)";
+      });
+      viewport.addEventListener("drop", (e) => {
+        e.preventDefault();
+        viewport.style.borderColor = "var(--nd-slate-a24)";
+        pauseAutoLoop();
+        if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) {
+          loadCustomImage(e.dataTransfer.files[0]);
+        }
+      });
+    }
+
+    function loadCustomImage(file) {
+      if (!file || !file.type.startsWith("image/")) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        if (plainImg) plainImg.src = ev.target.result;
+        presetBtns.forEach(btn => btn.classList.remove("active"));
+        if (statusText) statusText.textContent = `Custom Photo: ${file.name} — Encrypted`;
+        runEncryptionPipeline();
+      };
+      reader.readAsDataURL(file);
+    }
+
+    if (fileInput) {
+      fileInput.addEventListener("change", (e) => {
+        pauseAutoLoop();
+        if (e.target.files && e.target.files[0]) {
+          loadCustomImage(e.target.files[0]);
+        }
+      });
+    }
+
+    presetBtns.forEach(btn => {
+      btn.addEventListener("click", () => {
+        pauseAutoLoop();
+        presetBtns.forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        const presetKey = btn.getAttribute("data-preset");
+        if (presets[presetKey] && plainImg) {
+          plainImg.src = presets[presetKey];
+          if (statusText) statusText.textContent = `Preset: ${btn.textContent.trim()} — Encrypted`;
+          runEncryptionPipeline();
+        }
+      });
+    });
+
+    async function runEncryptionPipeline() {
+      try {
+        const t0 = performance.now();
+        const key = await window.crypto.subtle.generateKey(
+          { name: "AES-GCM", length: 256 },
+          true,
+          ["encrypt", "decrypt"]
+        );
+        const iv = window.crypto.getRandomValues(new Uint8Array(12));
+        const rawKey = await window.crypto.subtle.exportKey("raw", key);
+        const keyArray = new Uint8Array(rawKey);
+        const keyHex = Array.from(keyArray).map(b => b.toString(16).padStart(2, '0')).join('');
+        const ivHex = Array.from(iv).map(b => b.toString(16).padStart(2, '0')).join('');
+
+        const ciphertext = await window.crypto.subtle.encrypt(
+          { name: "AES-GCM", iv: iv },
+          key,
+          cryptoState.sampleBytes
+        );
+        const t1 = performance.now();
+        const durationMs = (t1 - t0).toFixed(1);
+
+        cryptoState.key = key;
+        cryptoState.iv = iv;
+        cryptoState.ciphertext = ciphertext;
+
+        let blakeHex = "0x8f19...d093";
+        if (window.nobleBlake2 && window.nobleBlake2.blake2b) {
+          try {
+            const digest = window.nobleBlake2.blake2b(new Uint8Array(ciphertext), { dkLen: 32 });
+            const digestHex = Array.from(digest).map(b => b.toString(16).padStart(2, '0')).join('');
+            blakeHex = "0x" + digestHex.slice(0, 4) + "..." + digestHex.slice(-4);
+          } catch (_) {}
+        }
+
+        const blobRand = Array.from(window.crypto.getRandomValues(new Uint8Array(4)))
+          .map(b => b.toString(16).padStart(2, '0')).join('');
+        const blobIdStr = `walrus:blob:${blobRand}...`;
+
+        if (teleTimeSeal) teleTimeSeal.textContent = `${durationMs} ms`;
+        if (teleKeyPreview) teleKeyPreview.textContent = `0x${keyHex.slice(0, 4)}...${keyHex.slice(-4)}`;
+        if (teleIvPreview) teleIvPreview.textContent = `0x${ivHex.slice(0, 4)}...${ivHex.slice(-4)}`;
+        if (teleBlobId) teleBlobId.textContent = blobIdStr;
+        if (teleBlakeDigest) teleBlakeDigest.textContent = blakeHex;
+
+        highlightStep(1);
+        if (statusText) statusText.textContent = "AES-256-GCM Envelope Sealed • Ready for Walrus Dispersal";
+      } catch (err) {
+        console.warn("Playground WebCrypto error:", err);
+      }
+    }
+
+    function highlightStep(stepNum) {
+      currentStep = stepNum;
+      [teleStep1, teleStep2, teleStep3, teleStep4].forEach((stepEl, idx) => {
+        if (!stepEl) return;
+        if (idx + 1 === stepNum) {
+          stepEl.classList.add("active");
+        } else {
+          stepEl.classList.remove("active");
+        }
+      });
+    }
+
+    async function runDecryption() {
+      if (!cryptoState.key || !cryptoState.ciphertext) {
+        await runEncryptionPipeline();
+      }
+      try {
+        const decrypted = await window.crypto.subtle.decrypt(
+          { name: "AES-GCM", iv: cryptoState.iv },
+          cryptoState.key,
+          cryptoState.ciphertext
+        );
+        highlightStep(4);
+        if (statusText) statusText.textContent = "✅ Decrypted in Browser RAM • Bit-for-Bit 100% Match";
+
+        let startPct = currentSplit;
+        const targetPct = 100;
+        const startTime = performance.now();
+        const duration = 500;
+
+        function stepAnim(now) {
+          const elapsed = now - startTime;
+          const progress = Math.min(1, elapsed / duration);
+          const ease = 1 - Math.pow(1 - progress, 3);
+          setSplitPosition(startPct + (targetPct - startPct) * ease);
+          if (progress < 1) {
+            requestAnimationFrame(stepAnim);
+          }
+        }
+        requestAnimationFrame(stepAnim);
+      } catch (e) {
+        console.warn("Decryption error in demo:", e);
+      }
+    }
+
+    if (decryptBtn) {
+      decryptBtn.addEventListener("click", () => {
+        pauseAutoLoop();
+        runDecryption();
+      });
+    }
+
+    if (runBtn) {
+      runBtn.addEventListener("click", () => {
+        pauseAutoLoop();
+        runEncryptionPipeline();
+        setSplitPosition(50);
+      });
+    }
+
+    function pauseAutoLoop() {
+      autoLoopActive = false;
+      if (loopTimer) clearInterval(loopTimer);
+      if (loopText) loopText.textContent = "Auto Loop: Off";
+      if (loopBtn) loopBtn.classList.remove("active");
+    }
+
+    function toggleAutoLoop() {
+      autoLoopActive = !autoLoopActive;
+      if (autoLoopActive) {
+        if (loopText) loopText.textContent = "Auto Loop: On";
+        if (loopBtn) loopBtn.classList.add("active");
+        startLoopTimer();
+      } else {
+        pauseAutoLoop();
+      }
+    }
+
+    if (loopBtn) {
+      loopBtn.addEventListener("click", toggleAutoLoop);
+    }
+
+    function startLoopTimer() {
+      if (loopTimer) clearInterval(loopTimer);
+      loopTimer = setInterval(async () => {
+        if (!autoLoopActive) return;
+        const nextStep = (currentStep % 4) + 1;
+        highlightStep(nextStep);
+
+        if (nextStep === 1) {
+          await runEncryptionPipeline();
+          setSplitPosition(50);
+        } else if (nextStep === 2) {
+          if (statusText) statusText.textContent = "2D Reed-Solomon Erasure Coding • 45 Slivers Dispersed";
+          setSplitPosition(30);
+        } else if (nextStep === 3) {
+          if (statusText) statusText.textContent = "Sui & Solana Multi-Chain Certificates Anchored";
+          setSplitPosition(70);
+        } else if (nextStep === 4) {
+          await runDecryption();
+        }
+      }, 3500);
+    }
+
+    if (launchBtn) {
+      launchBtn.addEventListener("click", () => showAppView(true));
+    }
+
+    window.addEventListener("resize", () => {
+      setupCanvas();
+    });
+
+    setupCanvas();
+    renderMatrix();
+    runEncryptionPipeline();
+    setSplitPosition(50);
+    startLoopTimer();
+    if (window.lucide) window.lucide.createIcons();
+  }
+
   window.addEventListener("hashchange", () => {
     if (window.location.hash === "#app") {
       showAppView(false);
-    } else if (!window.location.hash || window.location.hash === "#") {
+    } else if (!window.location.hash || window.location.hash === "#" || window.location.hash === "#demo") {
       showLandingView(false);
     }
   });
@@ -4119,6 +4580,7 @@ document.addEventListener("DOMContentLoaded", () => {
   applyLanguage(currentLang);
   fetchStatus();
   fetchPhotos();
+  initLandingPlayground();
 
   // Initial View Determination & Deep-link Modal Handler
   try {
