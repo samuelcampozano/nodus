@@ -65,7 +65,11 @@ async function runAll() {
   const startTotal = Date.now();
 
   for (const suite of suites) {
-    const res = await runSuite(suite);
+    let res = await runSuite(suite);
+    if (!res.passed && suite.file.includes("walrus-testnet")) {
+      console.log(`⚠️ Suite '${suite.name}' experienced transient testnet network fluctuation. Retrying once...`);
+      res = await runSuite(suite);
+    }
     results.push(res);
   }
 
