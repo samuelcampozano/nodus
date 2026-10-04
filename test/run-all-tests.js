@@ -24,7 +24,10 @@ const suites = [
   { name: "Deployment Environment & M3 Sandbox", file: "test/test-deployment-environment.js" },
   { name: "Client-Side Private Search & Blind Index", file: "test/test-private-search.js" },
   { name: "Front-End Component Contracts", file: "test/test-front-components.js" },
-  { name: "Tenant Catalog Search Querying", file: "test/test-tenant-catalog-search.js" }
+  { name: "Tenant Catalog Search Querying", file: "test/test-tenant-catalog-search.js" },
+  { name: "StorageProvider & BYOS Decoupling", file: "test/test-storage-provider.js" },
+  { name: "Developer API Keys & Usage Ledger", file: "test/test-developer-api-keys-flow.js" },
+  { name: "Team RBAC & Member Access Control", file: "test/test-team-rbac-flow.js" }
 ];
 
 async function runSuite(suite) {

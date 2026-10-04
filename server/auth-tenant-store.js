@@ -894,6 +894,56 @@ export class AuthTenantStore {
     }
   }
 
+  async listMemberships({ organizationId }) {
+    const result = await this.pool.query(
+      `SELECT m.organization_id AS "organizationId", u.solana_address AS "memberAddress", m.role, u.created_at AS "joinedAt"
+       FROM memberships m
+       JOIN users u ON u.id = m.user_id
+       WHERE m.organization_id = $1
+       ORDER BY CASE m.role WHEN 'owner' THEN 1 WHEN 'admin' THEN 2 WHEN 'contributor' THEN 3 ELSE 4 END, u.created_at ASC`,
+      [organizationId]
+    );
+    return result.rows;
+  }
+
+  async getTenantUsage({ organizationId }) {
+    const [usageRes, quotaRes, assetsRes, keysRes, membersRes] = await Promise.all([
+      this.pool.query("SELECT used_bytes, reserved_bytes, updated_at FROM tenant_storage_usage WHERE organization_id = $1", [organizationId]),
+      this.pool.query("SELECT quota_bytes, space_id, bucket_id, active FROM tenant_storage_contexts WHERE organization_id = $1", [organizationId]),
+      this.pool.query("SELECT COUNT(*) AS count, COALESCE(SUM(byte_size), 0) AS total_bytes FROM catalog_assets WHERE organization_id = $1 AND status = 'active'", [organizationId]),
+      this.pool.query("SELECT COUNT(*) AS count FROM organization_api_keys WHERE organization_id = $1 AND revoked_at IS NULL", [organizationId]),
+      this.pool.query("SELECT COUNT(*) AS count FROM memberships WHERE organization_id = $1", [organizationId])
+    ]);
+
+    const usedBytes = Number(usageRes.rows[0]?.used_bytes || assetsRes.rows[0]?.total_bytes || 0);
+    const reservedBytes = Number(usageRes.rows[0]?.reserved_bytes || 0);
+    const quotaBytes = Number(quotaRes.rows[0]?.quota_bytes || 5368709120);
+    const activeAssets = Number(assetsRes.rows[0]?.count || 0);
+    const activeApiKeys = Number(keysRes.rows[0]?.count || 0);
+    const activeMembers = Number(membersRes.rows[0]?.count || 1);
+
+    const logicalGb = usedBytes / (1024 * 1024 * 1024);
+    const estimatedCostBrl = 99.00 + (logicalGb * 2.00);
+
+    return {
+      organizationId,
+      usedBytes,
+      reservedBytes,
+      quotaBytes,
+      percentUsed: quotaBytes > 0 ? Math.min(100, Math.round(((usedBytes + reservedBytes) / quotaBytes) * 100)) : 0,
+      activeAssets,
+      activeApiKeys,
+      activeMembers,
+      storageProvider: process.env.NODUS_STORAGE_PROVIDER || "walrus",
+      pricing: {
+        currency: "BRL",
+        baseFee: 99.00,
+        verifyRatePerGb: 2.00,
+        estimatedMonthlyCostBrl: Number(estimatedCostBrl.toFixed(2))
+      }
+    };
+  }
+
   async createInvitation({ organizationId, invitedBy, recipientAddress, role = "viewer", ttlSeconds = 7 * 24 * 60 * 60 }) {
     if (!['admin', 'contributor', 'viewer'].includes(role)) throw new Error("Invitation role must be admin, contributor, or viewer");
     const ttl = Number(ttlSeconds);

@@ -202,7 +202,13 @@ document.addEventListener("DOMContentLoaded", () => {
       dev_title: "Integrate Sovereign Cloud in Minutes",
       dev_desc: "Build on the Nodus SDK or run your own local sovereign console with complete cryptographic isolation.",
       cta_title: "Ready to Own Your Sovereign Data?",
-      cta_desc: "Zero subscriptions. Zero corporate tracking. Complete mathematical custody over what cannot be seen."
+      cta_desc: "Zero subscriptions. Zero corporate tracking. Complete mathematical custody over what cannot be seen.",
+      nav_api_keys: "API Keys",
+      nav_team: "Team",
+      dev_portal_title: "Developer & API Keys",
+      dev_portal_subtitle: "Manage B2B API keys, view live storage usage, and inspect monthly cost metrics.",
+      team_rbac_title: "Team Members & Access Control",
+      team_rbac_subtitle: "Manage organization roles and cryptographic key envelope distributions."
     },
     es: {
       brand_tag: "PROTOCOLO WALRUS",
@@ -212,6 +218,12 @@ document.addEventListener("DOMContentLoaded", () => {
       search_placeholder: "Buscar recuerdos, etiquetas o nombres...",
       quota_label: "Almacenamiento Walrus",
       upload_btn: "Subir Fotos",
+      nav_api_keys: "API Keys",
+      nav_team: "Equipo",
+      dev_portal_title: "Desarrollador y API Keys",
+      dev_portal_subtitle: "Administre claves API B2B, vea el uso de almacenamiento y métricas de costos.",
+      team_rbac_title: "Miembros del Equipo y Control de Acceso",
+      team_rbac_subtitle: "Administre roles y distribución de sobres criptográficos de claves.",
       banner_seal: "Cifrado en Cliente",
       banner_walrus: "Almacenamiento Walrus",
       banner_sui: "Verificado Zero-Knowledge",
@@ -407,6 +419,12 @@ document.addEventListener("DOMContentLoaded", () => {
       search_placeholder: "Pesquisar memórias, tags ou nomes...",
       quota_label: "Armazenamento Walrus",
       upload_btn: "Enviar Fotos",
+      nav_api_keys: "API Keys",
+      nav_team: "Equipe",
+      dev_portal_title: "Desenvolvedor e API Keys",
+      dev_portal_subtitle: "Gerencie chaves API B2B, veja uso de armazenamento e métricas de custo mensal.",
+      team_rbac_title: "Membros da Equipe e Controle de Acesso",
+      team_rbac_subtitle: "Gerencie papéis da organização e distribuição de envelopes criptográficos.",
       banner_seal: "Encriptado no Cliente",
       banner_walrus: "Armazenamento Walrus",
       banner_sui: "Verificado Zero-Knowledge",
@@ -4577,6 +4595,340 @@ document.addEventListener("DOMContentLoaded", () => {
     if (window.lucide) window.lucide.createIcons();
   }
 
+  // ==========================================
+  // PHASE 2 & 3: DEVELOPER API KEYS & TEAM RBAC
+  // ==========================================
+  function initDeveloperPortal() {
+    const devNavBtn = document.getElementById("devPortalNavBtn");
+    const devModal = document.getElementById("developerKeysModal");
+    const devCloseBtn = document.getElementById("developerKeysModalClose");
+    const devCloseFooterBtn = document.getElementById("developerKeysModalCloseBtn");
+    const devBackdrop = document.getElementById("developerKeysModalBackdrop");
+    const generateSubmitBtn = document.getElementById("generateKeySubmitBtn");
+    const keyNameInput = document.getElementById("newKeyNameInput");
+    const copyRevealedBtn = document.getElementById("copyRevealedKeyBtn");
+    const secretRevealBox = document.getElementById("devSecretReveal");
+    const revealedCode = document.getElementById("revealedSecretKey");
+    const snippetCode = document.getElementById("devSnippetCode");
+
+    const tabCurl = document.getElementById("tabCurlBtn");
+    const tabNode = document.getElementById("tabNodeBtn");
+    const tabPython = document.getElementById("tabPythonBtn");
+
+    let currentRevealedKey = "";
+
+    function updateCodeSnippet(lang = "curl") {
+      const displayKey = currentRevealedKey || "nd_live_your_api_key_here";
+      const origin = window.location.origin;
+      if (lang === "curl") {
+        if (snippetCode) snippetCode.textContent = `curl -X GET "${origin}/api/tenant/usage" \\\n  -H "Authorization: Bearer ${displayKey}"`;
+      } else if (lang === "node") {
+        if (snippetCode) snippetCode.textContent = `import { createNodusClient } from "@nodus/sdk";\n\nconst nodus = createNodusClient({\n  gatewayUrl: "${origin}",\n  apiKey: "${displayKey}"\n});\n\nconst usage = await nodus.request("/api/tenant/usage");\nconsole.log("Active Storage:", usage);`;
+      } else if (lang === "python") {
+        if (snippetCode) snippetCode.textContent = `import requests\n\nheaders = {"Authorization": "Bearer ${displayKey}"}\nresponse = requests.get("${origin}/api/tenant/usage", headers=headers)\nprint(response.json())`;
+      }
+    }
+
+    if (tabCurl) tabCurl.addEventListener("click", () => {
+      [tabCurl, tabNode, tabPython].forEach(b => b?.classList.remove("active"));
+      tabCurl.classList.add("active");
+      updateCodeSnippet("curl");
+    });
+    if (tabNode) tabNode.addEventListener("click", () => {
+      [tabCurl, tabNode, tabPython].forEach(b => b?.classList.remove("active"));
+      tabNode.classList.add("active");
+      updateCodeSnippet("node");
+    });
+    if (tabPython) tabPython.addEventListener("click", () => {
+      [tabCurl, tabNode, tabPython].forEach(b => b?.classList.remove("active"));
+      tabPython.classList.add("active");
+      updateCodeSnippet("python");
+    });
+
+    async function loadUsage() {
+      try {
+        const token = localStorage.getItem("nodus_session_token");
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
+        const res = await fetch("/api/tenant/usage", { headers });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (!data.success || !data.usage) return;
+        const u = data.usage;
+        const usedMb = (u.usedBytes / (1024 * 1024)).toFixed(1);
+        const quotaGb = (u.quotaBytes / (1024 * 1024 * 1024)).toFixed(1);
+        const storageUsedEl = document.getElementById("devStorageUsed");
+        const storageQuotaEl = document.getElementById("devStorageQuota");
+        const storageProgressEl = document.getElementById("devStorageProgress");
+        const activeKeysCountEl = document.getElementById("devActiveKeysCount");
+        const storageProviderEl = document.getElementById("devStorageProvider");
+        const estimatedCostEl = document.getElementById("devEstimatedCost");
+
+        if (storageUsedEl) storageUsedEl.textContent = `${usedMb} MB`;
+        if (storageQuotaEl) storageQuotaEl.textContent = `Quota: ${quotaGb} GB`;
+        if (storageProgressEl) storageProgressEl.style.width = `${Math.min(100, Math.max(2, u.percentUsed || 0))}%`;
+        if (activeKeysCountEl) activeKeysCountEl.textContent = String(u.activeApiKeys || 0);
+        if (storageProviderEl) storageProviderEl.textContent = u.storageProvider === "s3_byos" ? "S3 BYOS" : "Walrus Verify";
+        if (estimatedCostEl && u.pricing?.estimatedMonthlyCostBrl) {
+          estimatedCostEl.textContent = `R$ ${u.pricing.estimatedMonthlyCostBrl.toFixed(2)}`;
+        }
+      } catch (e) {
+        console.warn("Failed to load tenant usage:", e);
+      }
+    }
+
+    async function loadApiKeys() {
+      const tbody = document.getElementById("devKeysTableBody");
+      if (!tbody) return;
+      try {
+        const token = localStorage.getItem("nodus_session_token");
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
+        const res = await fetch("/api/tenant/api-keys", { headers });
+        if (!res.ok) {
+          tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">Sign in to view your company's active API keys.</td></tr>`;
+          return;
+        }
+        const data = await res.json();
+        if (!data.success || !Array.isArray(data.apiKeys) || data.apiKeys.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">No active API keys yet. Create one above to get started.</td></tr>`;
+          return;
+        }
+        tbody.innerHTML = data.apiKeys.map(k => {
+          const dateStr = k.createdAt ? new Date(k.createdAt).toLocaleDateString() : "--";
+          const scopesStr = Array.isArray(k.scopes) ? k.scopes.join(", ") : "assets:read, assets:write";
+          return `
+            <tr>
+              <td><strong>${escapeHtml(k.name || "API Key")}</strong></td>
+              <td><code>${escapeHtml(k.keyPrefix || k.key_prefix || "ndk_****")}...</code></td>
+              <td><span style="font-size: 0.72rem; color: #38bdf8;">${escapeHtml(scopesStr)}</span></td>
+              <td>${dateStr}</td>
+              <td><button class="btn btn-sm btn-outline revoke-key-btn" data-key-id="${k.id}">Revoke</button></td>
+            </tr>
+          `;
+        }).join("");
+
+        tbody.querySelectorAll(".revoke-key-btn").forEach(btn => {
+          btn.addEventListener("click", async (ev) => {
+            const keyId = ev.currentTarget.getAttribute("data-key-id");
+            if (!confirm("Are you sure you want to revoke this API key? Applications using it will immediately be rejected.")) return;
+            try {
+              const token = localStorage.getItem("nodus_session_token");
+              const headers = token ? { Authorization: `Bearer ${token}` } : {};
+              const delRes = await fetch(`/api/orgs/nodus-devs/api-keys/${keyId}`, {
+                method: "DELETE",
+                headers
+              });
+              if (delRes.ok) {
+                loadApiKeys();
+                loadUsage();
+              }
+            } catch (err) {
+              alert("Failed to revoke API key: " + err.message);
+            }
+          });
+        });
+      } catch (e) {
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">Failed to load API keys.</td></tr>`;
+      }
+    }
+
+    function openModal() {
+      devModal?.classList.remove("hidden");
+      loadUsage();
+      loadApiKeys();
+      if (window.lucide) window.lucide.createIcons();
+    }
+
+    function closeModal() {
+      devModal?.classList.add("hidden");
+    }
+
+    if (devNavBtn) devNavBtn.addEventListener("click", openModal);
+    if (devCloseBtn) devCloseBtn.addEventListener("click", closeModal);
+    if (devCloseFooterBtn) devCloseFooterBtn.addEventListener("click", closeModal);
+    if (devBackdrop) devBackdrop.addEventListener("click", closeModal);
+
+    if (generateSubmitBtn) {
+      generateSubmitBtn.addEventListener("click", async () => {
+        const name = (keyNameInput?.value || "").trim() || "B2B Client Service";
+        const scopes = [];
+        if (document.getElementById("scopeAssetsRead")?.checked) scopes.push("assets:read");
+        if (document.getElementById("scopeAssetsWrite")?.checked) scopes.push("assets:write");
+        if (document.getElementById("scopeAssetsDelete")?.checked) scopes.push("assets:delete");
+        if (document.getElementById("scopeSearchRead")?.checked) scopes.push("search:read");
+
+        try {
+          generateSubmitBtn.disabled = true;
+          generateSubmitBtn.innerHTML = '<span class="spinner-sm"></span> Generating...';
+          const token = localStorage.getItem("nodus_session_token");
+          const headers = {
+            "Content-Type": "application/json",
+            ...(token ? { Authorization: `Bearer ${token}` } : {})
+          };
+          const res = await fetch("/api/tenant/api-keys", {
+            method: "POST",
+            headers,
+            body: JSON.stringify({ name, scopes })
+          });
+          const data = await res.json();
+          if (!data.success) throw new Error(data.error || "Failed to generate key");
+
+          currentRevealedKey = data.secretKey || data.key || "";
+          if (revealedCode) revealedCode.textContent = currentRevealedKey;
+          secretRevealBox?.classList.remove("hidden");
+          if (keyNameInput) keyNameInput.value = "";
+          updateCodeSnippet("curl");
+          loadApiKeys();
+          loadUsage();
+        } catch (err) {
+          alert("Error generating API key: " + err.message);
+        } finally {
+          generateSubmitBtn.disabled = false;
+          generateSubmitBtn.innerHTML = '<i data-lucide="plus-circle"></i> <span>Generate Key</span>';
+          if (window.lucide) window.lucide.createIcons();
+        }
+      });
+    }
+
+    if (copyRevealedBtn) {
+      copyRevealedBtn.addEventListener("click", () => {
+        if (!currentRevealedKey) return;
+        navigator.clipboard.writeText(currentRevealedKey).then(() => {
+          copyRevealedBtn.innerHTML = '<i data-lucide="check"></i> <span>Copied!</span>';
+          setTimeout(() => {
+            copyRevealedBtn.innerHTML = '<i data-lucide="copy"></i> <span>Copy Key</span>';
+            if (window.lucide) window.lucide.createIcons();
+          }, 2500);
+        });
+      });
+    }
+  }
+
+  function initTeamRbac() {
+    const teamNavBtn = document.getElementById("teamRbacNavBtn");
+    const teamModal = document.getElementById("teamRbacModal");
+    const teamCloseBtn = document.getElementById("teamRbacModalClose");
+    const teamCloseFooterBtn = document.getElementById("teamRbacModalCloseBtn");
+    const teamBackdrop = document.getElementById("teamRbacModalBackdrop");
+    const inviteSubmitBtn = document.getElementById("inviteMemberSubmitBtn");
+    const inviteAddressInput = document.getElementById("inviteMemberAddressInput");
+    const inviteRoleSelect = document.getElementById("inviteMemberRoleSelect");
+
+    async function loadMembers() {
+      const tbody = document.getElementById("teamMembersTableBody");
+      if (!tbody) return;
+      try {
+        const token = localStorage.getItem("nodus_session_token");
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
+        const res = await fetch("/api/tenant/members", { headers });
+        if (!res.ok) {
+          tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">Sign in to view organization members.</td></tr>`;
+          return;
+        }
+        const data = await res.json();
+        if (!data.success || !Array.isArray(data.members) || data.members.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">No members listed.</td></tr>`;
+          return;
+        }
+        tbody.innerHTML = data.members.map(m => {
+          const roleBadgeColor = m.role === "owner" ? "#10b981" : m.role === "admin" ? "#38bdf8" : "#818cf8";
+          const addr = m.memberAddress || m.address || "Unknown";
+          const shortAddr = addr.length > 16 ? `${addr.slice(0, 6)}...${addr.slice(-4)}` : addr;
+          const joined = m.joinedAt ? new Date(m.joinedAt).toLocaleDateString() : "--";
+          const actionBtn = m.role === "owner"
+            ? '<span style="font-size: 0.72rem; color: var(--text-muted);">Protected</span>'
+            : `<button class="btn btn-sm btn-outline revoke-member-btn" data-address="${escapeHtml(addr)}">Revoke</button>`;
+
+          return `
+            <tr>
+              <td><code title="${escapeHtml(addr)}">${escapeHtml(shortAddr)}</code></td>
+              <td><span style="font-size: 0.75rem; font-weight: 600; color: ${roleBadgeColor}; text-transform: uppercase;">${escapeHtml(m.role)}</span></td>
+              <td>${joined}</td>
+              <td>${actionBtn}</td>
+            </tr>
+          `;
+        }).join("");
+
+        tbody.querySelectorAll(".revoke-member-btn").forEach(btn => {
+          btn.addEventListener("click", async (ev) => {
+            const addr = ev.currentTarget.getAttribute("data-address");
+            if (!confirm(`Are you sure you want to revoke access for ${addr}? Their cryptographic key envelopes will be shredded immediately.`)) return;
+            try {
+              const token = localStorage.getItem("nodus_session_token");
+              const res = await fetch(`/api/orgs/nodus-devs/members/${encodeURIComponent(addr)}`, {
+                method: "DELETE",
+                headers: token ? { Authorization: `Bearer ${token}` } : {}
+              });
+              const data = await res.json();
+              if (data.success) {
+                if (data.keyRotationRequired) {
+                  alert("Member removed. Warning: Cryptographic key envelopes were shredded. Pending key rotation tasks have been registered.");
+                }
+                loadMembers();
+              } else {
+                alert("Failed to remove member: " + data.error);
+              }
+            } catch (err) {
+              alert("Error revoking member: " + err.message);
+            }
+          });
+        });
+      } catch (e) {
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">Failed to load members.</td></tr>`;
+      }
+    }
+
+    function openModal() {
+      teamModal?.classList.remove("hidden");
+      loadMembers();
+      if (window.lucide) window.lucide.createIcons();
+    }
+
+    function closeModal() {
+      teamModal?.classList.add("hidden");
+    }
+
+    if (teamNavBtn) teamNavBtn.addEventListener("click", openModal);
+    if (teamCloseBtn) teamCloseBtn.addEventListener("click", closeModal);
+    if (teamCloseFooterBtn) teamCloseFooterBtn.addEventListener("click", closeModal);
+    if (teamBackdrop) teamBackdrop.addEventListener("click", closeModal);
+
+    if (inviteSubmitBtn) {
+      inviteSubmitBtn.addEventListener("click", async () => {
+        const memberAddress = (inviteAddressInput?.value || "").trim();
+        const role = inviteRoleSelect?.value || "viewer";
+        if (!memberAddress || memberAddress.length < 32) {
+          alert("Please enter a valid Solana public key address.");
+          return;
+        }
+
+        try {
+          inviteSubmitBtn.disabled = true;
+          inviteSubmitBtn.innerHTML = '<span class="spinner-sm"></span> Inviting...';
+          const token = localStorage.getItem("nodus_session_token");
+          const res = await fetch("/api/tenant/members", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              ...(token ? { Authorization: `Bearer ${token}` } : {})
+            },
+            body: JSON.stringify({ memberAddress, role })
+          });
+          const data = await res.json();
+          if (!data.success) throw new Error(data.error || "Failed to invite member");
+
+          inviteAddressInput.value = "";
+          loadMembers();
+        } catch (err) {
+          alert("Error inviting member: " + err.message);
+        } finally {
+          inviteSubmitBtn.disabled = false;
+          inviteSubmitBtn.innerHTML = '<i data-lucide="user-plus"></i> <span>Invite</span>';
+          if (window.lucide) window.lucide.createIcons();
+        }
+      });
+    }
+  }
+
   window.addEventListener("hashchange", () => {
     if (window.location.hash === "#app") {
       showAppView(false);
@@ -4592,6 +4944,8 @@ document.addEventListener("DOMContentLoaded", () => {
   fetchStatus();
   fetchPhotos();
   initLandingPlayground();
+  initDeveloperPortal();
+  initTeamRbac();
 
   // Initial View Determination & Deep-link Modal Handler
   try {

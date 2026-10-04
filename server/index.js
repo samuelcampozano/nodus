@@ -733,6 +733,130 @@ app.get("/api/orgs/:orgId", requireTenant, async (req, res, next) => {
   res.json({ success: true, organization: org });
 });
 
+// List members in the active organization
+app.get("/api/orgs/:orgId/members", requireTenant, async (req, res, next) => {
+  const { orgId } = req.params;
+  if (authTenantStore) {
+    if (orgId !== req.tenant.organizationId) return res.status(403).json({ success: false, error: "Organization does not match active tenant" });
+    try {
+      const members = await authTenantStore.listMemberships({ organizationId: orgId });
+      return res.json({ success: true, members });
+    } catch (error) {
+      return next(error);
+    }
+  }
+  const org = getOrganization(orgId);
+  if (!org) return res.status(404).json({ success: false, error: `Organization '${orgId}' not found` });
+  return res.json({ success: true, members: org.members || [] });
+});
+
+// Usage ledger and cost estimation
+app.get("/api/orgs/:orgId/usage", requireTenant, async (req, res, next) => {
+  const { orgId } = req.params;
+  if (authTenantStore) {
+    if (orgId !== req.tenant.organizationId) return res.status(403).json({ success: false, error: "Organization does not match active tenant" });
+    try {
+      const usage = await authTenantStore.getTenantUsage({ organizationId: orgId });
+      return res.json({ success: true, usage });
+    } catch (error) {
+      return next(error);
+    }
+  }
+  return res.json({
+    success: true,
+    usage: {
+      organizationId: orgId,
+      usedBytes: 1048576,
+      reservedBytes: 0,
+      quotaBytes: 5368709120,
+      percentUsed: 1,
+      activeAssets: 1,
+      activeApiKeys: 1,
+      activeMembers: 1,
+      storageProvider: "walrus",
+      pricing: { currency: "BRL", baseFee: 99.00, verifyRatePerGb: 2.00, estimatedMonthlyCostBrl: 99.00 }
+    }
+  });
+});
+
+// Tenant convenience routes
+app.get("/api/tenant/members", requireTenant, async (req, res, next) => {
+  if (authTenantStore) {
+    try {
+      const members = await authTenantStore.listMemberships({ organizationId: req.tenant.organizationId });
+      return res.json({ success: true, members });
+    } catch (error) {
+      return next(error);
+    }
+  }
+  const org = getOrganization(req.tenant.organizationId);
+  return res.json({ success: true, members: org?.members || [] });
+});
+
+app.post("/api/tenant/members", requireTenant, async (req, res, next) => {
+  const { memberAddress, role } = req.body || {};
+  if (authTenantStore) {
+    if (!['owner', 'admin'].includes(req.auth.role)) return res.status(403).json({ success: false, error: "Insufficient organization role" });
+    if (!isValidSolanaAddress(memberAddress)) return res.status(400).json({ success: false, error: "memberAddress must be a valid Solana address" });
+    try {
+      const member = await authTenantStore.addMembership({ organizationId: req.tenant.organizationId, address: memberAddress, role: role || "viewer" });
+      return res.status(201).json({ success: true, member });
+    } catch (error) {
+      return next(error);
+    }
+  }
+  return res.status(400).json({ success: false, error: "Tenant auth not configured" });
+});
+
+app.get("/api/tenant/usage", requireTenant, async (req, res, next) => {
+  if (authTenantStore) {
+    try {
+      const usage = await authTenantStore.getTenantUsage({ organizationId: req.tenant.organizationId });
+      return res.json({ success: true, usage });
+    } catch (error) {
+      return next(error);
+    }
+  }
+  return res.json({
+    success: true,
+    usage: {
+      organizationId: req.tenant.organizationId,
+      usedBytes: 1048576,
+      reservedBytes: 0,
+      quotaBytes: 5368709120,
+      percentUsed: 1,
+      activeAssets: 1,
+      activeApiKeys: 1,
+      activeMembers: 1,
+      storageProvider: "walrus",
+      pricing: { currency: "BRL", baseFee: 99.00, verifyRatePerGb: 2.00, estimatedMonthlyCostBrl: 99.00 }
+    }
+  });
+});
+
+app.get("/api/tenant/api-keys", requireTenant, requireTenantEnvelopeStore, requireSessionAdmin, async (req, res) => {
+  try {
+    return res.json({ success: true, apiKeys: await authTenantStore.listApiKeys({ organizationId: req.tenant.organizationId }) });
+  } catch (error) {
+    return res.status(400).json({ success: false, error: error.message });
+  }
+});
+
+app.post("/api/tenant/api-keys", requireTenant, requireTenantEnvelopeStore, requireSessionAdmin, async (req, res) => {
+  try {
+    const created = await authTenantStore.createApiKey({
+      organizationId: req.tenant.organizationId,
+      actorUserId: req.auth.userId,
+      name: req.body?.name,
+      scopes: req.body?.scopes,
+      expiresAt: req.body?.expiresAt || null
+    });
+    return res.status(201).json({ success: true, ...created });
+  } catch (error) {
+    return res.status(400).json({ success: false, error: error.message });
+  }
+});
+
 // Add/update a member only as an admin/owner in the active organization.
 app.post("/api/orgs/:orgId/members", requireTenant, async (req, res, next) => {
   const { orgId } = req.params;

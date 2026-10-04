@@ -544,6 +544,18 @@ npm run dev
           </button>
         </div>
 
+        <!-- Developer API Keys Button -->
+        <button class="btn btn-ghost nav-action-btn" id="devPortalNavBtn" title="Developer API Keys & Usage Ledger">
+          <i data-lucide="key"></i>
+          <span data-i18n="nav_api_keys">API Keys</span>
+        </button>
+
+        <!-- Team Access & RBAC Button -->
+        <button class="btn btn-ghost nav-action-btn" id="teamRbacNavBtn" title="Team Access & RBAC Roles">
+          <i data-lucide="users"></i>
+          <span data-i18n="nav_team">Team</span>
+        </button>
+
         <!-- Theme Selector Dropdown -->
         <div class="theme-dropdown" id="themeDropdown">
           <button class="btn btn-ghost theme-btn" id="themeBtn" title="Select Theme" aria-haspopup="menu" aria-expanded="false">
@@ -1413,6 +1425,202 @@ npm run dev
             <span data-i18n="sign_out">Sign Out</span>
           </button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Developer API Keys & Usage Portal Modal -->
+  <div class="modal-dialog hidden" id="developerKeysModal">
+    <div class="modal-backdrop" id="developerKeysModalBackdrop"></div>
+    <div class="modal-content modal-lg">
+      <div class="modal-header">
+        <div class="header-icon-title">
+          <div class="vault-modal-icon" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8;">
+            <i data-lucide="key"></i>
+          </div>
+          <div>
+            <h3 data-i18n="dev_portal_title">Developer & API Keys</h3>
+            <p class="modal-subtitle" data-i18n="dev_portal_subtitle">Manage B2B API keys, view live storage usage, and inspect monthly cost metrics.</p>
+          </div>
+        </div>
+        <button class="btn-close" id="developerKeysModalClose"><i data-lucide="x"></i></button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Usage & Ledger Metric Cards -->
+        <div class="dev-metrics-grid">
+          <div class="dev-metric-card">
+            <span class="dev-metric-label">Stored Ciphertext</span>
+            <div class="dev-metric-val" id="devStorageUsed">0.0 MB</div>
+            <div class="dev-progress-bar">
+              <div class="dev-progress-fill" id="devStorageProgress" style="width: 2%;"></div>
+            </div>
+            <span class="dev-metric-sub" id="devStorageQuota">Quota: 5.0 GB</span>
+          </div>
+
+          <div class="dev-metric-card">
+            <span class="dev-metric-label">Active API Keys</span>
+            <div class="dev-metric-val" id="devActiveKeysCount">0</div>
+            <span class="dev-metric-sub">Scoped Bearer Tokens</span>
+          </div>
+
+          <div class="dev-metric-card">
+            <span class="dev-metric-label">Storage Engine</span>
+            <div class="dev-metric-val" id="devStorageProvider">Walrus Verify</div>
+            <span class="dev-metric-sub">Client-Side Sealed</span>
+          </div>
+
+          <div class="dev-metric-card">
+            <span class="dev-metric-label">Estimated Monthly</span>
+            <div class="dev-metric-val dev-cost-val" id="devEstimatedCost">R$ 99.00</div>
+            <span class="dev-metric-sub">Base: R$ 99 + R$ 2.00/GB</span>
+          </div>
+        </div>
+
+        <!-- Generate API Key Form -->
+        <div class="dev-key-create-card">
+          <h4>Create New API Key</h4>
+          <p class="dev-card-desc">Generate a high-entropy <code>nd_live_...</code> key for your backend services or automated CI pipelines.</p>
+          <div class="dev-create-row">
+            <div class="form-group" style="flex: 1; margin-bottom: 0;">
+              <input type="text" id="newKeyNameInput" class="form-input" placeholder="Key name (e.g., Ingestion Pipeline, Backend Server)">
+            </div>
+            <button class="btn btn-primary" id="generateKeySubmitBtn">
+              <i data-lucide="plus-circle"></i> <span>Generate Key</span>
+            </button>
+          </div>
+          <div class="dev-scopes-row">
+            <label class="dev-scope-checkbox"><input type="checkbox" id="scopeAssetsRead" checked> <span>assets:read</span></label>
+            <label class="dev-scope-checkbox"><input type="checkbox" id="scopeAssetsWrite" checked> <span>assets:write</span></label>
+            <label class="dev-scope-checkbox"><input type="checkbox" id="scopeAssetsDelete"> <span>assets:delete</span></label>
+            <label class="dev-scope-checkbox"><input type="checkbox" id="scopeSearchRead" checked> <span>search:read</span></label>
+          </div>
+        </div>
+
+        <!-- One-Time Secret Reveal Banner (Shown after creation) -->
+        <div class="dev-secret-reveal hidden" id="devSecretReveal">
+          <div class="dev-reveal-header">
+            <i data-lucide="alert-triangle"></i>
+            <div>
+              <strong>Save your secret key now!</strong>
+              <p>For your security, this key is shown only once and cannot be recovered if lost.</p>
+            </div>
+          </div>
+          <div class="dev-reveal-box">
+            <code id="revealedSecretKey" class="mono-code">nd_live_...</code>
+            <button class="btn btn-sm btn-primary" id="copyRevealedKeyBtn">
+              <i data-lucide="copy"></i> <span>Copy Key</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Active API Keys Table -->
+        <div class="dev-table-container">
+          <h4 style="margin-bottom: 0.75rem;">Active API Keys</h4>
+          <div id="devKeysTableWrapper">
+            <table class="dev-table" id="devKeysTable">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Key Prefix</th>
+                  <th>Scopes</th>
+                  <th>Created</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="devKeysTableBody">
+                <tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">Loading active keys...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Code Snippet Quickstart -->
+        <div class="dev-quickstart-card">
+          <div class="dev-quickstart-header">
+            <h4>Quickstart Code Snippet</h4>
+            <div class="dev-code-tabs">
+              <button class="dev-tab-btn active" data-tab="curl" id="tabCurlBtn">cURL</button>
+              <button class="dev-tab-btn" data-tab="node" id="tabNodeBtn">Node.js (@nodus/sdk)</button>
+              <button class="dev-tab-btn" data-tab="python" id="tabPythonBtn">Python</button>
+            </div>
+          </div>
+          <pre class="dev-code-box"><code id="devSnippetCode">curl -X GET "https://suigallery-dev.onrender.com/api/tenant/usage" \
+  -H "Authorization: Bearer nd_live_your_key_here"</code></pre>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="developerKeysModalCloseBtn" data-i18n="close">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Team Access & RBAC Modal -->
+  <div class="modal-dialog hidden" id="teamRbacModal">
+    <div class="modal-backdrop" id="teamRbacModalBackdrop"></div>
+    <div class="modal-content modal-lg">
+      <div class="modal-header">
+        <div class="header-icon-title">
+          <div class="vault-modal-icon" style="background: rgba(129, 140, 248, 0.15); color: #818cf8;">
+            <i data-lucide="users"></i>
+          </div>
+          <div>
+            <h3 data-i18n="team_rbac_title">Team Members & Access Control</h3>
+            <p class="modal-subtitle" data-i18n="team_rbac_subtitle">Manage organization roles and cryptographic key envelope distributions.</p>
+          </div>
+        </div>
+        <button class="btn-close" id="teamRbacModalClose"><i data-lucide="x"></i></button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Invite Member Form -->
+        <div class="dev-key-create-card">
+          <h4>Invite Team Member</h4>
+          <p class="dev-card-desc">Assign roles governed by Solana Anchor PDAs. Key envelopes are wrapped specifically for the member's public key.</p>
+          <div class="team-invite-row">
+            <input type="text" id="inviteMemberAddressInput" class="form-input" style="flex: 2;" placeholder="Solana Public Key (Base58 address)">
+            <select id="inviteMemberRoleSelect" class="form-input" style="flex: 1;">
+              <option value="viewer">Viewer (Read only)</option>
+              <option value="contributor">Contributor (Upload & Share)</option>
+              <option value="admin">Admin (Manage Members)</option>
+            </select>
+            <button class="btn btn-primary" id="inviteMemberSubmitBtn">
+              <i data-lucide="user-plus"></i> <span>Invite</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Active Members Table -->
+        <div class="dev-table-container">
+          <h4 style="margin-bottom: 0.75rem;">Organization Members</h4>
+          <table class="dev-table" id="teamMembersTable">
+            <thead>
+              <tr>
+                <th>Member Address</th>
+                <th>Role</th>
+                <th>Joined</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="teamMembersTableBody">
+              <tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">Loading members...</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Cryptographic Revocation Notice -->
+        <div class="rbac-notice-box">
+          <div class="rbac-notice-icon"><i data-lucide="shield-alert"></i></div>
+          <div class="rbac-notice-text">
+            <strong>Cryptographic Revocation Guarantee</strong>
+            <p>When a member is removed, their Solana Anchor PDA authorization is revoked immediately, their ECDH key envelopes are shredded, and key rotation tasks are scheduled for all active assets.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="teamRbacModalCloseBtn" data-i18n="close">Close</button>
       </div>
     </div>
   </div>
