@@ -4091,7 +4091,18 @@ document.addEventListener("DOMContentLoaded", () => {
     if (updateHash && window.location.hash === "#app") {
       history.pushState(null, "", window.location.pathname + window.location.search);
     }
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    if (window.location.hash && window.location.hash !== "#" && window.location.hash !== "#app") {
+      try {
+        const targetEl = document.querySelector(window.location.hash);
+        if (targetEl) {
+          targetEl.scrollIntoView({ behavior: "smooth" });
+        }
+      } catch (_) {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    } else {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
     if (window.lucide) window.lucide.createIcons();
   }
 
