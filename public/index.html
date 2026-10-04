@@ -1447,106 +1447,218 @@ npm run dev
       </div>
 
       <div class="modal-body">
-        <!-- Usage & Ledger Metric Cards -->
-        <div class="dev-metrics-grid">
-          <div class="dev-metric-card">
-            <span class="dev-metric-label">Stored Ciphertext</span>
-            <div class="dev-metric-val" id="devStorageUsed">0.0 MB</div>
-            <div class="dev-progress-bar">
-              <div class="dev-progress-fill" id="devStorageProgress" style="width: 2%;"></div>
+        <!-- Developer Portal Top Tabs -->
+        <div class="dev-portal-tabs" role="tablist">
+          <button class="dev-portal-tab-btn active" data-portal-tab="keys" id="portalTabKeysBtn">
+            <i data-lucide="key"></i> <span>API Keys & Ledger</span>
+          </button>
+          <button class="dev-portal-tab-btn" data-portal-tab="storage" id="portalTabStorageBtn">
+            <i data-lucide="hard-drive"></i> <span>Storage Engine (BYOS)</span>
+          </button>
+          <button class="dev-portal-tab-btn" data-portal-tab="sdk" id="portalTabSdkBtn">
+            <i data-lucide="terminal"></i> <span>SDK Quickstart</span>
+          </button>
+        </div>
+
+        <!-- TAB 1: API KEYS & USAGE LEDGER -->
+        <div class="dev-portal-panel" id="devPanelKeys">
+          <!-- Usage & Ledger Metric Cards -->
+          <div class="dev-metrics-grid">
+            <div class="dev-metric-card">
+              <span class="dev-metric-label">Stored Ciphertext</span>
+              <div class="dev-metric-val" id="devStorageUsed">0.0 MB</div>
+              <div class="dev-progress-bar">
+                <div class="dev-progress-fill" id="devStorageProgress" style="width: 2%;"></div>
+              </div>
+              <span class="dev-metric-sub" id="devStorageQuota">Quota: 5.0 GB</span>
             </div>
-            <span class="dev-metric-sub" id="devStorageQuota">Quota: 5.0 GB</span>
+
+            <div class="dev-metric-card">
+              <span class="dev-metric-label">Active API Keys</span>
+              <div class="dev-metric-val" id="devActiveKeysCount">0</div>
+              <span class="dev-metric-sub">Scoped Bearer Tokens</span>
+            </div>
+
+            <div class="dev-metric-card">
+              <span class="dev-metric-label">Storage Engine</span>
+              <div class="dev-metric-val" id="devStorageProvider">Walrus Verify</div>
+              <span class="dev-metric-sub">Client-Side Sealed</span>
+            </div>
+
+            <div class="dev-metric-card">
+              <span class="dev-metric-label">Estimated Monthly</span>
+              <div class="dev-metric-val dev-cost-val" id="devEstimatedCost">R$ 99.00</div>
+              <span class="dev-metric-sub">Base: R$ 99 + R$ 2.00/GB</span>
+            </div>
           </div>
 
-          <div class="dev-metric-card">
-            <span class="dev-metric-label">Active API Keys</span>
-            <div class="dev-metric-val" id="devActiveKeysCount">0</div>
-            <span class="dev-metric-sub">Scoped Bearer Tokens</span>
+          <!-- Generate API Key Form -->
+          <div class="dev-key-create-card">
+            <h4>Create New API Key</h4>
+            <p class="dev-card-desc">Generate a high-entropy <code>nd_live_...</code> key for your backend services or automated CI pipelines.</p>
+            <div class="dev-create-row">
+              <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                <input type="text" id="newKeyNameInput" class="form-input" placeholder="Key name (e.g., Ingestion Pipeline, Backend Server)">
+              </div>
+              <button class="btn btn-primary" id="generateKeySubmitBtn">
+                <i data-lucide="plus-circle"></i> <span>Generate Key</span>
+              </button>
+            </div>
+            <div class="dev-scopes-row">
+              <label class="dev-scope-checkbox"><input type="checkbox" id="scopeAssetsRead" checked> <span>assets:read</span></label>
+              <label class="dev-scope-checkbox"><input type="checkbox" id="scopeAssetsWrite" checked> <span>assets:write</span></label>
+              <label class="dev-scope-checkbox"><input type="checkbox" id="scopeAssetsDelete"> <span>assets:delete</span></label>
+              <label class="dev-scope-checkbox"><input type="checkbox" id="scopeSearchRead" checked> <span>search:read</span></label>
+            </div>
           </div>
 
-          <div class="dev-metric-card">
-            <span class="dev-metric-label">Storage Engine</span>
-            <div class="dev-metric-val" id="devStorageProvider">Walrus Verify</div>
-            <span class="dev-metric-sub">Client-Side Sealed</span>
+          <!-- One-Time Secret Reveal Banner (Shown after creation) -->
+          <div class="dev-secret-reveal hidden" id="devSecretReveal">
+            <div class="dev-reveal-header">
+              <i data-lucide="alert-triangle"></i>
+              <div>
+                <strong>Save your secret key now!</strong>
+                <p>For your security, this key is shown only once and cannot be recovered if lost.</p>
+              </div>
+            </div>
+            <div class="dev-reveal-box">
+              <code id="revealedSecretKey" class="mono-code">nd_live_...</code>
+              <button class="btn btn-sm btn-primary" id="copyRevealedKeyBtn">
+                <i data-lucide="copy"></i> <span>Copy Key</span>
+              </button>
+            </div>
           </div>
 
-          <div class="dev-metric-card">
-            <span class="dev-metric-label">Estimated Monthly</span>
-            <div class="dev-metric-val dev-cost-val" id="devEstimatedCost">R$ 99.00</div>
-            <span class="dev-metric-sub">Base: R$ 99 + R$ 2.00/GB</span>
+          <!-- Active API Keys Table -->
+          <div class="dev-table-container">
+            <h4 style="margin-bottom: 0.75rem;">Active API Keys</h4>
+            <div id="devKeysTableWrapper">
+              <table class="dev-table" id="devKeysTable">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Key Prefix</th>
+                    <th>Scopes</th>
+                    <th>Created</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="devKeysTableBody">
+                  <tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">Loading active keys...</td></tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
 
-        <!-- Generate API Key Form -->
-        <div class="dev-key-create-card">
-          <h4>Create New API Key</h4>
-          <p class="dev-card-desc">Generate a high-entropy <code>nd_live_...</code> key for your backend services or automated CI pipelines.</p>
-          <div class="dev-create-row">
-            <div class="form-group" style="flex: 1; margin-bottom: 0;">
-              <input type="text" id="newKeyNameInput" class="form-input" placeholder="Key name (e.g., Ingestion Pipeline, Backend Server)">
+        <!-- TAB 2: BRING YOUR OWN STORAGE (BYOS) -->
+        <div class="dev-portal-panel hidden" id="devPanelStorage">
+          <div class="byos-header-banner">
+            <div class="byos-banner-left">
+              <div class="byos-status-indicator" id="byosStatusDot"></div>
+              <div>
+                <h4 id="byosActiveTitle">Active Engine: Walrus Verify</h4>
+                <p id="byosActiveSubtitle" class="modal-subtitle">Decentralized erasure-coded dispersal with Sui on-chain attestations.</p>
+              </div>
             </div>
-            <button class="btn btn-primary" id="generateKeySubmitBtn">
-              <i data-lucide="plus-circle"></i> <span>Generate Key</span>
-            </button>
+            <span class="meta-chip" id="byosBadgeStatus">Connected</span>
           </div>
-          <div class="dev-scopes-row">
-            <label class="dev-scope-checkbox"><input type="checkbox" id="scopeAssetsRead" checked> <span>assets:read</span></label>
-            <label class="dev-scope-checkbox"><input type="checkbox" id="scopeAssetsWrite" checked> <span>assets:write</span></label>
-            <label class="dev-scope-checkbox"><input type="checkbox" id="scopeAssetsDelete"> <span>assets:delete</span></label>
-            <label class="dev-scope-checkbox"><input type="checkbox" id="scopeSearchRead" checked> <span>search:read</span></label>
+
+          <!-- Provider Select Cards -->
+          <div class="byos-provider-cards">
+            <div class="byos-card selected" data-byos-provider="walrus" id="byosCardWalrus">
+              <div class="byos-card-header">
+                <i data-lucide="layers" class="byos-card-icon"></i>
+                <span class="byos-card-tag">Included</span>
+              </div>
+              <h5>Walrus Protocol</h5>
+              <p>Decentralized zero-custody dispersal with Sui on-chain attestations.</p>
+            </div>
+
+            <div class="byos-card" data-byos-provider="s3_byos" id="byosCardS3">
+              <div class="byos-card-header">
+                <i data-lucide="cloud" class="byos-card-icon"></i>
+                <span class="byos-card-tag byos-tag-byos">BYOS</span>
+              </div>
+              <h5>Amazon AWS S3</h5>
+              <p>Store encrypted ciphertext directly in your organization's private S3 bucket.</p>
+            </div>
+
+            <div class="byos-card" data-byos-provider="r2_byos" id="byosCardR2">
+              <div class="byos-card-header">
+                <i data-lucide="zap" class="byos-card-icon"></i>
+                <span class="byos-card-tag byos-tag-byos">BYOS</span>
+              </div>
+              <h5>Cloudflare R2 / MinIO</h5>
+              <p>Zero egress fees or self-hosted S3-compatible private storage endpoint.</p>
+            </div>
+          </div>
+
+          <!-- BYOS Form Settings -->
+          <div class="byos-config-form hidden" id="byosFormContainer">
+            <div class="form-group">
+              <label for="byosBucketInput">Bucket Name *</label>
+              <input type="text" id="byosBucketInput" class="form-input" placeholder="e.g., acme-enterprise-vault">
+            </div>
+
+            <div class="byos-form-row">
+              <div class="form-group" style="flex: 2;">
+                <label for="byosEndpointInput">Custom Endpoint URL (Required for R2/MinIO)</label>
+                <input type="text" id="byosEndpointInput" class="form-input" placeholder="e.g., https://<account_id>.r2.cloudflarestorage.com">
+              </div>
+              <div class="form-group" style="flex: 1;">
+                <label for="byosRegionInput">Region</label>
+                <input type="text" id="byosRegionInput" class="form-input" placeholder="us-east-1" value="us-east-1">
+              </div>
+            </div>
+
+            <div class="byos-form-row">
+              <div class="form-group" style="flex: 1;">
+                <label for="byosAccessKeyInput">Access Key ID *</label>
+                <input type="text" id="byosAccessKeyInput" class="form-input" placeholder="AKIA...">
+              </div>
+              <div class="form-group" style="flex: 1;">
+                <label for="byosSecretKeyInput">Secret Access Key *</label>
+                <div class="input-password-wrapper">
+                  <input type="password" id="byosSecretKeyInput" class="form-input" placeholder="••••••••••••••••">
+                  <button type="button" class="btn-toggle-pwd" id="byosTogglePwdBtn" title="Toggle Visibility">
+                    <i data-lucide="eye"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Probe Status Message Banner -->
+            <div class="byos-feedback-box hidden" id="byosFeedbackBox"></div>
+
+            <div class="byos-actions-row">
+              <button class="btn btn-secondary" id="byosTestHandshakeBtn">
+                <i data-lucide="activity"></i> <span>Test Connection</span>
+              </button>
+              <button class="btn btn-primary" id="byosSaveConfigBtn">
+                <i data-lucide="check-circle-2"></i> <span>Save & Activate Provider</span>
+              </button>
+              <button class="btn btn-ghost" id="byosRevertWalrusBtn" style="color: var(--text-muted); margin-left: auto;">
+                <i data-lucide="rotate-ccw"></i> <span>Revert to Walrus Default</span>
+              </button>
+            </div>
           </div>
         </div>
 
-        <!-- One-Time Secret Reveal Banner (Shown after creation) -->
-        <div class="dev-secret-reveal hidden" id="devSecretReveal">
-          <div class="dev-reveal-header">
-            <i data-lucide="alert-triangle"></i>
-            <div>
-              <strong>Save your secret key now!</strong>
-              <p>For your security, this key is shown only once and cannot be recovered if lost.</p>
+        <!-- TAB 3: SDK CODE SNIPPETS -->
+        <div class="dev-portal-panel hidden" id="devPanelSdk">
+          <div class="dev-quickstart-card" style="margin-top: 0;">
+            <div class="dev-quickstart-header">
+              <h4>Quickstart Code Snippet</h4>
+              <div class="dev-code-tabs">
+                <button class="dev-tab-btn active" data-tab="curl" id="tabCurlBtn">cURL</button>
+                <button class="dev-tab-btn" data-tab="node" id="tabNodeBtn">Node.js (@nodus/sdk)</button>
+                <button class="dev-tab-btn" data-tab="python" id="tabPythonBtn">Python</button>
+              </div>
             </div>
-          </div>
-          <div class="dev-reveal-box">
-            <code id="revealedSecretKey" class="mono-code">nd_live_...</code>
-            <button class="btn btn-sm btn-primary" id="copyRevealedKeyBtn">
-              <i data-lucide="copy"></i> <span>Copy Key</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- Active API Keys Table -->
-        <div class="dev-table-container">
-          <h4 style="margin-bottom: 0.75rem;">Active API Keys</h4>
-          <div id="devKeysTableWrapper">
-            <table class="dev-table" id="devKeysTable">
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Key Prefix</th>
-                  <th>Scopes</th>
-                  <th>Created</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody id="devKeysTableBody">
-                <tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">Loading active keys...</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- Code Snippet Quickstart -->
-        <div class="dev-quickstart-card">
-          <div class="dev-quickstart-header">
-            <h4>Quickstart Code Snippet</h4>
-            <div class="dev-code-tabs">
-              <button class="dev-tab-btn active" data-tab="curl" id="tabCurlBtn">cURL</button>
-              <button class="dev-tab-btn" data-tab="node" id="tabNodeBtn">Node.js (@nodus/sdk)</button>
-              <button class="dev-tab-btn" data-tab="python" id="tabPythonBtn">Python</button>
-            </div>
-          </div>
-          <pre class="dev-code-box"><code id="devSnippetCode">curl -X GET "https://suigallery-dev.onrender.com/api/tenant/usage" \
+            <pre class="dev-code-box"><code id="devSnippetCode">curl -X GET "https://suigallery-dev.onrender.com/api/tenant/usage" \
   -H "Authorization: Bearer nd_live_your_key_here"</code></pre>
+          </div>
         </div>
       </div>
 

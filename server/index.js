@@ -16,6 +16,7 @@ import { ResumableUploadManager, RESUMABLE_UPLOAD_LIMITS } from "./resumable-upl
 import { DirectUploadManager, DIRECT_UPLOAD_MAX_SEGMENT_SIZE } from "./direct-upload-manager.js";
 import { AuthenticatedPublisher } from "./authenticated-publisher.js";
 import { AuthTenantStore } from "./auth-tenant-store.js";
+import { createStorageProvider } from "./storage-provider.js";
 import { WebhookDispatcher, encryptWebhookSecret } from "./webhook-dispatcher.js";
 import { TenantProvisioner } from "./tenant-provisioner.js";
 import {
@@ -854,6 +855,84 @@ app.post("/api/tenant/api-keys", requireTenant, requireTenantEnvelopeStore, requ
     return res.status(201).json({ success: true, ...created });
   } catch (error) {
     return res.status(400).json({ success: false, error: error.message });
+  }
+});
+
+// --- Phase 5: Bring-Your-Own-Storage (BYOS) Endpoints ---
+app.get("/api/tenant/storage-config", requireTenant, async (req, res, next) => {
+  try {
+    if (authTenantStore) {
+      const config = await authTenantStore.getTenantStorageConfig(req.tenant.organizationId);
+      return res.json({ success: true, config });
+    }
+    return res.json({
+      success: true,
+      config: {
+        organizationId: req.tenant.organizationId,
+        provider: "walrus",
+        endpoint: null,
+        bucket: null,
+        region: null,
+        accessKeyIdMasked: null,
+        configured: true
+      }
+    });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+app.post("/api/tenant/storage-config/test", requireTenant, requireSessionAdmin, async (req, res) => {
+  try {
+    const { provider = "s3_byos", endpoint, bucket, region, accessKeyId, secretAccessKey, forcePathStyle = true } = req.body || {};
+    if (provider !== "walrus" && (!bucket || !accessKeyId || !secretAccessKey)) {
+      return res.status(400).json({ success: false, error: "Bucket name, Access Key ID, and Secret Access Key are required for connection test" });
+    }
+    const testProvider = createStorageProvider({
+      type: provider,
+      config: { endpoint, bucket, region, accessKeyId, secretAccessKey, forcePathStyle }
+    });
+    const health = await testProvider.checkHealth();
+    if (!health.ok) {
+      return res.status(400).json({ success: false, error: health.error || "Failed to connect to storage provider" });
+    }
+    return res.json({
+      success: true,
+      message: `Connection to ${provider.toUpperCase()} (${bucket || 'decentralized'}) verified successfully`,
+      health
+    });
+  } catch (error) {
+    return res.status(400).json({ success: false, error: error.message });
+  }
+});
+
+app.put("/api/tenant/storage-config", requireTenant, requireSessionAdmin, async (req, res, next) => {
+  try {
+    const { provider = "walrus", endpoint, bucket, region, accessKeyId, secretAccessKey } = req.body || {};
+    if (provider !== "walrus" && (!bucket || !accessKeyId)) {
+      return res.status(400).json({ success: false, error: "Bucket name and Access Key ID are required when activating BYOS" });
+    }
+    if (authTenantStore) {
+      await authTenantStore.updateTenantStorageConfig({
+        organizationId: req.tenant.organizationId,
+        provider,
+        endpoint,
+        bucket,
+        region,
+        accessKeyId,
+        secretAccessKey,
+        actorUserId: req.auth.userId
+      });
+      const updatedConfig = await authTenantStore.getTenantStorageConfig(req.tenant.organizationId);
+      return res.json({ success: true, message: `Storage provider updated to ${provider}`, config: updatedConfig });
+    }
+    return res.json({
+      success: true,
+      message: `Storage provider updated to ${provider}`,
+      config: { organizationId: req.tenant.organizationId, provider, bucket, region }
+    });
+  } catch (error) {
+    return next(error);
   }
 });
 

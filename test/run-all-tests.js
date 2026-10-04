@@ -27,7 +27,8 @@ const suites = [
   { name: "Tenant Catalog Search Querying", file: "test/test-tenant-catalog-search.js" },
   { name: "StorageProvider & BYOS Decoupling", file: "test/test-storage-provider.js" },
   { name: "Developer API Keys & Usage Ledger", file: "test/test-developer-api-keys-flow.js" },
-  { name: "Team RBAC & Member Access Control", file: "test/test-team-rbac-flow.js" }
+  { name: "Team RBAC & Member Access Control", file: "test/test-team-rbac-flow.js" },
+  { name: "Self-Serve BYOS Storage Engine", file: "test/test-byos-storage-config-flow.js" }
 ];
 
 async function runSuite(suite) {

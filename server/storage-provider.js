@@ -189,9 +189,10 @@ export class S3CompatibleStorageProvider extends StorageProvider {
     mockStore = null // Injected in unit tests
   } = {}) {
     super("s3_byos");
-    this.endpoint = endpoint ? endpoint.replace(/\/+$/, "") : null;
+    const resolvedEndpoint = endpoint || (region ? `https://s3.${region}.amazonaws.com` : "https://s3.us-east-1.amazonaws.com");
+    this.endpoint = resolvedEndpoint ? resolvedEndpoint.replace(/\/+$/, "") : null;
     this.bucket = bucket;
-    this.region = region;
+    this.region = region || "us-east-1";
     this.accessKeyId = accessKeyId;
     this.secretAccessKey = secretAccessKey;
     this.forcePathStyle = forcePathStyle;
@@ -209,7 +210,15 @@ export class S3CompatibleStorageProvider extends StorageProvider {
     }
     try {
       const res = await this._sendRequest("HEAD", "");
-      return { ok: res.status >= 200 && res.status < 400, status: res.status, provider: "s3_byos" };
+      if (res.status >= 200 && res.status < 400) {
+        return { ok: true, status: res.status, provider: "s3_byos" };
+      }
+      return {
+        ok: false,
+        status: res.status,
+        provider: "s3_byos",
+        error: `Storage provider responded with HTTP ${res.status} (${res.status === 403 ? "Access Denied / Invalid Credentials" : res.status === 404 ? "Bucket Not Found" : "Handshake Failed"})`
+      };
     } catch (err) {
       return { ok: false, error: err.message, provider: "s3_byos" };
     }
@@ -247,8 +256,14 @@ export class S3CompatibleStorageProvider extends StorageProvider {
     }
 
     // Canonical Headers
-    const signedHeaderKeys = Object.keys(headers).map(k => k.toLowerCase()).sort();
-    const canonicalHeaders = signedHeaderKeys.map(k => `${k}:${headers[k].trim()}\n`).join("");
+    const normalizedHeaders = {};
+    for (const [k, v] of Object.entries(headers)) {
+      if (v !== undefined && v !== null) {
+        normalizedHeaders[k.toLowerCase()] = String(v).trim();
+      }
+    }
+    const signedHeaderKeys = Object.keys(normalizedHeaders).sort();
+    const canonicalHeaders = signedHeaderKeys.map(k => `${k}:${normalizedHeaders[k]}\n`).join("");
     const signedHeaders = signedHeaderKeys.join(";");
 
     const canonicalRequest = [

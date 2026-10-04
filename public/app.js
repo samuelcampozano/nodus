@@ -4733,8 +4733,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function openModal() {
       devModal?.classList.remove("hidden");
+      switchPortalTab("keys");
       loadUsage();
       loadApiKeys();
+      loadStorageConfig();
       if (window.lucide) window.lucide.createIcons();
     }
 
@@ -4799,6 +4801,252 @@ document.addEventListener("DOMContentLoaded", () => {
             if (window.lucide) window.lucide.createIcons();
           }, 2500);
         });
+      });
+    }
+
+    // --- Portal Top Tabs ---
+    const portalTabKeys = document.getElementById("portalTabKeysBtn");
+    const portalTabStorage = document.getElementById("portalTabStorageBtn");
+    const portalTabSdk = document.getElementById("portalTabSdkBtn");
+    const panelKeys = document.getElementById("devPanelKeys");
+    const panelStorage = document.getElementById("devPanelStorage");
+    const panelSdk = document.getElementById("devPanelSdk");
+
+    function switchPortalTab(target) {
+      [portalTabKeys, portalTabStorage, portalTabSdk].forEach(b => b?.classList.remove("active"));
+      [panelKeys, panelStorage, panelSdk].forEach(p => p?.classList.add("hidden"));
+      if (target === "keys") {
+        portalTabKeys?.classList.add("active");
+        panelKeys?.classList.remove("hidden");
+        loadUsage();
+        loadApiKeys();
+      } else if (target === "storage") {
+        portalTabStorage?.classList.add("active");
+        panelStorage?.classList.remove("hidden");
+        loadStorageConfig();
+      } else if (target === "sdk") {
+        portalTabSdk?.classList.add("active");
+        panelSdk?.classList.remove("hidden");
+        updateCodeSnippet("curl");
+      }
+      if (window.lucide) window.lucide.createIcons();
+    }
+
+    if (portalTabKeys) portalTabKeys.addEventListener("click", () => switchPortalTab("keys"));
+    if (portalTabStorage) portalTabStorage.addEventListener("click", () => switchPortalTab("storage"));
+    if (portalTabSdk) portalTabSdk.addEventListener("click", () => switchPortalTab("sdk"));
+
+    // --- BYOS Storage Engine Handlers ---
+    const byosCardWalrus = document.getElementById("byosCardWalrus");
+    const byosCardS3 = document.getElementById("byosCardS3");
+    const byosCardR2 = document.getElementById("byosCardR2");
+    const byosFormContainer = document.getElementById("byosFormContainer");
+    const byosBucketInput = document.getElementById("byosBucketInput");
+    const byosEndpointInput = document.getElementById("byosEndpointInput");
+    const byosRegionInput = document.getElementById("byosRegionInput");
+    const byosAccessKeyInput = document.getElementById("byosAccessKeyInput");
+    const byosSecretKeyInput = document.getElementById("byosSecretKeyInput");
+    const byosTogglePwdBtn = document.getElementById("byosTogglePwdBtn");
+    const byosFeedbackBox = document.getElementById("byosFeedbackBox");
+    const byosTestBtn = document.getElementById("byosTestHandshakeBtn");
+    const byosSaveBtn = document.getElementById("byosSaveConfigBtn");
+    const byosRevertBtn = document.getElementById("byosRevertWalrusBtn");
+    const byosActiveTitle = document.getElementById("byosActiveTitle");
+    const byosActiveSubtitle = document.getElementById("byosActiveSubtitle");
+    const byosBadgeStatus = document.getElementById("byosBadgeStatus");
+
+    let selectedByosProvider = "walrus";
+
+    function selectProviderCard(provider) {
+      selectedByosProvider = provider;
+      [byosCardWalrus, byosCardS3, byosCardR2].forEach(c => c?.classList.remove("selected"));
+      if (provider === "walrus") {
+        byosCardWalrus?.classList.add("selected");
+        byosFormContainer?.classList.add("hidden");
+      } else if (provider === "s3_byos" || provider === "s3") {
+        byosCardS3?.classList.add("selected");
+        byosFormContainer?.classList.remove("hidden");
+      } else if (provider === "r2_byos" || provider === "r2") {
+        byosCardR2?.classList.add("selected");
+        byosFormContainer?.classList.remove("hidden");
+      }
+      if (window.lucide) window.lucide.createIcons();
+    }
+
+    if (byosCardWalrus) byosCardWalrus.addEventListener("click", () => selectProviderCard("walrus"));
+    if (byosCardS3) byosCardS3.addEventListener("click", () => selectProviderCard("s3_byos"));
+    if (byosCardR2) byosCardR2.addEventListener("click", () => selectProviderCard("r2_byos"));
+
+    if (byosTogglePwdBtn) {
+      byosTogglePwdBtn.addEventListener("click", () => {
+        if (!byosSecretKeyInput) return;
+        const isPwd = byosSecretKeyInput.type === "password";
+        byosSecretKeyInput.type = isPwd ? "text" : "password";
+        byosTogglePwdBtn.innerHTML = isPwd ? '<i data-lucide="eye-off"></i>' : '<i data-lucide="eye"></i>';
+        if (window.lucide) window.lucide.createIcons();
+      });
+    }
+
+    async function loadStorageConfig() {
+      try {
+        const token = localStorage.getItem("nodus_session_token");
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
+        const res = await fetch("/api/tenant/storage-config", { headers });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (!data.success || !data.config) return;
+        const cfg = data.config;
+        const prov = cfg.provider || "walrus";
+        selectProviderCard(prov);
+        if (prov === "walrus") {
+          if (byosActiveTitle) byosActiveTitle.textContent = "Active Engine: Walrus Verify";
+          if (byosActiveSubtitle) byosActiveSubtitle.textContent = "Decentralized erasure-coded dispersal with Sui on-chain attestations.";
+          if (byosBadgeStatus) byosBadgeStatus.textContent = "Connected";
+        } else {
+          if (byosActiveTitle) byosActiveTitle.textContent = `Active Engine: ${prov === "s3_byos" ? "AWS S3" : "Cloudflare R2"}`;
+          if (byosActiveSubtitle) byosActiveSubtitle.textContent = `Private Bucket: ${cfg.bucket || "configured"} • Region: ${cfg.region || "us-east-1"}`;
+          if (byosBadgeStatus) byosBadgeStatus.textContent = "BYOS Active";
+        }
+        if (byosBucketInput && cfg.bucket) byosBucketInput.value = cfg.bucket;
+        if (byosEndpointInput && cfg.endpoint) byosEndpointInput.value = cfg.endpoint;
+        if (byosRegionInput && cfg.region) byosRegionInput.value = cfg.region;
+        if (byosAccessKeyInput && cfg.accessKeyIdMasked) byosAccessKeyInput.placeholder = cfg.accessKeyIdMasked;
+      } catch (err) {
+        console.warn("Failed to load storage config:", err);
+      }
+    }
+
+    if (byosTestBtn) {
+      byosTestBtn.addEventListener("click", async () => {
+        if (byosFeedbackBox) {
+          byosFeedbackBox.className = "byos-feedback-box hidden";
+        }
+        const bucket = (byosBucketInput?.value || "").trim();
+        const endpoint = (byosEndpointInput?.value || "").trim();
+        const region = (byosRegionInput?.value || "us-east-1").trim();
+        const accessKeyId = (byosAccessKeyInput?.value || "").trim();
+        const secretAccessKey = (byosSecretKeyInput?.value || "").trim();
+
+        if (selectedByosProvider !== "walrus" && (!bucket || !accessKeyId || !secretAccessKey)) {
+          if (byosFeedbackBox) {
+            byosFeedbackBox.className = "byos-feedback-box error";
+            byosFeedbackBox.textContent = "Bucket name, Access Key ID, and Secret Access Key are required to test connection.";
+            byosFeedbackBox.classList.remove("hidden");
+          }
+          return;
+        }
+
+        try {
+          byosTestBtn.disabled = true;
+          byosTestBtn.innerHTML = '<span class="spinner-sm"></span> Probing Handshake...';
+          const token = localStorage.getItem("nodus_session_token");
+          const headers = {
+            "Content-Type": "application/json",
+            ...(token ? { Authorization: `Bearer ${token}` } : {})
+          };
+          const res = await fetch("/api/tenant/storage-config/test", {
+            method: "POST",
+            headers,
+            body: JSON.stringify({
+              provider: selectedByosProvider,
+              endpoint: endpoint || null,
+              bucket,
+              region,
+              accessKeyId,
+              secretAccessKey
+            })
+          });
+          const data = await res.json();
+          if (byosFeedbackBox) {
+            byosFeedbackBox.className = data.success ? "byos-feedback-box success" : "byos-feedback-box error";
+            byosFeedbackBox.textContent = data.success ? `✅ Handshake verified: ${data.message}` : `❌ Handshake failed: ${data.error}`;
+            byosFeedbackBox.classList.remove("hidden");
+          }
+        } catch (err) {
+          if (byosFeedbackBox) {
+            byosFeedbackBox.className = "byos-feedback-box error";
+            byosFeedbackBox.textContent = "Network error: " + err.message;
+            byosFeedbackBox.classList.remove("hidden");
+          }
+        } finally {
+          byosTestBtn.disabled = false;
+          byosTestBtn.innerHTML = '<i data-lucide="activity"></i> <span>Test Connection</span>';
+          if (window.lucide) window.lucide.createIcons();
+        }
+      });
+    }
+
+    if (byosSaveBtn) {
+      byosSaveBtn.addEventListener("click", async () => {
+        const bucket = (byosBucketInput?.value || "").trim();
+        const endpoint = (byosEndpointInput?.value || "").trim();
+        const region = (byosRegionInput?.value || "us-east-1").trim();
+        const accessKeyId = (byosAccessKeyInput?.value || "").trim();
+        const secretAccessKey = (byosSecretKeyInput?.value || "").trim();
+
+        if (selectedByosProvider !== "walrus" && (!bucket || !accessKeyId)) {
+          alert("Bucket name and Access Key ID are required to activate BYOS.");
+          return;
+        }
+
+        try {
+          byosSaveBtn.disabled = true;
+          byosSaveBtn.innerHTML = '<span class="spinner-sm"></span> Activating...';
+          const token = localStorage.getItem("nodus_session_token");
+          const headers = {
+            "Content-Type": "application/json",
+            ...(token ? { Authorization: `Bearer ${token}` } : {})
+          };
+          const res = await fetch("/api/tenant/storage-config", {
+            method: "PUT",
+            headers,
+            body: JSON.stringify({
+              provider: selectedByosProvider,
+              endpoint: endpoint || null,
+              bucket,
+              region,
+              accessKeyId: accessKeyId || undefined,
+              secretAccessKey: secretAccessKey || undefined
+            })
+          });
+          const data = await res.json();
+          if (!data.success) throw new Error(data.error || "Failed to update storage provider");
+          alert("Storage provider successfully activated: " + selectedByosProvider.toUpperCase());
+          if (byosSecretKeyInput) byosSecretKeyInput.value = "";
+          loadStorageConfig();
+          loadUsage();
+        } catch (err) {
+          alert("Error saving BYOS settings: " + err.message);
+        } finally {
+          byosSaveBtn.disabled = false;
+          byosSaveBtn.innerHTML = '<i data-lucide="check-circle-2"></i> <span>Save & Activate Provider</span>';
+          if (window.lucide) window.lucide.createIcons();
+        }
+      });
+    }
+
+    if (byosRevertBtn) {
+      byosRevertBtn.addEventListener("click", async () => {
+        if (!confirm("Revert storage engine to decentralized Walrus Protocol?")) return;
+        try {
+          const token = localStorage.getItem("nodus_session_token");
+          const headers = {
+            "Content-Type": "application/json",
+            ...(token ? { Authorization: `Bearer ${token}` } : {})
+          };
+          const res = await fetch("/api/tenant/storage-config", {
+            method: "PUT",
+            headers,
+            body: JSON.stringify({ provider: "walrus" })
+          });
+          const data = await res.json();
+          if (!data.success) throw new Error(data.error || "Failed to revert provider");
+          selectProviderCard("walrus");
+          loadStorageConfig();
+          loadUsage();
+        } catch (err) {
+          alert("Error reverting to Walrus: " + err.message);
+        }
       });
     }
   }

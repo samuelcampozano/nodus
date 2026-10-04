@@ -298,6 +298,13 @@ export class AuthTenantStore {
           details JSONB NOT NULL DEFAULT '{}'::jsonb, created_at TIMESTAMPTZ NOT NULL DEFAULT now()
         );
 
+        ALTER TABLE tenant_storage_contexts
+          ADD COLUMN IF NOT EXISTS storage_provider TEXT NOT NULL DEFAULT 'walrus',
+          ADD COLUMN IF NOT EXISTS byos_endpoint TEXT,
+          ADD COLUMN IF NOT EXISTS byos_bucket TEXT,
+          ADD COLUMN IF NOT EXISTS byos_region TEXT,
+          ADD COLUMN IF NOT EXISTS byos_access_key_id TEXT,
+          ADD COLUMN IF NOT EXISTS byos_secret_access_key_enc TEXT;
       `);
       console.log("🐘 [AuthTenantStore] PostgreSQL database schema verified.");
     } catch (err) {
@@ -1491,4 +1498,97 @@ export class AuthTenantStore {
     if (typeof entry.ciphertext !== "string" || !/^[a-f0-9]{64,512}$/i.test(entry.ciphertext)) throw new Error("Invalid encrypted key envelope");
     return { ...entry, organizationId, iv: entry.iv.toLowerCase(), ciphertext: entry.ciphertext.toLowerCase() };
   }
+
+  // --- Bring-Your-Own-Storage (BYOS) Self-Serve Configuration ---
+
+  async getTenantStorageConfig(organizationId) {
+    if (this._inMemoryByos) {
+      const cfg = this._inMemoryByos.get(organizationId) || { provider: "walrus" };
+      return {
+        organizationId,
+        provider: cfg.provider || "walrus",
+        endpoint: cfg.endpoint || null,
+        bucket: cfg.bucket || null,
+        region: cfg.region || null,
+        accessKeyIdMasked: cfg.accessKeyId ? (cfg.accessKeyId.length > 8 ? `${cfg.accessKeyId.slice(0, 4)}••••${cfg.accessKeyId.slice(-4)}` : "••••••••") : null,
+        configured: Boolean(cfg.bucket || cfg.provider === "walrus")
+      };
+    }
+    const res = await this.pool.query(
+      "SELECT storage_provider, byos_endpoint, byos_bucket, byos_region, byos_access_key_id FROM tenant_storage_contexts WHERE organization_id = $1",
+      [organizationId]
+    );
+    if (!res.rowCount) return { organizationId, provider: "walrus", configured: true };
+    const row = res.rows[0];
+    const key = row.byos_access_key_id;
+    return {
+      organizationId,
+      provider: row.storage_provider || "walrus",
+      endpoint: row.byos_endpoint || null,
+      bucket: row.byos_bucket || null,
+      region: row.byos_region || null,
+      accessKeyIdMasked: key ? (key.length > 8 ? `${key.slice(0, 4)}••••${key.slice(-4)}` : "••••••••") : null,
+      configured: true
+    };
+  }
+
+  async getTenantDecryptedStorageConfig(organizationId) {
+    if (this._inMemoryByos) {
+      return this._inMemoryByos.get(organizationId) || { provider: "walrus" };
+    }
+    const res = await this.pool.query(
+      "SELECT storage_provider, byos_endpoint, byos_bucket, byos_region, byos_access_key_id, byos_secret_access_key_enc FROM tenant_storage_contexts WHERE organization_id = $1",
+      [organizationId]
+    );
+    if (!res.rowCount) return { provider: "walrus" };
+    const row = res.rows[0];
+    return {
+      provider: row.storage_provider || "walrus",
+      endpoint: row.byos_endpoint || null,
+      bucket: row.byos_bucket || null,
+      region: row.byos_region || null,
+      accessKeyId: row.byos_access_key_id || null,
+      secretAccessKey: row.byos_secret_access_key_enc ? decryptSecret(row.byos_secret_access_key_enc) : null
+    };
+  }
+
+  async updateTenantStorageConfig({ organizationId, provider = "walrus", endpoint = null, bucket = null, region = null, accessKeyId = null, secretAccessKey = null, actorUserId = null }) {
+    if (this._inMemoryByos) {
+      this._inMemoryByos.set(organizationId, { provider, endpoint, bucket, region, accessKeyId, secretAccessKey });
+      return { success: true, provider, bucket };
+    }
+    const encryptedSecret = secretAccessKey ? encryptSecret(secretAccessKey) : null;
+    await this.pool.query(
+      `UPDATE tenant_storage_contexts
+       SET storage_provider = $1,
+           byos_endpoint = $2,
+           byos_bucket = $3,
+           byos_region = $4,
+           byos_access_key_id = COALESCE($5, byos_access_key_id),
+           byos_secret_access_key_enc = COALESCE($6, byos_secret_access_key_enc)
+       WHERE organization_id = $7`,
+      [provider, endpoint, bucket, region, accessKeyId, encryptedSecret, organizationId]
+    );
+    return { success: true, provider, bucket };
+  }
+}
+
+function encryptSecret(plaintext, secretKey = process.env.NODUS_MASTER_SECRET || "nodus_dev_master_secret_32_bytes_len!") {
+  const key = crypto.createHash("sha256").update(secretKey).digest();
+  const iv = crypto.randomBytes(12);
+  const cipher = crypto.createCipheriv("aes-256-gcm", key, iv);
+  const encrypted = Buffer.concat([cipher.update(plaintext, "utf8"), cipher.final()]);
+  const tag = cipher.getAuthTag();
+  return `${iv.toString("hex")}:${tag.toString("hex")}:${encrypted.toString("hex")}`;
+}
+
+function decryptSecret(ciphertextWithAuth, secretKey = process.env.NODUS_MASTER_SECRET || "nodus_dev_master_secret_32_bytes_len!") {
+  if (!ciphertextWithAuth) return null;
+  const parts = ciphertextWithAuth.split(":");
+  if (parts.length !== 3) return null;
+  const [ivHex, tagHex, dataHex] = parts;
+  const key = crypto.createHash("sha256").update(secretKey).digest();
+  const decipher = crypto.createDecipheriv("aes-256-gcm", key, Buffer.from(ivHex, "hex"));
+  decipher.setAuthTag(Buffer.from(tagHex, "hex"));
+  return decipher.update(Buffer.from(dataHex, "hex"), null, "utf8") + decipher.final("utf8");
 }
