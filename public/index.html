@@ -43,10 +43,6 @@
           <a href="#developers" class="nd-nav-link" data-i18n="nav_developers">Developers</a>
         </div>
         <div class="nd-nav-actions">
-          <button class="btn btn-ghost" id="landingSignInBtn">
-            <i data-lucide="shield"></i>
-            <span data-i18n="signin_zklogin">Sign In</span>
-          </button>
           <button class="btn-launch-app" id="launchAppNavBtn">
             <span data-i18n="launch_app">Launch App</span>
             <i data-lucide="arrow-right"></i>
@@ -464,19 +460,21 @@ npm run dev
 
   <!-- Main Container -->
   <main class="main-content">
-    <!-- Cryptographic Architecture Banner -->
-    <section class="crypto-banner">
-      <div class="banner-pill">
+    <!-- Subtle Decentralized Security Strip -->
+    <section class="crypto-banner tech-status-strip">
+      <div class="banner-pill" title="Protected with AES-256-GCM and Seal threshold keys in-browser">
         <i data-lucide="lock" class="pill-icon"></i>
-        <span data-i18n="banner_seal"><strong>Seal Client-Side Encrypted</strong> (Private by Default)</span>
+        <span data-i18n="banner_seal">Client Encrypted</span>
       </div>
-      <div class="banner-pill">
+      <span class="banner-separator">•</span>
+      <div class="banner-pill" title="Erasure-coded decentralized blob storage on Walrus">
         <i data-lucide="layers" class="pill-icon"></i>
-        <span data-i18n="banner_walrus"><strong>Walrus 2D Red Stuff</strong> (Fountain Erasure Coded)</span>
+        <span data-i18n="banner_walrus">Walrus Storage</span>
       </div>
-      <div class="banner-pill">
-        <i data-lucide="boxes" class="pill-icon"></i>
-        <span data-i18n="banner_sui"><strong>Sui Object-Native</strong> (Zero-Knowledge zkLogin Ready)</span>
+      <span class="banner-separator">•</span>
+      <div class="banner-pill" title="Verified on-chain via zero-knowledge proofs">
+        <i data-lucide="shield-check" class="pill-icon"></i>
+        <span data-i18n="banner_sui">Zero-Knowledge Verified</span>
       </div>
     </section>
 
@@ -776,7 +774,7 @@ npm run dev
               <path fill="#FBBC05" d="M5.6 14.8c-.2-.7-.4-1.5-.4-2.3 0-.8.2-1.6.4-2.3L1.9 7.3C.7 9.7 0 12.3 1.9 7.9l3.7-2.9z"/>
               <path fill="#34A853" d="M12 23.5c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2.4-6.4-5.3L1.9 16.5C3.7 20.2 7.5 23.5 12 23.5z"/>
             </svg>
-            <span data-i18n="btn_google_zklogin">Continue with Google (zkLogin)</span>
+            <span data-i18n="btn_google_zklogin">Continue with Google</span>
           </button>
 
           <div class="auth-divider">
@@ -839,15 +837,15 @@ npm run dev
             <path fill="#FBBC05" d="M5.6 14.8c-.2-.7-.4-1.5-.4-2.3 0-.8.2-1.6.4-2.3L1.9 7.3C.7 9.7 0 12.3 1.9 7.9l3.7-2.9z"/>
             <path fill="#34A853" d="M12 23.5c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2.4-6.4-5.3L1.9 16.5C3.7 20.2 7.5 23.5 12 23.5z"/>
           </svg>
-          <span class="auth-badge-label">Sui zkLogin Protocol</span>
+          <span class="auth-badge-label">Zero-Knowledge Protected</span>
         </div>
         <button class="btn-close" id="googleZkModalClose"><i data-lucide="x"></i></button>
       </div>
 
       <div class="modal-body auth-modal-body">
-        <h2 class="auth-title">Google zkLogin</h2>
+        <h2 class="auth-title">Google Sign-In</h2>
         <p class="auth-subtitle">
-          Select a verified identity profile or type your Google Account to derive your sovereign zero-knowledge address.
+          Choose a verified profile or enter your Google email to sign in to your encrypted vault.
         </p>
 
         <!-- Quick 1-Click Identity Personas -->
@@ -883,7 +881,7 @@ npm run dev
           </div>
           <button class="btn btn-primary btn-block" id="submitCustomEmailZkLoginBtn" style="margin-top: 8px;">
             <i data-lucide="shield-check"></i>
-            <span>Derive zkLogin Address & Sign In</span>
+            <span>Continue with Google</span>
           </button>
         </div>
 
