@@ -11,10 +11,11 @@ Este arquivo distingue **código preparado** de **evidência real**. Uma caixa m
 ### Preparação concluída no código
 
 - [x] Fluxos de tenant, envelopes, compartilhamento e revogação estão implementados e cobertos por suítes locais.
-- [x] A interface contém modal de compartilhamento e áreas para prova Walruscan/Solana Explorer.
+- [x] A interface contém modal de compartilhamento, badges explícitos de Testnet/Devnet e um painel que mostra organização, papel e PDA Devnet após SIWS real.
 - [x] O Compose inicializa também as migrations `011_asset_sharing.sql` e `012_tenant_byos_storage_config.sql` em bancos novos.
 - [x] `npm run demo:preflight:code` verifica migrations, proteção de arquivos sensíveis e configuração-base.
 - [x] `npm run demo:preflight` falha deliberadamente se faltarem Program ID Devnet, credenciais Walrus ou segredos distintos do publisher.
+- [x] O template `docs/HACKATHON_EVIDENCIAS.md` separa links públicos da execução de qualquer material sigiloso.
 
 ### Evidências reais ainda pendentes
 
@@ -59,6 +60,7 @@ Para considerar a entrega finalizada, todos os pontos abaixo devem acontecer sem
 ### Checklist do Dia 1
 
 - [ ] `npm run demo:preflight:code` passa na cópia limpa do repositório.
+- [x] A interface apresenta o estado da demo e só revela o link do PDA quando a API devolve `solanaProof`.
 - [ ] A keypair exclusiva de Devnet foi criada fora do repositório.
 - [ ] O programa Anchor foi compilado e implantado; o Program ID foi sincronizado em todos os arquivos locais necessários.
 - [ ] O PostgreSQL e a API sobem com `docker compose up -d --build`.

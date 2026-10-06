@@ -938,6 +938,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const batchCount = document.getElementById("batchCount");
   const batchDeselectBtn = document.getElementById("batchDeselectBtn");
   const batchDownloadBtn = document.getElementById("batchDownloadBtn");
+  const demoEnvironmentLabel = document.getElementById("demoEnvironmentLabel");
+  const demoOrganizationValue = document.getElementById("demoOrganizationValue");
+  const demoRoleValue = document.getElementById("demoRoleValue");
+  const demoSolanaProofLink = document.getElementById("demoSolanaProofLink");
+  const demoEvidenceNote = document.getElementById("demoEvidenceNote");
   const batchDeleteBtn = document.getElementById("batchDeleteBtn");
 
   // Auth & zkLogin Elements
@@ -1835,6 +1840,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (accessToken) sessionStorage.setItem("nodus_access_token", accessToken);
     localStorage.removeItem("suigallery_auth_session");
     updateAuthUI();
+    updateDemoEvidence();
   }
 
   function signOut() {
@@ -1844,6 +1850,7 @@ document.addEventListener("DOMContentLoaded", () => {
     sessionStorage.removeItem("nodus_access_token");
     closeVaultModal();
     updateAuthUI();
+    updateDemoEvidence();
     showToast(t("toast_signed_out"), "info");
   }
 
@@ -2470,6 +2477,8 @@ document.addEventListener("DOMContentLoaded", () => {
         organizations: verifyData.organizations || [],
         activeOrg: { orgId: verifyData.tenant?.organizationId || organizationId },
         tenant: verifyData.tenant,
+        role: verifyData.role || "viewer",
+        solanaProof: verifyData.solanaProof || null,
         accessToken: verifyData.accessToken,
         expiresAt: verifyData.expiresAt,
         createdAt: new Date().toISOString()
@@ -2509,6 +2518,7 @@ document.addEventListener("DOMContentLoaded", () => {
         expiresAt: data.expiresAt || null,
         tenant: data.tenant || { organizationId: "nodus-devs" },
         role: data.role || "owner",
+        solanaProof: data.solanaProof || null,
         createdAt: new Date().toISOString()
       };
 
@@ -2803,9 +2813,39 @@ document.addEventListener("DOMContentLoaded", () => {
         const percent = Math.min(100, Math.max(0, (used / cap) * 100));
         if (quotaValue) quotaValue.textContent = `${formatBytes(used)} / ${formatBytes(cap)}`;
         if (quotaFill) quotaFill.style.width = `${percent}%`;
+        updateDemoEvidence();
       }
     } catch (err) {
       console.warn("fetchStatus offline or degraded:", err);
+    }
+  }
+
+  function updateDemoEvidence() {
+    const deployment = state.status?.deployment;
+    const environment = deployment?.environment || "local";
+    const isTestnet = deployment?.direct_walrus_testnet_enabled === true;
+    if (demoEnvironmentLabel) {
+      demoEnvironmentLabel.textContent = `${environment} · Walrus Testnet ${isTestnet ? "enabled" : "not configured"}`;
+    }
+
+    const organizationId = activeTenantId();
+    if (demoOrganizationValue) demoOrganizationValue.textContent = organizationId || "Sign in required";
+    if (demoRoleValue) demoRoleValue.textContent = state.currentUser?.role || "Not verified";
+
+    const proof = state.currentUser?.solanaProof;
+    if (demoSolanaProofLink) {
+      if (proof?.memberPda) {
+        demoSolanaProofLink.href = `https://explorer.solana.com/address/${encodeURIComponent(proof.memberPda)}?cluster=devnet`;
+        demoSolanaProofLink.classList.remove("hidden");
+      } else {
+        demoSolanaProofLink.href = "#";
+        demoSolanaProofLink.classList.add("hidden");
+      }
+    }
+    if (demoEvidenceNote) {
+      demoEvidenceNote.textContent = proof?.memberPda
+        ? "RBAC was checked against the active Devnet member PDA. Revoked members cannot obtain a new key envelope."
+        : "Sign in with a provisioned Solana member to display the live Devnet PDA proof.";
     }
   }
 
@@ -3531,6 +3571,7 @@ document.addEventListener("DOMContentLoaded", () => {
             expiresAt: data.expiresAt || null,
             tenant: data.tenant || { organizationId: "nodus-devs" },
             role: data.role || "owner",
+            solanaProof: data.solanaProof || null,
             createdAt: new Date().toISOString()
           };
           saveAuthSession(session);
