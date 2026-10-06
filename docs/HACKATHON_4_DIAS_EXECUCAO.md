@@ -4,17 +4,45 @@
 >
 > **Entrega final:** uma demo real em que duas pessoas usam a Nodus: Owner envia um arquivo cifrado ao Walrus Testnet; Member entra com outra carteira Solana; Owner compartilha o arquivo; Member abre; Owner revoga; a tentativa seguinte de acesso falha. A apresentação mostra as provas no Explorer.
 
+## Status do repositório e checklist de execução
+
+Este arquivo distingue **código preparado** de **evidência real**. Uma caixa marcada abaixo significa que a base versionada está pronta; ela não substitui uma transação Devnet, um Blob ID Testnet ou a gravação da demo.
+
+### Preparação concluída no código
+
+- [x] Fluxos de tenant, envelopes, compartilhamento e revogação estão implementados e cobertos por suítes locais.
+- [x] A interface contém modal de compartilhamento e áreas para prova Walruscan/Solana Explorer.
+- [x] O Compose inicializa também as migrations `011_asset_sharing.sql` e `012_tenant_byos_storage_config.sql` em bancos novos.
+- [x] `npm run demo:preflight:code` verifica migrations, proteção de arquivos sensíveis e configuração-base.
+- [x] `npm run demo:preflight` falha deliberadamente se faltarem Program ID Devnet, credenciais Walrus ou segredos distintos do publisher.
+
+### Evidências reais ainda pendentes
+
+- [ ] Programa Anchor implantado na Solana Devnet, com Program ID público definitivo.
+- [ ] Owner e Member reais criados/provisionados e PDAs verificáveis no Explorer.
+- [ ] Upload cifrado real concluído no Walrus Testnet, com Blob ID e link Walruscan.
+- [ ] Fluxo completo Owner → share → Member abre → revoke → nova leitura negada, em duas sessões de navegador.
+- [ ] Vídeo final, gravação de backup e `docs/HACKATHON_EVIDENCIAS.md` preenchido somente com dados públicos.
+
+Antes de cada ensaio, rode:
+
+```bash
+npm run demo:preflight
+```
+
+Ele valida apenas a configuração local e não faz deploy, não cria wallets e não envia arquivo para a rede.
+
 ## O que é “pronto” no hackathon
 
 Para considerar a entrega finalizada, todos os pontos abaixo devem acontecer sem mock:
 
-1. Um arquivo de demonstração (PDF ou imagem sem dados sensíveis) é cifrado no navegador e armazenado no **Walrus Testnet**.
-2. A tela mostra o `Blob ID` e abre o link do Walruscan.
-3. Duas wallets reais da **Solana Devnet** têm PDAs de `Organization`, `Member` e `Capability` criados pelo programa Anchor implantado.
-4. O Member faz SIWS com sua wallet e o backend consulta os PDAs Devnet antes de liberar o acesso.
-5. O Owner compartilha o asset usando o modal existente; o Member recebe um envelope e abre o arquivo.
-6. O Owner revoga o compartilhamento/membership; uma nova tentativa do Member de buscar o envelope ou autenticar no tenant é negada.
-7. Há vídeo de 5–7 minutos, links de Explorer e uma execução completa gravada como backup.
+- [ ] Um arquivo de demonstração (PDF ou imagem sem dados sensíveis) é cifrado no navegador e armazenado no **Walrus Testnet**.
+- [ ] A tela mostra o `Blob ID` e abre o link do Walruscan.
+- [ ] Duas wallets reais da **Solana Devnet** têm PDAs de `Organization`, `Member` e `Capability` criados pelo programa Anchor implantado.
+- [ ] O Member faz SIWS com sua wallet e o backend consulta os PDAs Devnet antes de liberar o acesso.
+- [ ] O Owner compartilha o asset usando o modal existente; o Member recebe um envelope e abre o arquivo.
+- [ ] O Owner revoga o compartilhamento/membership; uma nova tentativa do Member de buscar o envelope ou autenticar no tenant é negada.
+- [ ] Há vídeo de 5–7 minutos, links de Explorer e uma execução completa gravada como backup.
 
 **Não é necessário:** upload de 20 GB, billing, recuperação social, passkeys, B2/R2, multi-provider, assinatura mensal, deploy próprio, SLA, Mainnet ou auditoria externa.
 
@@ -27,6 +55,14 @@ Para considerar a entrega finalizada, todos os pontos abaixo devem acontecer sem
 | Dev 3 — Produto e demo | Interface, badges Testnet/Devnet, links de prova, roteiro, vídeo e testes de fluxo | Não redesenhar o app nem criar landing nova |
 
 ## Dia 1 — fazer a infraestrutura responder
+
+### Checklist do Dia 1
+
+- [ ] `npm run demo:preflight:code` passa na cópia limpa do repositório.
+- [ ] A keypair exclusiva de Devnet foi criada fora do repositório.
+- [ ] O programa Anchor foi compilado e implantado; o Program ID foi sincronizado em todos os arquivos locais necessários.
+- [ ] O PostgreSQL e a API sobem com `docker compose up -d --build`.
+- [ ] Há um upload real pequeno no Walrus Testnet, com Blob ID e download confirmado.
 
 ### Dev 1 — Solana Devnet
 
@@ -117,6 +153,14 @@ Para considerar a entrega finalizada, todos os pontos abaixo devem acontecer sem
 
 ## Dia 2 — conectar duas wallets e o compartilhamento
 
+### Checklist do Dia 2 — gate do happy path
+
+- [ ] Owner e Member usam wallets Devnet distintas em dois perfis de navegador.
+- [ ] SIWS devolve sessão somente quando os PDAs ativos permitem acesso.
+- [ ] Owner envia o arquivo cifrado e concede `viewer` ao Member.
+- [ ] Member recebe envelope, baixa e abre o arquivo.
+- [ ] Owner revoga share/capability; Member recebe negação em uma nova leitura de envelope.
+
 ### Dev 1
 
 1. Fazer login real do Owner e do Member via Phantom/Solflare, em perfis de navegador separados.
@@ -140,6 +184,13 @@ Para considerar a entrega finalizada, todos os pontos abaixo devem acontecer sem
 
 ## Dia 3 — estabilizar, testar e preparar evidências
 
+### Checklist do Dia 3
+
+- [ ] Suítes Solana e storage listadas abaixo passam.
+- [ ] O fluxo completo foi executado três vezes em ambiente limpo.
+- [ ] `docs/HACKATHON_EVIDENCIAS.md` contém apenas dados públicos e links acessíveis.
+- [ ] Uma gravação de backup e o slide de arquitetura estão prontos.
+
 ### Dev 1
 
 - Rodar `npm run test:solana`, `npm run test:solana-anchor-contract`, `npm run test:solana-devnet-provisioning` e `npm run test:solana-collaboration-rbac`.
@@ -159,6 +210,14 @@ Para considerar a entrega finalizada, todos os pontos abaixo devem acontecer sem
 - Criar um slide único de arquitetura, sem alegar Mainnet, SLA ou preço.
 
 ## Dia 4 — ensaio e envio
+
+### Checklist do Dia 4
+
+- [ ] `npm test` foi executado e qualquer falha externa/transitória foi registrada.
+- [ ] A demo foi repetida de ponta a ponta com conexão normal e duas wallets.
+- [ ] Os links de Walruscan e Solana Explorer foram abertos durante o ensaio.
+- [ ] Vídeo final de 5–7 minutos e fallback local foram gravados.
+- [ ] README/página usam somente alegações demonstradas: Testnet/Devnet, nunca produção/Mainnet.
 
 1. Rodar `npm test` antes do envio; se a suíte completa falhar por teste não relacionado, registrar a falha e rodar novamente as suítes listadas neste documento.
 2. Executar a demo em dois perfis de navegador, do zero, com conexão de rede normal.
