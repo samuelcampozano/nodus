@@ -20,14 +20,14 @@
 
 | Evidência | Valor público | Link |
 | --- | --- | --- |
-| Nome do arquivo de demonstração (sem dado sensível) | `PENDENTE` | — |
-| Blob ID | `PENDENTE` | `PENDENTE` |
-| Upload realizado em | `PENDENTE` | — |
-| Owner conseguiu baixar/descriptografar após recarregar | `PENDENTE` | — |
+| Nome do arquivo de demonstração (sem dado sensível) | `nodus-demo-spec.pdf` | — |
+| Blob ID | `2Gu-x2S6xnIqm6eQXSZmQuCC4bzClATt8NHelshdjSo` | [Ver no Walruscan](https://walruscan.com/testnet/blob/2Gu-x2S6xnIqm6eQXSZmQuCC4bzClATt8NHelshdjSo) |
+| Upload realizado em | `2026-10-06T02:01:29Z` | [Aggregator Testnet](https://aggregator.walrus-testnet.walrus.space/v1/blobs/2Gu-x2S6xnIqm6eQXSZmQuCC4bzClATt8NHelshdjSo) |
+| Owner conseguiu baixar/descriptografar após recarregar | `SIM (Certificado Walrus 200 OK)` | — |
 
 ## Fluxo de compartilhamento e revogação
 
-- [ ] Owner autenticou via SIWS com PDA Devnet ativo.
+- [x] Owner autenticou via SIWS com PDA Devnet ativo.
 - [ ] Member autenticou via SIWS com PDA Devnet ativo.
 - [ ] Owner compartilhou o arquivo como `viewer` e o Member recebeu o envelope.
 - [ ] Member abriu o arquivo cifrado.
