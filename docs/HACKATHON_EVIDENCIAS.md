@@ -40,7 +40,7 @@
 - [ ] URL ou local do vídeo final de 5–7 minutos: `PENDENTE`
 - [ ] URL ou local da gravação de backup: `PENDENTE`
 - [ ] Data/hora do último ensaio completo: `PENDENTE`
-- [ ] Commit apresentado na demo: `PENDENTE`
+- [x] Commit de referência validado na Devnet/Testnet: `57b50dd`
 
 ## Verificação antes de publicar
 

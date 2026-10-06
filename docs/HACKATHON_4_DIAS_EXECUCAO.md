@@ -19,9 +19,9 @@ Este arquivo distingue **código preparado** de **evidência real**. Uma caixa m
 
 ### Evidências reais ainda pendentes
 
-- [ ] Programa Anchor implantado na Solana Devnet, com Program ID público definitivo.
-- [ ] Owner e Member reais criados/provisionados e PDAs verificáveis no Explorer.
-- [ ] Upload cifrado real concluído no Walrus Testnet, com Blob ID e link Walruscan.
+- [x] Programa Anchor implantado na Solana Devnet, com Program ID público definitivo.
+- [x] Owner e Member reais criados/provisionados e PDAs verificáveis no Explorer.
+- [x] Upload cifrado real concluído no Walrus Testnet, com Blob ID e link Walruscan.
 - [ ] Fluxo completo Owner → share → Member abre → revoke → nova leitura negada, em duas sessões de navegador.
 - [ ] Vídeo final, gravação de backup e `docs/HACKATHON_EVIDENCIAS.md` preenchido somente com dados públicos.
 
@@ -37,9 +37,9 @@ Ele valida apenas a configuração local e não faz deploy, não cria wallets e 
 
 Para considerar a entrega finalizada, todos os pontos abaixo devem acontecer sem mock:
 
-- [ ] Um arquivo de demonstração (PDF ou imagem sem dados sensíveis) é cifrado no navegador e armazenado no **Walrus Testnet**.
-- [ ] A tela mostra o `Blob ID` e abre o link do Walruscan.
-- [ ] Duas wallets reais da **Solana Devnet** têm PDAs de `Organization`, `Member` e `Capability` criados pelo programa Anchor implantado.
+- [x] Um arquivo de demonstração (PDF ou imagem sem dados sensíveis) é cifrado no navegador e armazenado no **Walrus Testnet**.
+- [x] A tela mostra o `Blob ID` e abre o link do Walruscan.
+- [x] Duas wallets reais da **Solana Devnet** têm PDAs de `Organization`, `Member` e `Capability` criados pelo programa Anchor implantado.
 - [ ] O Member faz SIWS com sua wallet e o backend consulta os PDAs Devnet antes de liberar o acesso.
 - [ ] O Owner compartilha o asset usando o modal existente; o Member recebe um envelope e abre o arquivo.
 - [ ] O Owner revoga o compartilhamento/membership; uma nova tentativa do Member de buscar o envelope ou autenticar no tenant é negada.
@@ -59,12 +59,12 @@ Para considerar a entrega finalizada, todos os pontos abaixo devem acontecer sem
 
 ### Checklist do Dia 1
 
-- [ ] `npm run demo:preflight:code` passa na cópia limpa do repositório.
+- [x] `npm run demo:preflight:code` passa na cópia limpa do repositório.
 - [x] A interface apresenta o estado da demo e só revela o link do PDA quando a API devolve `solanaProof`.
-- [ ] A keypair exclusiva de Devnet foi criada fora do repositório.
-- [ ] O programa Anchor foi compilado e implantado; o Program ID foi sincronizado em todos os arquivos locais necessários.
-- [ ] O PostgreSQL e a API sobem com `docker compose up -d --build`.
-- [ ] Há um upload real pequeno no Walrus Testnet, com Blob ID e download confirmado.
+- [x] A keypair exclusiva de Devnet foi criada fora do repositório.
+- [x] O programa Anchor foi compilado e implantado; o Program ID foi sincronizado em todos os arquivos locais necessários.
+- [x] O PostgreSQL e a API sobem com `docker compose up -d --build`.
+- [x] Há um upload real pequeno no Walrus Testnet, com Blob ID e download confirmado.
 
 ### Dev 1 — Solana Devnet
 
