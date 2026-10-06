@@ -40,6 +40,9 @@ docs/
 docs/*
 !docs/research/
 !docs/research/*.md
+!docs/DEMO_ROTEIRO_5_MIN.md
+!docs/DEMO_SLIDE_ARQUITETURA.md
+!docs/LOCAL_TESTS_AND_PROVISIONING.md
 SUIGALLERY_*.md
 WALRUS_PHOTOS_*.md
 WALRUS_CONSOLE_BUG_CAPTURE.html

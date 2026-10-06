@@ -1,0 +1,13 @@
+{
+  "organizationId": "demo-org",
+  "organizationName": "Nodus Hackathon Demo Org",
+  "ownerAddress": "3ud8N1AYHyjgi3prychYqMXUJ3PEfw6eFU9FaxADxaeF",
+  "memberAddress": "EoFuCwyMgxV3Fw7zzx46zeuJcktdqRyNJc8LvkYXitgA",
+  "memberRole": "viewer",
+  "quotaBytes": 50000000000,
+  "storage": {
+    "spaceId": "local-demo-walrus-space",
+    "bucketId": "local-demo-walrus-bucket",
+    "sealPolicyId": "local-demo-only"
+  }
+}

@@ -1084,16 +1084,15 @@ document.addEventListener("DOMContentLoaded", () => {
   const metaSealPolicy = document.getElementById("metaSealPolicy");
   const metaFileSize = document.getElementById("metaFileSize");
   const metaUploadDate = document.getElementById("metaUploadDate");
+  const sidebarCurrentRole = document.getElementById("sidebarCurrentRole");
+  const sidebarSolanaProofLink = document.getElementById("sidebarSolanaProofLink");
   const shareBtn = document.getElementById("shareBtn");
   const shareModal = document.getElementById("shareModal");
   const shareModalClose = document.getElementById("shareModalClose");
   const shareCloseBtn = document.getElementById("shareCloseBtn");
-  const shareResourceType = document.getElementById("shareResourceType");
-  const shareFolderGroup = document.getElementById("shareFolderGroup");
-  const shareFolderSelect = document.getElementById("shareFolderSelect");
   const shareRecipientSelect = document.getElementById("shareRecipientSelect");
-  const shareRoleSelect = document.getElementById("shareRoleSelect");
-  const shareExpiresAt = document.getElementById("shareExpiresAt");
+  const shareSelectedAsset = document.getElementById("shareSelectedAsset");
+  const shareFlowStatus = document.getElementById("shareFlowStatus");
   const grantShareBtn = document.getElementById("grantShareBtn");
   const shareAccessList = document.getElementById("shareAccessList");
   const instantDemoBtn = document.getElementById("instantDemoBtn");
@@ -3228,6 +3227,12 @@ document.addEventListener("DOMContentLoaded", () => {
     sidebarMimeBadge.textContent = photo.original_type || photo.content_type || "image/jpeg";
     metaBlobId.textContent = photo.blob_id || t("anchored_walrus");
     metaFileId.textContent = photo.id || "--";
+    if (sidebarCurrentRole) sidebarCurrentRole.textContent = state.currentUser?.role || "Não verificado";
+    if (sidebarSolanaProofLink) {
+      const memberPda = state.currentUser?.solanaProof?.memberPda;
+      sidebarSolanaProofLink.href = memberPda ? `https://explorer.solana.com/address/${encodeURIComponent(memberPda)}?cluster=devnet` : "#";
+      sidebarSolanaProofLink.classList.toggle("hidden", !memberPda);
+    }
     const policyId = state.status?.bucket?.seal_policy_id || "0x9c1baccb244e45342ac150a0123a4802e8e834f25c00210e50c81081354eee44";
     metaSealPolicy.textContent = policyId;
 
@@ -3464,10 +3469,26 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Share Modal Handlers
   let shareRecipients = [];
+
+  function setShareStatus(message = "", type = "") {
+    if (!shareFlowStatus) return;
+    shareFlowStatus.textContent = message;
+    shareFlowStatus.className = `share-flow-status${type ? ` is-${type}` : ""}`;
+  }
+
+  async function shareResponse(response, fallback) {
+    const body = await response.json().catch(() => ({}));
+    if (response.ok && body.success) return body;
+    if (response.status === 401) throw new Error("A sessão expirou. Entre novamente com a carteira provisionada.");
+    if (response.status === 403) throw new Error("Esta carteira não tem permissão para gerenciar este arquivo.");
+    if (response.status >= 500) throw new Error("O serviço está indisponível. Aguarde alguns segundos e tente novamente.");
+    throw new Error(body.error || fallback);
+  }
+
   async function loadAssetShares(assetId) {
+    setShareStatus("Carregando acessos atuais…", "loading");
     const response = await apiFetch(`/api/assets/${encodeURIComponent(assetId)}/shares`);
-    const body = await response.json();
-    if (!response.ok || !body.success) throw new Error(body.error || "Could not load shared access");
+    const body = await shareResponse(response, "Não foi possível carregar os acessos atuais.");
     const proofs = new Map();
     await Promise.all((body.shares || []).filter((share) => share.status === "active").map(async (share) => {
       try {
@@ -3476,37 +3497,50 @@ document.addEventListener("DOMContentLoaded", () => {
         if (proofResponse.ok && proof.success) proofs.set(share.recipientAddress, proof);
       } catch { /* Local/sandbox mode does not expose a Devnet proof. */ }
     }));
-    shareAccessList.innerHTML = body.shares.length ? `<strong>Current access</strong>${body.shares.map((share) => {
+    const statusLabels = { active: "ativo", revoked: "revogado", expired: "expirado" };
+    shareAccessList.innerHTML = body.shares.length ? `<strong>Acessos do arquivo</strong>${body.shares.map((share) => {
       const proof = proofs.get(share.recipientAddress);
       const explorer = proof?.memberPda ? ` <a class="copy-btn" href="https://explorer.solana.com/address/${encodeURIComponent(proof.memberPda)}?cluster=devnet" target="_blank" rel="noopener noreferrer" title="View active Devnet member PDA">☀</a>` : "";
-      return `<div class="tech-mini-val" style="margin-top:6px"><span>${escapeHtml(shortenAddress(share.recipientAddress))} · ${escapeHtml(share.role)} · ${escapeHtml(share.status)}${share.expiresAt ? ` · expires ${escapeHtml(new Date(share.expiresAt).toLocaleString())}` : ""}</span>${explorer}${share.status === "active" ? `<button class="copy-btn" data-revoke-share="${escapeHtml(share.id)}" title="Revoke access"><i data-lucide="ban"></i></button>` : ""}</div>`;
-    }).join("")}` : "<span style=\"color:var(--text-muted);font-size:.85rem\">No member access has been granted yet.</span>";
+      return `<div class="share-access-entry"><span class="share-access-entry-main"><strong>${escapeHtml(shortenAddress(share.recipientAddress))}</strong><small>viewer · ${escapeHtml(statusLabels[share.status] || share.status)}</small></span><span>${explorer}${share.status === "active" ? `<button class="copy-btn" data-revoke-share="${escapeHtml(share.id)}" title="Revogar acesso futuro"><i data-lucide="ban"></i></button>` : ""}</span></div>`;
+    }).join("")}` : "<span class=\"form-help\">Nenhum acesso foi concedido para este arquivo.</span>";
     shareAccessList.querySelectorAll("[data-revoke-share]").forEach((button) => button.addEventListener("click", async () => {
-      const revoke = await apiFetch(`/api/assets/${encodeURIComponent(assetId)}/shares/${encodeURIComponent(button.dataset.revokeShare)}`, { method: "DELETE" });
-      const result = await revoke.json();
-      if (!revoke.ok || !result.success) return showToast(result.error || "Could not revoke access", "danger");
-      showToast("Member access revoked. Their future envelope reads are blocked.", "success");
-      await loadAssetShares(assetId); if (window.lucide) window.lucide.createIcons();
+      button.disabled = true;
+      setShareStatus("Revogando acesso futuro…", "loading");
+      try {
+        const revoke = await apiFetch(`/api/assets/${encodeURIComponent(assetId)}/shares/${encodeURIComponent(button.dataset.revokeShare)}`, { method: "DELETE" });
+        await shareResponse(revoke, "Não foi possível revogar o acesso.");
+        const message = "O acesso futuro foi bloqueado. Cópias já baixadas não podem ser apagadas.";
+        showToast(message, "success");
+        await loadAssetShares(assetId);
+        setShareStatus(message, "success");
+        if (window.lucide) window.lucide.createIcons();
+      } catch (error) {
+        setShareStatus(error.message, "error");
+        showToast(error.message, "danger");
+        button.disabled = false;
+      }
     }));
+    setShareStatus();
     if (window.lucide) window.lucide.createIcons();
   }
 
   async function openShareModal() {
     if (!state.selectedPhoto) return;
-    if (!state.currentUser?.accessToken) return showToast("Sign in to share encrypted access.", "warning");
+    if (!state.currentUser?.accessToken) return showToast("Entre com uma carteira provisionada para compartilhar acesso cifrado.", "warning");
     try {
-      const [recipientResponse, folderResponse] = await Promise.all([apiFetch(`/api/orgs/${encodeURIComponent(activeTenantId())}/key-recipients`), apiFetch("/api/assets/folders")]);
-      const recipients = await recipientResponse.json(); const folders = await folderResponse.json();
-      if (!recipientResponse.ok || !recipients.success) throw new Error(recipients.error || "Could not load organization members");
-      if (!folderResponse.ok || !folders.success) throw new Error(folders.error || "Could not load organization folders");
+      setShareStatus("Carregando membros elegíveis…", "loading");
+      const recipientResponse = await apiFetch(`/api/orgs/${encodeURIComponent(activeTenantId())}/key-recipients`);
+      const recipients = await shareResponse(recipientResponse, "Não foi possível carregar os membros da organização.");
       shareRecipients = (recipients.recipients || []).filter((item) => item.member !== state.currentUser.address && item.identity?.publicKey);
-      shareRecipientSelect.innerHTML = shareRecipients.length ? shareRecipients.map((item) => `<option value="${escapeHtml(item.member)}">${escapeHtml(shortenAddress(item.member))} · ${escapeHtml(item.role)}</option>`).join("") : "<option value=\"\">No eligible organization members</option>";
-      shareFolderSelect.innerHTML = (folders.folders || []).map((folder) => `<option value="${escapeHtml(folder.id)}">${escapeHtml(folder.name)}</option>`).join("") || "<option value=\"\">No folders available</option>";
-      shareResourceType.value = "asset"; shareFolderGroup.classList.add("hidden"); shareRoleSelect.value = "viewer"; shareExpiresAt.value = "";
+      shareRecipientSelect.innerHTML = shareRecipients.length ? shareRecipients.map((item) => `<option value="${escapeHtml(item.member)}">${escapeHtml(shortenAddress(item.member))} · ${escapeHtml(item.role)}</option>`).join("") : "<option value=\"\">Nenhum membro elegível</option>";
+      if (shareSelectedAsset) shareSelectedAsset.textContent = state.selectedPhoto.original_name || state.selectedPhoto.name;
       shareModal.classList.remove("hidden");
       await loadAssetShares(state.selectedPhoto.id);
       if (window.lucide) window.lucide.createIcons();
-    } catch (error) { showToast(error.message, "danger"); }
+    } catch (error) {
+      setShareStatus(error.message, "error");
+      showToast(error.message, "danger");
+    }
   }
 
   function closeShareModal() {
@@ -3519,34 +3553,25 @@ document.addEventListener("DOMContentLoaded", () => {
   const shareModalBackdrop = document.getElementById("shareModalBackdrop");
   if (shareModalBackdrop) shareModalBackdrop.addEventListener("click", closeShareModal);
 
-  if (shareResourceType) shareResourceType.addEventListener("change", () => shareFolderGroup.classList.toggle("hidden", shareResourceType.value !== "folder"));
   if (grantShareBtn) grantShareBtn.addEventListener("click", async () => {
     const recipient = shareRecipients.find((item) => item.member === shareRecipientSelect.value);
-    if (!recipient || !state.selectedPhoto) return showToast("Choose an eligible organization member.", "warning");
-    const expiresAt = shareExpiresAt.value ? new Date(shareExpiresAt.value).toISOString() : null;
-    const role = shareRoleSelect.value;
+    if (!recipient || !state.selectedPhoto) return showToast("Escolha um membro elegível da organização.", "warning");
     grantShareBtn.disabled = true;
+    setShareStatus("Cifrando um envelope exclusivo para o Member…", "loading");
     try {
-      let photos = [state.selectedPhoto];
-      let folderId = null;
-      if (shareResourceType.value === "folder") {
-        folderId = shareFolderSelect.value;
-        if (!folderId) throw new Error("Choose a folder to share");
-        const response = await apiFetch(`/api/assets?folderId=${encodeURIComponent(folderId)}&limit=500`);
-        const body = await response.json(); if (!response.ok || !body.success) throw new Error(body.error || "Could not load folder files");
-        photos = body.assets || [];
-        if (!photos.length) throw new Error("This folder has no current files to share");
-      }
-      for (const photo of photos) {
-        const key = assetKeyCache.get(photo.id) || await recoverAssetKey(photo.id);
-        const envelope = await wrapDataKeyForRecipient(photo.id, key, recipient.member, recipient.identity.publicKey);
-        const response = await apiFetch(`/api/assets/${encodeURIComponent(photo.id)}/shares`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ recipientAddress: recipient.member, role, expiresAt, envelopes: [envelope] }) });
-        const body = await response.json(); if (!response.ok || !body.success) throw new Error(body.error || `Could not share ${photo.name}`);
-      }
-      if (folderId) await apiFetch(`/api/assets/folders/${encodeURIComponent(folderId)}/shares`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ recipientAddress: recipient.member, role, expiresAt, assetIds: photos.map((photo) => photo.id) }) });
-      showToast(`Encrypted access granted to ${shortenAddress(recipient.member)} for ${photos.length} ${photos.length === 1 ? "file" : "files"}.`, "success");
-      if (!folderId) await loadAssetShares(state.selectedPhoto.id);
-    } catch (error) { showToast(error.message, "danger"); } finally { grantShareBtn.disabled = false; }
+      const photo = state.selectedPhoto;
+      const key = assetKeyCache.get(photo.id) || await recoverAssetKey(photo.id);
+      const envelope = await wrapDataKeyForRecipient(photo.id, key, recipient.member, recipient.identity.publicKey);
+      const response = await apiFetch(`/api/assets/${encodeURIComponent(photo.id)}/shares`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ recipientAddress: recipient.member, role: "viewer", expiresAt: null, envelopes: [envelope] }) });
+      await shareResponse(response, `Não foi possível compartilhar ${photo.name}.`);
+      const message = `Acesso cifrado concedido a ${shortenAddress(recipient.member)}.`;
+      showToast(message, "success");
+      await loadAssetShares(photo.id);
+      setShareStatus(message, "success");
+    } catch (error) {
+      setShareStatus(error.message, "error");
+      showToast(error.message, "danger");
+    } finally { grantShareBtn.disabled = false; }
   });
 
   // Instant 1-Click Demo Login
@@ -3875,7 +3900,7 @@ document.addEventListener("DOMContentLoaded", () => {
           dockStep3.className = "dock-step completed";
           dockProgressFill.style.width = `${((completedInBatch + 1) / totalNum) * 100}%`;
           updateOptimisticCard(task.id, 3, 100, t("optimistic_anchored"));
-          showToast(t("toast_uploaded"), "success");
+          showToast("Arquivo protegido e armazenado no Walrus Testnet.", "success");
           completedInBatch++;
           await new Promise((r) => setTimeout(r, 400));
           state.activeUploads = state.activeUploads.filter((t) => t.id !== task.id);
@@ -3953,7 +3978,7 @@ document.addEventListener("DOMContentLoaded", () => {
           dockProgressFill.style.width = `${((completedInBatch + 1) / totalNum) * 100}%`;
           updateOptimisticCard(task.id, 3, 100, t("optimistic_anchored"));
 
-          showToast(t("toast_uploaded"), "success");
+          showToast("Arquivo protegido e armazenado no Walrus Testnet.", "success");
           completedInBatch++;
 
           // Give a brief moment to celebrate the green checkmark
