@@ -12,6 +12,7 @@ pnpm-debug.log*
 # Build outputs
 dist/
 build/
+target/
 
 # OS / Editor files
 .DS_Store

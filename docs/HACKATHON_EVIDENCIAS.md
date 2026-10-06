@@ -6,14 +6,14 @@
 
 | Evidência | Valor público | Explorer |
 | --- | --- | --- |
-| Program ID Anchor | `PENDENTE` | `PENDENTE` |
-| Wallet Owner | `PENDENTE` | `PENDENTE` |
-| Wallet Member | `PENDENTE` | `PENDENTE` |
-| PDA Organization (`demo-org`) | `PENDENTE` | `PENDENTE` |
-| PDA Member (Owner) | `PENDENTE` | `PENDENTE` |
-| PDA Member (Member) | `PENDENTE` | `PENDENTE` |
-| PDA Capability (Member) | `PENDENTE` | `PENDENTE` |
-| Transação de provisionamento | `PENDENTE` | `PENDENTE` |
+| Program ID Anchor | `EWDPQ97rnYJyjbB7rpFwCnnYse5KwA8fLRTsv8piuqCE` | [Ver no Explorer](https://explorer.solana.com/address/EWDPQ97rnYJyjbB7rpFwCnnYse5KwA8fLRTsv8piuqCE?cluster=devnet) |
+| Wallet Owner | `3ud8N1AYHyjgi3prychYqMXUJ3PEfw6eFU9FaxADxaeF` | [Ver no Explorer](https://explorer.solana.com/address/3ud8N1AYHyjgi3prychYqMXUJ3PEfw6eFU9FaxADxaeF?cluster=devnet) |
+| Wallet Member | `EoFuCwyMgxV3Fw7zzx46zeuJcktdqRyNJc8LvkYXitgA` | [Ver no Explorer](https://explorer.solana.com/address/EoFuCwyMgxV3Fw7zzx46zeuJcktdqRyNJc8LvkYXitgA?cluster=devnet) |
+| PDA Organization (`demo-org`) | `F1JkG7CkyDB9fAFHJyVdth7qHbbE9LTWhodPMEAy3uPV` | [Ver no Explorer](https://explorer.solana.com/address/F1JkG7CkyDB9fAFHJyVdth7qHbbE9LTWhodPMEAy3uPV?cluster=devnet) |
+| PDA Member (Owner) | `HCyGJfkpB85JmXBdKdTLpQSjZyK1CDzqcSW2ghZXVVcE` | [Ver no Explorer](https://explorer.solana.com/address/HCyGJfkpB85JmXBdKdTLpQSjZyK1CDzqcSW2ghZXVVcE?cluster=devnet) |
+| PDA Member (Member) | `AS9n1f2HgfoD7Qzw5srqvNAMUcRD6fgxx1JGzw9cjA3f` | [Ver no Explorer](https://explorer.solana.com/address/AS9n1f2HgfoD7Qzw5srqvNAMUcRD6fgxx1JGzw9cjA3f?cluster=devnet) |
+| PDA Capability (Member) | `8vJMnth7eYBq5tLGAJvgb8oCYsQRJuw8GY5M2mgqAwkn` | [Ver no Explorer](https://explorer.solana.com/address/8vJMnth7eYBq5tLGAJvgb8oCYsQRJuw8GY5M2mgqAwkn?cluster=devnet) |
+| Transação de provisionamento | `4aBqg1LWymjEHExncsBis9tTRaEPjEFv46q6U4NMNvjiJdEqimvWbNNVEn99fun4GsVUDvbUuSnijPX7VKPSBi9T` | [Ver no Explorer](https://explorer.solana.com/tx/4aBqg1LWymjEHExncsBis9tTRaEPjEFv46q6U4NMNvjiJdEqimvWbNNVEn99fun4GsVUDvbUuSnijPX7VKPSBi9T?cluster=devnet) |
 | Transação de revogação | `PENDENTE` | `PENDENTE` |
 
 ## Evidência Walrus Testnet

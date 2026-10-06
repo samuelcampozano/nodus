@@ -3,7 +3,7 @@ seeds = false
 skip-lint = false
 
 [programs.devnet]
-nodus_access = "NodUS11111111111111111111111111111111111111"
+nodus_access = "EWDPQ97rnYJyjbB7rpFwCnnYse5KwA8fLRTsv8piuqCE"
 
 [provider]
 cluster = "devnet"

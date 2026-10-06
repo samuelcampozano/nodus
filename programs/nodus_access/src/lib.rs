@@ -2,7 +2,7 @@ use anchor_lang::prelude::*;
 
 // Synchronize this value with the deploy keypair by running `anchor keys sync`.
 // The program intentionally stores no asset names, tags, plaintext or key material.
-declare_id!("NodUS11111111111111111111111111111111111111");
+declare_id!("EWDPQ97rnYJyjbB7rpFwCnnYse5KwA8fLRTsv8piuqCE");
 
 #[program]
 pub mod nodus_access {
