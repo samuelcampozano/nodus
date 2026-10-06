@@ -20,6 +20,8 @@ assert(htmlSource.includes('id="themeBtn"') && appSource.includes('themeBtn.addE
 assert(appSource.includes('localStorage.setItem("nodus_theme"') && appSource.includes('localStorage.getItem("nodus_theme")'), "Theme preference is persisted and restored");
 assert(appSource.includes('document.body.classList.add(`${nextTheme}-theme`)'), "Selected theme is applied to the document body");
 assert(appSource.includes('getElementById("dockWalruscanLink")') && appSource.includes('getElementById("dockSuivisionLink")'), "Upload proof links use the IDs rendered by the page");
+assert(htmlSource.includes('id="demoEvidencePanel"') && htmlSource.includes('id="demoSolanaProofLink"'), "Demo evidence panel exposes the live Devnet proof link");
+assert(appSource.includes("solanaProof: verifyData.solanaProof") && appSource.includes("function updateDemoEvidence()"), "SIWS proof is retained in the session and rendered for the demo");
 assert(styleSource.includes(".nav-top-row {\n    flex-wrap: wrap;") && styleSource.includes(".nav-right {\n    width: 100%;"), "Mobile navigation wraps instead of overflowing the viewport");
 assert(htmlSource.includes('aria-haspopup="menu" aria-expanded="false"'), "Dropdown controls expose their expanded state to assistive technology");
 

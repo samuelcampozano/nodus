@@ -642,13 +642,38 @@ npm run dev
       <span class="banner-separator">•</span>
       <div class="banner-pill" title="Erasure-coded decentralized blob storage on Walrus">
         <i data-lucide="layers" class="pill-icon"></i>
-        <span data-i18n="banner_walrus">Walrus Storage</span>
+        <span>Walrus Testnet — demonstration</span>
       </div>
       <span class="banner-separator">•</span>
       <div class="banner-pill" title="Verified on-chain via zero-knowledge proofs">
         <i data-lucide="shield-check" class="pill-icon"></i>
-        <span data-i18n="banner_sui">Zero-Knowledge Verified</span>
+        <span>Solana Devnet — verifiable RBAC</span>
       </div>
+    </section>
+
+    <section class="demo-evidence-panel" id="demoEvidencePanel" aria-label="Hackathon demo evidence">
+      <div class="demo-evidence-heading">
+        <i data-lucide="shield-check"></i>
+        <div>
+          <strong>Demo evidence</strong>
+          <span id="demoEnvironmentLabel">Checking local demo environment…</span>
+        </div>
+      </div>
+      <div class="demo-evidence-items">
+        <div class="demo-evidence-item">
+          <span>Organization</span>
+          <strong id="demoOrganizationValue">Sign in required</strong>
+        </div>
+        <div class="demo-evidence-item">
+          <span>Current role</span>
+          <strong id="demoRoleValue">Not verified</strong>
+        </div>
+        <a class="demo-evidence-item demo-proof-link hidden" id="demoSolanaProofLink" href="#" target="_blank" rel="noopener noreferrer">
+          <span>Member PDA</span>
+          <strong>Open Solana Explorer ↗</strong>
+        </a>
+      </div>
+      <p class="demo-evidence-note" id="demoEvidenceNote">The encrypted file never leaves this device in plaintext. A real SIWS session is required before access is granted.</p>
     </section>
 
     <!-- Upload Drop Zone -->
