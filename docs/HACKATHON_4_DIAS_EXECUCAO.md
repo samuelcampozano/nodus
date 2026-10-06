@@ -16,6 +16,13 @@ Este arquivo distingue **código preparado** de **evidência real**. Uma caixa m
 - [x] `npm run demo:preflight:code` verifica migrations, proteção de arquivos sensíveis e configuração-base.
 - [x] `npm run demo:preflight` falha deliberadamente se faltarem Program ID Devnet, credenciais Walrus ou segredos distintos do publisher.
 - [x] O template `docs/HACKATHON_EVIDENCIAS.md` separa links públicos da execução de qualquer material sigiloso.
+- [x] `npm run test:collaboration:local` sobe um PostgreSQL 16 descartável sem `.env`, aplica migrations, provisiona `demo-org` duas vezes e remove todo o ambiente ao terminar.
+- [x] O provisionamento local usa `config/local-demo-provisioning.json`, valida endereços públicos Solana e faz upsert transacional de organização, storage, Owner e Member sem duplicação.
+- [x] A suíte de share/revogação cobre grant idempotente, identidade ausente, expiração, revogação, re-share, papel inválido e isolamento entre tenants usando as queries reais do `AuthTenantStore`.
+- [x] O modal da demo foi reduzido ao happy path **arquivo → Member → viewer → revogar**, com estados acessíveis de carregamento, sucesso e erro.
+- [x] O roteiro de 5–7 minutos, o plano de contingência e o slide único de arquitetura estão versionados em `docs/DEMO_ROTEIRO_5_MIN.md` e `docs/DEMO_SLIDE_ARQUITETURA.md`.
+
+> **Validação local em 6 de outubro de 2026:** preflight, contratos do frontend, RBAC local e zero-plaintext passaram. A suíte PostgreSQL descartável está implementada, mas ainda precisa ser executada em uma máquina com Docker; nesta estação o executável `docker` não está instalado. O único erro da suíte geral foi a verificação Sui ao vivo, bloqueada por rede (`fetch failed`). Isso não conta como evidência Devnet/Testnet do happy path.
 
 ### Evidências reais ainda pendentes
 
@@ -129,6 +136,13 @@ Para considerar a entrega finalizada, todos os pontos abaixo devem acontecer sem
 - Owner vê o arquivo, o Blob ID e consegue baixá-lo/descriptografá-lo após reiniciar a página.
 - O gateway nunca recebe chave AES em texto puro e não existem chaves/arquivo plaintext em logs.
 
+**Estado do trabalho local**
+
+- [x] Provisionamento reproduzível e idempotente por manifesto público, sem depender de `.env`.
+- [x] Ambiente PostgreSQL descartável e comando único documentados em `docs/LOCAL_TESTS_AND_PROVISIONING.md`.
+- [x] Casos locais completos de share, expiração, revogação, reativação e isolamento adicionados.
+- [ ] Executar `npm run test:collaboration:local` em uma máquina com Docker e anexar a saída ao ensaio técnico.
+
 ### Dev 3 — tela que explica a prova
 
 **Arquivos existentes a usar**
@@ -152,6 +166,14 @@ Para considerar a entrega finalizada, todos os pontos abaixo devem acontecer sem
 **Pronto quando**
 
 - Uma pessoa sem contexto de blockchain entende quem pode abrir o arquivo, onde verificar e o que a revogação faz.
+
+**Estado do trabalho local**
+
+- [x] Badges Testnet/Devnet e painel de evidências permanecem visíveis.
+- [x] Detalhes do arquivo mostram “Cifrado no dispositivo”, papel atual, Blob ID/Walruscan e link Solana somente quando existe `solanaProof`.
+- [x] Modal fixado em um arquivo e permissão `viewer`; pasta, expiração e papéis extras foram removidos do fluxo da banca.
+- [x] Mensagens finais de upload, compartilhamento e revogação foram implementadas, incluindo o limite de que cópias já baixadas não podem ser apagadas.
+- [x] Estados de carregamento, sucesso e erro usam região `aria-live` e mensagens acionáveis para sessão expirada, permissão insuficiente e serviço indisponível.
 
 ## Dia 2 — conectar duas wallets e o compartilhamento
 
@@ -191,7 +213,8 @@ Para considerar a entrega finalizada, todos os pontos abaixo devem acontecer sem
 - [ ] Suítes Solana e storage listadas abaixo passam.
 - [ ] O fluxo completo foi executado três vezes em ambiente limpo.
 - [ ] `docs/HACKATHON_EVIDENCIAS.md` contém apenas dados públicos e links acessíveis.
-- [ ] Uma gravação de backup e o slide de arquitetura estão prontos.
+- [ ] Uma gravação de backup da execução real está pronta.
+- [x] O roteiro, o plano de contingência e o slide de arquitetura estão prontos.
 
 ### Dev 1
 
@@ -202,14 +225,15 @@ Para considerar a entrega finalizada, todos os pontos abaixo devem acontecer sem
 ### Dev 2
 
 - Rodar `npm run test:zero-plaintext`, `npm run test:key-envelopes`, `npm run test:asset-sharing` e `npm run test:walrus-fallback`.
+- Rodar `npm run test:collaboration:local` para criar o banco descartável, provar provisionamento idempotente e executar envelopes/share/revogação sem credenciais de rede.
 - Rodar três vezes a sequência completa em ambiente limpo; registrar falhas e corrigir somente regressões do happy path.
 - Verificar que `.env`, `.demo-wallets/`, `target/deploy/*.json` e arquivos de teste não serão commitados.
 
 ### Dev 3
 
 - Fazer uma gravação de backup da demo completa.
-- Escrever o roteiro em linguagem humana: problema → upload cifrado → prova Walrus → equipe Solana → compartilhamento → revogação → limite honesto.
-- Criar um slide único de arquitetura, sem alegar Mainnet, SLA ou preço.
+- [x] Roteiro em linguagem humana: problema → upload cifrado → prova Walrus → equipe Solana → compartilhamento → revogação → limite honesto (`docs/DEMO_ROTEIRO_5_MIN.md`).
+- [x] Slide único de arquitetura, sem alegar Mainnet, SLA ou preço (`docs/DEMO_SLIDE_ARQUITETURA.md`).
 
 ## Dia 4 — ensaio e envio
 

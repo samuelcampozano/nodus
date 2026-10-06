@@ -28,6 +28,12 @@ o detalhamento e os critérios de aceite continuam em [`pending_milestones.md`](
 > Nodus. Não apaga cópias ou chaves que o destinatário já tenha decifrado e
 > exportado localmente.
 
+### Desenvolvimento local sem credenciais de rede
+
+`npm run test:collaboration:local` inicia um PostgreSQL descartável, provisiona a organização de demonstração de forma idempotente e executa os fluxos completos de envelope, share e revogação. Não requer `.env`, Solana ou Walrus. Consulte [`docs/LOCAL_TESTS_AND_PROVISIONING.md`](docs/LOCAL_TESTS_AND_PROVISIONING.md).
+
+Materiais da apresentação: [`docs/DEMO_ROTEIRO_5_MIN.md`](docs/DEMO_ROTEIRO_5_MIN.md) e [`docs/DEMO_SLIDE_ARQUITETURA.md`](docs/DEMO_SLIDE_ARQUITETURA.md).
+
 ---
 
 ## 📸 Overview
