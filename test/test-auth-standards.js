@@ -135,9 +135,12 @@ async function run() {
     assert(appJs.includes("wallet-standard:register-wallet"), "Must listen to wallet-standard:register-wallet");
   });
 
-  it("Ensures Slush Wallet and official Sui Wallet support exists in app.js", () => {
+  it("Ensures Slush Wallet login was removed and official Sui Wallet support exists", () => {
     const appJs = fs.readFileSync("public/app.js", "utf-8");
-    assert(appJs.includes("Slush Wallet") || appJs.includes("window.slush"), "Must support Slush Wallet");
+    const html = fs.readFileSync("public/index.html", "utf-8");
+    assert(!appJs.includes("slushwallet.com"), "Must not redirect to the Slush Wallet domain");
+    assert(!html.includes('id="connectSlushBtn"'), "Must not contain the Slush login button");
+    assert(!html.includes("slushwallet.com"), "Must not link to the Slush Wallet domain");
     assert(appJs.includes("window.suiWallet"), "Must support Sui Wallet");
   });
 

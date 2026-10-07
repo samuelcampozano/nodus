@@ -167,7 +167,7 @@ document.addEventListener("DOMContentLoaded", () => {
       verb_store_title: "Client-Side Sealed",
       verb_store_desc: "All media is encrypted with AES-256-GCM and Seal threshold keys in the user's browser before transmission. Walrus storage nodes only see unreadable ciphertext slivers.",
       verb_prove_title: "Zero-Knowledge Identity",
-      verb_prove_desc: "Log in with Google zkLogin, Sui standard wallets (Slush, official Sui), or 12-word BIP-39 mnemonic seed. Your Web2 email is cryptographically translated to a Sui address without leaking credentials.",
+      verb_prove_desc: "Log in with Google zkLogin, Sui standard wallets, or 12-word BIP-39 mnemonic seed. Your Web2 email is cryptographically translated to a Sui address without leaking credentials.",
       verb_govern_title: "Multi-Chain RBAC",
       verb_govern_desc: "Anchor Program-Derived Addresses (PDAs) on Solana and Sui Objects enforce organizational member roles, viewer limits, and revocable team access policies.",
       verb_verify_title: "Verifiable Attestation",
@@ -575,7 +575,7 @@ document.addEventListener("DOMContentLoaded", () => {
       verb_store_title: "Selado no Cliente",
       verb_store_desc: "Todo o conteúdo é encriptado com AES-256-GCM e chaves de limiar Seal no navegador do utilizador antes do envio. Os nós Walrus recebem apenas fragmentos de texto cifrado ilegíveis.",
       verb_prove_title: "Identidade Zero-Knowledge",
-      verb_prove_desc: "Inicie sessão com Google zkLogin, carteiras Sui padrão (Slush, Sui oficial) ou frase mnemónica BIP-39. O seu email Web2 traduz-se criptograficamente num endereço Sui sem expor credenciais.",
+      verb_prove_desc: "Inicie sessão com Google zkLogin, carteiras Sui padrão ou frase mnemónica BIP-39. O seu email Web2 traduz-se criptograficamente num endereço Sui sem expor credenciais.",
       verb_govern_title: "RBAC Multicadeia",
       verb_govern_desc: "Endereços Derivados de Programas (PDAs) Anchor em Solana e Objetos Sui impõem papéis organizacionais, limites de visualização e permissões revogáveis.",
       verb_verify_title: "Atestação Verificável",
@@ -970,13 +970,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const submitCustomEmailZkLoginBtn = document.getElementById("submitCustomEmailZkLoginBtn");
   const launchGoogleOAuthPopupBtn = document.getElementById("launchGoogleOAuthPopupBtn");
 
-  // Sui & Slush Multi-Wallet Modal Elements
+  // Sui Multi-Wallet Modal Elements
   const walletSelectorModal = document.getElementById("walletSelectorModal");
   const walletSelectorModalClose = document.getElementById("walletSelectorModalClose");
   const walletSelectorModalBackdrop = document.getElementById("walletSelectorModalBackdrop");
-  const walletCardSlush = document.getElementById("walletCardSlush");
-  const slushWalletStatus = document.getElementById("slushWalletStatus");
-  const connectSlushBtn = document.getElementById("connectSlushBtn");
   const walletCardSui = document.getElementById("walletCardSui");
   const suiWalletStatus = document.getElementById("suiWalletStatus");
   const connectOfficialSuiBtn = document.getElementById("connectOfficialSuiBtn");
@@ -1889,7 +1886,7 @@ document.addEventListener("DOMContentLoaded", () => {
     refreshWalletSelectorStatus();
   }
 
-  // Register listener for standard Sui wallets (Slush, Sui Wallet, Nightly, etc.)
+  // Register listener for standard Sui wallets (Sui Wallet, Nightly, etc.)
   window.addEventListener("wallet-standard:register-wallet", (event) => {
     if (event.detail) registerStandardWallet(event.detail);
   });
@@ -1904,10 +1901,6 @@ document.addEventListener("DOMContentLoaded", () => {
     for (const [name, w] of standardWallets.entries()) {
       list.push({ id: name, name: w.name, icon: w.icon || null, standard: true, instance: w });
     }
-    const slush = window.slush || window.slushWallet;
-    if (slush && !list.some((w) => w.name.toLowerCase().includes("slush"))) {
-      list.push({ id: "slush", name: "Slush Wallet", icon: null, standard: false, instance: slush });
-    }
     if (window.suiWallet && !list.some((w) => w.name.toLowerCase() === "sui wallet")) {
       list.push({ id: "suiWallet", name: "Sui Wallet", icon: null, standard: false, instance: window.suiWallet });
     }
@@ -1921,33 +1914,11 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function refreshWalletSelectorStatus() {
-    const isSlushDetected = Boolean(
-      window.slush ||
-      window.slushWallet ||
-      standardWallets.has("Slush") ||
-      standardWallets.has("Slush Wallet") ||
-      Array.from(standardWallets.keys()).some((k) => k.toLowerCase().includes("slush"))
-    );
-
     const isSuiWalletDetected = Boolean(
       window.suiWallet ||
       standardWallets.has("Sui Wallet") ||
       Array.from(standardWallets.keys()).some((k) => k.toLowerCase() === "sui wallet")
     );
-
-    if (slushWalletStatus && connectSlushBtn) {
-      if (isSlushDetected) {
-        slushWalletStatus.textContent = "Detected • Ready to Connect";
-        slushWalletStatus.className = "wallet-card-status detected";
-        connectSlushBtn.textContent = "Connect";
-        connectSlushBtn.className = "btn btn-sm btn-primary wallet-action-btn";
-      } else {
-        slushWalletStatus.textContent = "Extension / Mobile Browser";
-        slushWalletStatus.className = "wallet-card-status";
-        connectSlushBtn.textContent = "Connect / Install";
-        connectSlushBtn.className = "btn btn-sm btn-outline wallet-action-btn";
-      }
-    }
 
     if (suiWalletStatus && connectOfficialSuiBtn) {
       if (isSuiWalletDetected) {
@@ -1964,7 +1935,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (noWalletNotice) {
-      if (isSlushDetected || isSuiWalletDetected || standardWallets.size > 0) {
+      if (isSuiWalletDetected || standardWallets.size > 0) {
         noWalletNotice.classList.add("hidden");
       } else {
         noWalletNotice.classList.remove("hidden");
@@ -2066,20 +2037,6 @@ document.addEventListener("DOMContentLoaded", () => {
       showToast(`Connection to ${wallet.name} cancelled or rejected: ${err.message}`, "danger");
     }
     return false;
-  }
-
-  async function handleConnectSlush() {
-    const slushObj = window.slush || window.slushWallet;
-    const standardSlush = standardWallets.get("Slush") || standardWallets.get("Slush Wallet");
-    if (slushObj) {
-      const ok = await connectWalletInstance({ name: "Slush Wallet", standard: false, instance: slushObj });
-      if (ok) return;
-    } else if (standardSlush) {
-      const ok = await connectWalletInstance({ name: "Slush Wallet", standard: true, instance: standardSlush });
-      if (ok) return;
-    }
-    window.open("https://slushwallet.com", "_blank");
-    showToast("Opening Slush Wallet official page (slushwallet.com)...", "info");
   }
 
   async function handleConnectOfficialSui() {
@@ -2589,10 +2546,9 @@ document.addEventListener("DOMContentLoaded", () => {
     launchGoogleOAuthPopupBtn.addEventListener("click", launchGoogleOAuthPopup);
   }
 
-  // Sui & Slush Wallet Standard Modal Listeners
+  // Sui Wallet Standard Modal Listeners
   if (walletSelectorModalClose) walletSelectorModalClose.addEventListener("click", closeWalletSelectorModal);
   if (walletSelectorModalBackdrop) walletSelectorModalBackdrop.addEventListener("click", closeWalletSelectorModal);
-  if (connectSlushBtn) connectSlushBtn.addEventListener("click", handleConnectSlush);
   if (connectOfficialSuiBtn) connectOfficialSuiBtn.addEventListener("click", handleConnectOfficialSui);
   if (walletFallbackSeedBtn) {
     walletFallbackSeedBtn.addEventListener("click", () => {
