@@ -21,7 +21,7 @@
       <div class="drag-drop-icon">
         <i data-lucide="shield-check"></i>
       </div>
-      <h3>Drop Photos to Encrypt & Store on Walrus</h3>
+      <h3>Drop Files to Encrypt & Store on Walrus</h3>
       <p>Local Seal Threshold Envelope Encryption applied before decentralized storage</p>
     </div>
   </div>
@@ -167,7 +167,7 @@
         <div class="nd-verb-card">
           <span class="nd-verb-pill">STORE</span>
           <h3 data-i18n="verb_store_title">Client-Side Sealed</h3>
-          <p data-i18n="verb_store_desc">All media is encrypted with AES-256-GCM and Seal threshold keys in the user's browser before transmission. Walrus storage nodes only see unreadable ciphertext slivers.</p>
+          <p data-i18n="verb_store_desc">All files are encrypted with AES-256-GCM and Seal threshold keys in the user's browser before transmission. Walrus storage nodes only see unreadable ciphertext slivers.</p>
         </div>
         <div class="nd-verb-card">
           <span class="nd-verb-pill">PROVE</span>
@@ -196,7 +196,7 @@
         </div>
         <h2 class="nd-section-title" data-i18n="demo_title">Experience Sovereign Encryption in Real Time</h2>
         <p class="nd-section-desc" data-i18n="demo_desc">
-          Select a sample memory or drop any photo below. Watch it get sealed with AES-256-GCM, dispersed into Walrus 2D Reed-Solomon slivers, and decrypted in browser memory.
+          Select a sample image file below. Watch it get sealed with AES-256-GCM, dispersed into Walrus 2D Reed-Solomon slivers, and decrypted in browser memory.
         </p>
       </div>
 
@@ -204,7 +204,7 @@
         <!-- Playground Top Bar: Preset Picker & Auto-Loop Controls -->
         <div class="nd-playground-toolbar">
           <div class="nd-preset-group">
-            <span class="nd-toolbar-label">Sample Memory:</span>
+            <span class="nd-toolbar-label">Sample Image File:</span>
             <button class="nd-preset-btn active" data-preset="guardian" id="presetGuardianBtn">
               <i data-lucide="shield"></i> <span>Guardian AI</span>
             </button>
@@ -215,7 +215,7 @@
               <i data-lucide="orbit"></i> <span>Deep Space</span>
             </button>
             <label class="nd-preset-btn nd-upload-custom-btn" for="playgroundFileInput" id="presetUploadLabel">
-              <i data-lucide="upload"></i> <span>Drop Any Photo</span>
+              <i data-lucide="upload"></i> <span>Choose Image File</span>
               <input type="file" id="playgroundFileInput" accept="image/*" class="hidden">
             </label>
           </div>
@@ -424,7 +424,7 @@
           <span class="nd-section-label" data-i18n="verify_label">AUDITABLE CERTAINTY</span>
           <h2 class="nd-section-title" style="margin-bottom: 12px;" data-i18n="verify_title">Verify Cryptographic Integrity On-Chain</h2>
           <p class="nd-section-desc" data-i18n="verify_desc">
-            Every stored memory and document produces mathematical proof anchored across decentralized ledgers. Inspect any blob root or policy state in real time.
+            Every stored file produces mathematical proof anchored across decentralized ledgers. Inspect any blob root or policy state in real time.
           </p>
           <div class="nd-checks-list">
             <div class="nd-check-item">
@@ -638,11 +638,11 @@ npm run dev
 
           <button class="btn btn-primary upload-header-btn" id="uploadTriggerBtn">
             <i data-lucide="upload-cloud"></i>
-            <span data-i18n="upload_btn">Upload Photos</span>
+            <span data-i18n="upload_btn">Upload Files</span>
           </button>
         </div>
 
-        <input type="file" id="fileInput" multiple accept="image/*,video/*" class="hidden">
+        <input type="file" id="fileInput" multiple class="hidden">
       </div>
     </div>
 
@@ -650,7 +650,7 @@ npm run dev
     <div class="nav-search-row">
       <div class="search-bar">
         <i data-lucide="search" class="search-icon"></i>
-        <input type="text" id="searchInput" placeholder="Search memories, tags, or file names..." autocomplete="off">
+        <input type="text" id="searchInput" placeholder="Search files, tags, or names..." autocomplete="off">
         <button class="clear-search hidden" id="clearSearchBtn"><i data-lucide="x"></i></button>
       </div>
     </div>
@@ -708,7 +708,7 @@ npm run dev
         <div class="drop-icon-wrapper">
           <i data-lucide="image-plus" class="drop-icon"></i>
         </div>
-        <h3 class="drop-title" data-i18n="drop_title">Drop your photos & videos here</h3>
+        <h3 class="drop-title" data-i18n="drop_title">Drop your files here</h3>
         <p class="drop-subtitle" data-i18n="drop_subtitle">Encrypted on your device before touching Walrus. Full-resolution, uncompressed preservation.</p>
         <button class="btn btn-secondary btn-sm" id="browseBtn">
           <i data-lucide="folder-open"></i> <span data-i18n="browse_btn">Browse Files</span>
@@ -722,7 +722,7 @@ npm run dev
     <section class="controls-bar">
       <div class="tag-chips-wrapper" id="tagChips">
         <button class="tag-chip active" data-tag="all" data-i18n="tag_all">All</button>
-        <button class="tag-chip" data-tag="photo" data-i18n="tag_photos">Photos</button>
+        <button class="tag-chip" data-tag="all" data-i18n="tag_photos">Files</button>
         <button class="tag-chip" data-tag="nodus" data-i18n="tag_nodus">Nodus</button>
       </div>
 
@@ -748,8 +748,8 @@ npm run dev
     <section class="gallery-section">
       <div class="section-header">
         <div class="header-titles">
-          <h2 class="section-title" data-i18n="timeline_title">Timeline & Memories</h2>
-          <span class="photo-counter" id="photoCounter">Loading vault...</span>
+          <h2 class="section-title" data-i18n="timeline_title">Secure Files</h2>
+          <span class="photo-counter" id="photoCounter">Syncing files...</span>
         </div>
         <div class="header-actions">
           <button class="btn btn-ghost btn-icon" id="refreshBtn" title="Sync with Walrus Bucket">
@@ -769,7 +769,7 @@ npm run dev
           <i data-lucide="images" class="empty-icon"></i>
         </div>
         <h3 data-i18n="empty_title">Your Sovereign Vault is Empty</h3>
-        <p data-i18n="empty_desc">No photos or media stored yet in your Walrus bucket. Drag and drop any picture above to start building your decentralized Google Photos alternative.</p>
+        <p data-i18n="empty_desc">No files stored in your Walrus vault yet. Drop any supported file above to get started.</p>
       </div>
     </section>
   </main>
@@ -777,7 +777,7 @@ npm run dev
   <!-- Floating Batch Actions Bar -->
   <div class="batch-action-bar hidden" id="batchBar">
     <div class="batch-content">
-      <span class="batch-count" id="batchCount">0 photos selected</span>
+      <span class="batch-count" id="batchCount">0 files selected</span>
       <div class="batch-buttons">
         <button class="btn btn-ghost btn-sm" id="batchDeselectBtn" data-i18n="deselect_all">Deselect</button>
         <button class="btn btn-secondary btn-sm" id="batchDownloadBtn">
@@ -791,25 +791,25 @@ npm run dev
   </div>
   </div> <!-- End #appView -->
 
-  <!-- Photo Lightbox Modal -->
+  <!-- File Preview Modal -->
   <div class="lightbox-modal hidden" id="lightboxModal">
     <div class="lightbox-backdrop" id="lightboxBackdrop"></div>
     <div class="lightbox-container">
       <button class="lightbox-close" id="lightboxCloseBtn"><i data-lucide="x"></i></button>
 
       <div class="lightbox-viewport" id="lightboxViewport">
-        <button class="lightbox-nav-btn lightbox-prev" id="lightboxPrevBtn" title="Previous photo (←)"><i data-lucide="chevron-left"></i></button>
+        <button class="lightbox-nav-btn lightbox-prev" id="lightboxPrevBtn" title="Previous file (←)"><i data-lucide="chevron-left"></i></button>
         <img id="lightboxImg" src="" alt="Encrypted preview" class="lightbox-image">
         <video id="lightboxVideo" controls playsinline class="lightbox-video hidden"></video>
         <audio id="lightboxAudio" controls class="lightbox-audio hidden"></audio>
-        <button class="lightbox-nav-btn lightbox-next" id="lightboxNextBtn" title="Next photo (→)"><i data-lucide="chevron-right"></i></button>
+        <button class="lightbox-nav-btn lightbox-next" id="lightboxNextBtn" title="Next file (→)"><i data-lucide="chevron-right"></i></button>
         <button class="lightbox-zoom-btn" id="lightboxZoomBtn" title="Toggle Zoom / Fullscreen"><i data-lucide="maximize-2"></i></button>
       </div>
 
       <aside class="lightbox-sidebar">
         <div class="sidebar-header">
           <div class="sidebar-title-row">
-            <h3 id="sidebarFileName" class="sidebar-title">photo.jpg</h3>
+            <h3 id="sidebarFileName" class="sidebar-title">file.dat</h3>
             <button class="btn-icon-sm" id="editMetaBtn" title="Edit Name & Tags"><i data-lucide="edit-3"></i></button>
           </div>
           <span class="sidebar-badge" id="sidebarMimeBadge">image/jpeg</span>
@@ -895,7 +895,7 @@ npm run dev
 
         <div class="sidebar-actions">
           <button id="shareBtn" class="btn btn-primary btn-block">
-            <i data-lucide="share-2"></i> <span data-i18n="share_memory_btn">Share Memory</span>
+            <i data-lucide="share-2"></i> <span data-i18n="share_memory_btn">Share File</span>
           </button>
           <a id="downloadBtn" href="#" class="btn btn-secondary btn-block">
             <i data-lucide="download"></i> <span data-i18n="download_btn">Download Original</span>
@@ -947,12 +947,12 @@ npm run dev
     </div>
   </div>
 
-  <!-- Edit Photo Metadata Modal -->
+  <!-- Edit File Metadata Modal -->
   <div class="modal-dialog hidden" id="editModal">
     <div class="modal-backdrop" id="editModalBackdrop"></div>
     <div class="modal-content">
       <div class="modal-header">
-        <h3 data-i18n="edit_photo_title">Edit Memory Details</h3>
+        <h3 data-i18n="edit_photo_title">Edit File Details</h3>
         <button class="btn-close" id="editModalClose"><i data-lucide="x"></i></button>
       </div>
       <div class="modal-body">
@@ -962,11 +962,11 @@ npm run dev
         </div>
         <div class="form-group">
           <label data-i18n="edit_description">Description / Caption</label>
-          <input type="text" id="editDescriptionInput" class="form-input" placeholder="Add a memory caption...">
+          <input type="text" id="editDescriptionInput" class="form-input" placeholder="Add a file description...">
         </div>
         <div class="form-group">
           <label data-i18n="edit_tags">Tags (comma separated)</label>
-          <input type="text" id="editTagsInput" class="form-input" placeholder="photo, family, travel">
+          <input type="text" id="editTagsInput" class="form-input" placeholder="document, project, travel">
         </div>
       </div>
       <div class="modal-footer">
@@ -1362,7 +1362,7 @@ npm run dev
           <div class="vault-modal-icon"><i data-lucide="shield-check"></i></div>
           <div>
             <h3 data-i18n="account_manager_title">Sovereign Account & Vault</h3>
-            <p class="modal-subtitle" data-i18n="account_manager_subtitle">Decentralized memory vault secured by Sui zkLogin and Walrus Protocol.</p>
+            <p class="modal-subtitle" data-i18n="account_manager_subtitle">Decentralized file vault secured by Sui zkLogin and Walrus Protocol.</p>
           </div>
         </div>
         <button class="btn-close" id="vaultModalClose"><i data-lucide="x"></i></button>
@@ -1632,7 +1632,7 @@ npm run dev
                 </div>
                 <h5 style="margin: 0 0 6px 0; font-size: 0.95rem; color: var(--text-primary);">Pre-Configured Sovereign Storage</h5>
                 <p style="margin: 0; font-size: 0.82rem; color: var(--text-secondary); line-height: 1.45; max-width: 540px;">
-                  All media and files are sealed client-side with AES-256-GCM before being dispersed across Walrus storage nodes. Inspect and audit your live decentralized bucket directly on the official Walrus Console.
+                  All files are sealed client-side with AES-256-GCM before being dispersed across Walrus storage nodes. Inspect and audit your live decentralized bucket directly on the official Walrus Console.
                 </p>
               </div>
               <a href="https://console.walrus.xyz/buckets/" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm" style="display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;">
