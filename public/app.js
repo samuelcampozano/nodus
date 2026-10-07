@@ -1960,12 +1960,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
   async function apiFetch(input, init = {}, retries = 2, backoffMs = 350) {
     const headers = apiHeaders(init.headers);
-    for (let attempt = 0; attempt <= retries; attempt++) {
+    const method = String(init.method || "GET").toUpperCase();
+    const retrySafe = ["GET", "HEAD"].includes(method) || init.retrySafe === true;
+    const maxRetries = retrySafe ? retries : 0;
+    const timeoutMs = Number(init.timeoutMs || 35000);
+    const { timeoutMs: _timeoutMs, retrySafe: _retrySafe, ...fetchInit } = init;
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      let timeout;
       try {
         const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), init.timeoutMs || 35000);
+        timeout = setTimeout(() => controller.abort(), timeoutMs);
         const response = await fetch(input, {
-          ...init,
+          ...fetchInit,
           headers,
           signal: init.signal || controller.signal
         });
@@ -1980,14 +1986,18 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         // Retry on 502/503/504 transient gateway responses
-        if ([502, 503, 504].includes(response.status) && attempt < retries) {
+        if ([502, 503, 504].includes(response.status) && attempt < maxRetries) {
           await new Promise((r) => setTimeout(r, backoffMs * Math.pow(2, attempt)));
           continue;
         }
 
         return response;
       } catch (err) {
-        if (attempt >= retries || err.name === "AbortError") {
+        clearTimeout(timeout);
+        if (err.name === "AbortError" && !init.signal) {
+          throw new Error(`The request exceeded ${Math.round(timeoutMs / 1000)} seconds and was not retried automatically.`);
+        }
+        if (attempt >= maxRetries) {
           throw err;
         }
         await new Promise((r) => setTimeout(r, backoffMs * Math.pow(2, attempt)));
@@ -4447,8 +4457,11 @@ document.addEventListener("DOMContentLoaded", () => {
   let isUploadingQueue = false;
   let lastUploadedBlobId = null;
   const uploadQueue = [];
-  const RESUMABLE_THRESHOLD_BYTES = 20 * 1024 * 1024;
+  // Chunk medium/large phone images early so the browser reports real progress
+  // and never has to keep the whole encrypted asset in one request body.
+  const RESUMABLE_THRESHOLD_BYTES = 8 * 1024 * 1024;
   const RESUMABLE_CHUNK_SIZE = 8 * 1024 * 1024;
+  const WALRUS_UPLOAD_TIMEOUT_MS = 3 * 60 * 1000;
 
   function updateOptimisticCard(taskId, stage, progress, labelText) {
     const badgeText = document.getElementById(`badge-text-${taskId}`);
@@ -4506,6 +4519,8 @@ document.addEventListener("DOMContentLoaded", () => {
           try {
             const partRes = await apiFetch(`/api/assets/uploads/${uploadId}/parts/${partNumber}`, {
               method: "PUT",
+              retrySafe: true,
+              timeoutMs: 90 * 1000,
               headers: {
                 "Content-Type": "application/octet-stream",
                 "x-part-sha256": checksum
@@ -4531,7 +4546,11 @@ document.addEventListener("DOMContentLoaded", () => {
         onProgress?.({ uploadedBytes: end, totalBytes: file.size, partNumber, chunkCount });
       }
 
-      const completeRes = await apiFetch(`/api/assets/uploads/${uploadId}/complete`, { method: "POST" });
+      const completeRes = await apiFetch(`/api/assets/uploads/${uploadId}/complete`, {
+        method: "POST",
+        retrySafe: true,
+        timeoutMs: WALRUS_UPLOAD_TIMEOUT_MS
+      });
       const completeData = await completeRes.json();
       if (!completeRes.ok || !completeData.success) throw new Error(completeData.error || "Could not complete resumable upload");
       return { ...completeData, clientKey: keyHex };
@@ -4648,10 +4667,7 @@ document.addEventListener("DOMContentLoaded", () => {
           updateOptimisticCard(task.id, 3, 100, t("optimistic_anchored"));
           showToast(t("toast_uploaded"), "success");
           completedInBatch++;
-          await new Promise((r) => setTimeout(r, 400));
           state.activeUploads = state.activeUploads.filter((t) => t.id !== task.id);
-          await fetchPhotos();
-          await fetchStatus();
         } catch (err) {
           task.failed = true;
           updateOptimisticCard(task.id, 1, 100, t("optimistic_failed"));
@@ -4696,9 +4712,10 @@ document.addEventListener("DOMContentLoaded", () => {
       try {
         const res = await apiFetch("/api/photos/upload", {
           method: "POST",
-          body: formData
+          body: formData,
+          timeoutMs: WALRUS_UPLOAD_TIMEOUT_MS
         });
-        const data = await res.json();
+        const data = await res.json().catch(() => ({}));
 
         if (data.success) {
           // Track blob ID for on-chain proof link
@@ -4727,15 +4744,8 @@ document.addEventListener("DOMContentLoaded", () => {
           showToast(t("toast_uploaded"), "success");
           completedInBatch++;
 
-          // Give a brief moment to celebrate the green checkmark
-          await new Promise((r) => setTimeout(r, 400));
-
           // Clean up task from activeUploads (do not revoke previewUrl since it is stored in decryptedMediaCache)
           state.activeUploads = state.activeUploads.filter((t) => t.id !== task.id);
-
-          // Refresh photos & status non-blockingly
-          await fetchPhotos();
-          await fetchStatus();
         } else {
           task.failed = true;
           updateOptimisticCard(task.id, 1, 100, t("optimistic_failed"));
@@ -4750,6 +4760,10 @@ document.addEventListener("DOMContentLoaded", () => {
         renderPhotos();
       }
     }
+
+    // One refresh per batch avoids two additional serial requests after every
+    // image and lets the next queued upload start immediately.
+    await Promise.allSettled([fetchPhotos(), fetchStatus()]);
 
     // All uploads finished
     isUploadingQueue = false;

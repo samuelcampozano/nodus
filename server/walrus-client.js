@@ -306,22 +306,28 @@ class WalrusClientManager {
 
     try {
       const client = await this.getClient();
-      const bucket = await this.getBucketDetails(bucketId);
-      const effectiveSealPolicyId = sealPolicyId || bucket?.seal_policy_id;
+      // The tenant context already contains the policy. Looking the bucket up
+      // before every upload added a full remote round trip and could consume the
+      // entire client timeout before the file was even sent.
+      const effectiveSealPolicyId = sealPolicyId;
 
       console.log(`🔒 [WalrusClient] Encrypting & Uploading ${fileName} (Seal Policy: ${sealPolicyId.slice(0, 10)}...)`);
 
-      const res = await client.callTool({
-        name: "upload_file",
-        arguments: {
-          bucketId,
-          sealPolicyId: effectiveSealPolicyId,
-          localPath,
-          name: fileName,
-          description,
-          tags
-        }
-      });
+      const res = await client.callTool(
+        {
+          name: "upload_file",
+          arguments: {
+            bucketId,
+            sealPolicyId: effectiveSealPolicyId,
+            localPath,
+            name: fileName,
+            description,
+            tags
+          }
+        },
+        undefined,
+        { timeout: Number(process.env.CONSOLE_UPLOAD_TIMEOUT_MS || 120000), maxTotalTimeout: Number(process.env.CONSOLE_UPLOAD_TIMEOUT_MS || 120000) }
+      );
 
       const parsed = await this.parseMcpResponse(res);
       console.log("✅ [WalrusClient] Upload completed successfully:", parsed);
