@@ -1025,62 +1025,11 @@ body.light-theme .form-input {
   gap: 1.75rem;
 }
 
-/* Subtle Decentralized Security Status Strip */
-.crypto-banner {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  margin: -0.5rem auto 0 auto;
-  padding: 0.2rem 0.5rem;
-}
-
-.banner-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.2rem 0.6rem;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: var(--radius-full);
-  font-size: 0.72rem;
-  font-weight: 500;
-  letter-spacing: 0.01em;
-  color: var(--text-tertiary);
-  transition: all 0.2s ease;
-}
-
-.banner-pill:hover {
-  background: rgba(255, 255, 255, 0.04);
-  border-color: rgba(31, 168, 255, 0.25);
-  color: var(--text-secondary);
-}
-
-.banner-separator {
-  color: rgba(255, 255, 255, 0.15);
-  font-size: 0.65rem;
-  user-select: none;
-}
-
-.pill-icon {
-  width: 12px;
-  height: 12px;
-  color: var(--brand-sui);
-  flex-shrink: 0;
-  opacity: 0.85;
-}
-
-.banner-pill strong { color: var(--text-secondary); }
-
+/* Subtle Decentralized Security Status Strip (Hidden from consumer view) */
+.crypto-banner,
+.tech-status-strip,
 .demo-evidence-panel {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 0.9rem 1rem;
-  border: 1px solid rgba(20, 241, 149, 0.24);
-  border-radius: var(--radius-md);
-  background: linear-gradient(90deg, rgba(20, 241, 149, 0.08), rgba(77, 162, 255, 0.06));
+  display: none !important;
 }
 
 .demo-evidence-heading {

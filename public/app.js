@@ -213,10 +213,10 @@ document.addEventListener("DOMContentLoaded", () => {
       dev_portal_subtitle: "Manage B2B API keys, view live storage usage, and inspect monthly cost metrics.",
       team_rbac_title: "Team Members & Access Control",
       team_rbac_subtitle: "Manage organization roles and cryptographic key envelope distributions.",
-      banner_walrus_testnet: "Walrus Testnet — demonstration",
-      banner_solana_rbac: "Solana Devnet — verifiable RBAC",
+      banner_walrus_testnet: "Walrus Storage",
+      banner_solana_rbac: "Verifiable Cryptographic RBAC",
       demo_evidence_title: "Demo evidence",
-      demo_evidence_env: "Walrus Testnet Connected",
+      demo_evidence_env: "Encrypted & Connected",
       demo_evidence_org: "Organization",
       demo_evidence_role: "Current role",
       demo_evidence_member_pda: "Member PDA",
@@ -238,7 +238,7 @@ document.addEventListener("DOMContentLoaded", () => {
       auth_method_solana_desc: "Phantom & Solflare",
       zklogin_modal_title: "Google zkLogin",
       zklogin_modal_subtitle: "Sign in with your Google email using Zero-Knowledge proofs. Your Web2 identity is translated to a sovereign vault key without leaking passwords or private data.",
-      zklogin_persona_title: "Select Pre-configured Persona (Testnet)",
+      zklogin_persona_title: "Select Demo Profile",
       zklogin_custom_title: "Google Email Address",
       zklogin_custom_placeholder: "e.g. your.email@gmail.com",
       zklogin_custom_btn: "Continue with Google zkLogin",
@@ -469,10 +469,10 @@ document.addEventListener("DOMContentLoaded", () => {
       dev_desc: "Construye sobre el SDK de Nodus o ejecuta tu propia consola local con aislamiento criptográfico total.",
       cta_title: "¿Listo Para Poseer Tus Datos Soberanos?",
       cta_desc: "Sin suscripciones. Sin rastreo corporativo. Custodia matemática absoluta sobre lo que no debe verse.",
-      banner_walrus_testnet: "Walrus Testnet — demostración",
-      banner_solana_rbac: "Solana Devnet — RBAC verificable",
+      banner_walrus_testnet: "Almacenamiento Walrus",
+      banner_solana_rbac: "RBAC Criptográfico Verificable",
       demo_evidence_title: "Evidencia de demostración",
-      demo_evidence_env: "Walrus Testnet Conectado",
+      demo_evidence_env: "Encriptado y Conectado",
       demo_evidence_org: "Organización",
       demo_evidence_role: "Rol actual",
       demo_evidence_member_pda: "PDA de Miembro",
@@ -494,7 +494,7 @@ document.addEventListener("DOMContentLoaded", () => {
       auth_method_solana_desc: "Phantom y Solflare",
       zklogin_modal_title: "Google zkLogin",
       zklogin_modal_subtitle: "Inicia sesión con tu correo de Google mediante pruebas de conocimiento cero. Tu identidad Web2 se traduce en una clave de bóveda soberana sin filtrar contraseñas.",
-      zklogin_persona_title: "Seleccionar Persona Preconfigurada (Testnet)",
+      zklogin_persona_title: "Seleccionar Perfil de Demostración",
       zklogin_custom_title: "Dirección de Correo Google",
       zklogin_custom_placeholder: "ej. nombre@gmail.com",
       zklogin_custom_btn: "Continuar con Google zkLogin",
@@ -725,10 +725,10 @@ document.addEventListener("DOMContentLoaded", () => {
       dev_desc: "Construa sobre o SDK Nodus ou execute a sua própria console soberana local com isolamento criptográfico completo.",
       cta_title: "Pronto Para Ter Custódia dos Seus Dados?",
       cta_desc: "Zero subscrições. Zero rastreamento corporativo. Custódia matemática absoluta sobre o que não pode ser visto.",
-      banner_walrus_testnet: "Walrus Testnet — demonstração",
-      banner_solana_rbac: "Solana Devnet — RBAC verificável",
+      banner_walrus_testnet: "Armazenamento Walrus",
+      banner_solana_rbac: "RBAC Criptográfico Verificável",
       demo_evidence_title: "Evidência de demonstração",
-      demo_evidence_env: "Walrus Testnet Conectado",
+      demo_evidence_env: "Criptografado e Conectado",
       demo_evidence_org: "Organização",
       demo_evidence_role: "Função atual",
       demo_evidence_member_pda: "PDA do Membro",
@@ -750,7 +750,7 @@ document.addEventListener("DOMContentLoaded", () => {
       auth_method_solana_desc: "Phantom e Solflare",
       zklogin_modal_title: "Google zkLogin",
       zklogin_modal_subtitle: "Faça login com seu e-mail Google usando provas de conhecimento zero. Sua identidade Web2 é traduzida em chave soberana sem vazar senhas.",
-      zklogin_persona_title: "Selecionar Persona Pré-configurada (Testnet)",
+      zklogin_persona_title: "Selecionar Perfil de Demonstração",
       zklogin_custom_title: "Endereço de E-mail Google",
       zklogin_custom_placeholder: "ex. seu@gmail.com",
       zklogin_custom_btn: "Continuar com Google zkLogin",
@@ -981,10 +981,10 @@ document.addEventListener("DOMContentLoaded", () => {
       dev_portal_subtitle: "管理 B2B API 密钥，查看实时存储用量，并检查月度账单指标。",
       team_rbac_title: "团队成员与访问控制",
       team_rbac_subtitle: "管理组织角色及密码学密钥信封分发。",
-      banner_walrus_testnet: "Walrus 测试网 — 去中心化演示",
-      banner_solana_rbac: "Solana Devnet — 可验证 RBAC",
+      banner_walrus_testnet: "Walrus 去中心化存储",
+      banner_solana_rbac: "可验证密码学 RBAC",
       demo_evidence_title: "演示证据",
-      demo_evidence_env: "Walrus 测试网已连接",
+      demo_evidence_env: "已加密并连接",
       demo_evidence_org: "所属组织",
       demo_evidence_role: "当前角色",
       demo_evidence_member_pda: "成员 PDA",
@@ -1006,7 +1006,7 @@ document.addEventListener("DOMContentLoaded", () => {
       auth_method_solana_desc: "Phantom 与 Solflare",
       zklogin_modal_title: "Google zkLogin",
       zklogin_modal_subtitle: "使用 Google 邮箱通过零知识证明登录。您的 Web2 身份将转换为金库密钥，绝不泄露密码或隐私。",
-      zklogin_persona_title: "选择预配置身份 (测试网)",
+      zklogin_persona_title: "选择演示身份",
       zklogin_custom_title: "Google 邮箱地址",
       zklogin_custom_placeholder: "输入 Google 邮箱 (如 name@gmail.com)",
       zklogin_custom_btn: "使用 Google zkLogin 继续",
@@ -1237,10 +1237,10 @@ document.addEventListener("DOMContentLoaded", () => {
       dev_portal_subtitle: "Gérez les clés API B2B, visualisez l'utilisation du stockage et inspectez les métriques de coûts.",
       team_rbac_title: "Membres de l'Équipe & Contrôle d'Accès",
       team_rbac_subtitle: "Gérez les rôles et la distribution des enveloppes cryptographiques de clés.",
-      banner_walrus_testnet: "Walrus Testnet — démonstration",
-      banner_solana_rbac: "Solana Devnet — RBAC vérifiable",
+      banner_walrus_testnet: "Stockage Walrus",
+      banner_solana_rbac: "RBAC Cryptographique Vérifiable",
       demo_evidence_title: "Preuve de démonstration",
-      demo_evidence_env: "Walrus Testnet Connecté",
+      demo_evidence_env: "Chiffré et Connecté",
       demo_evidence_org: "Organisation",
       demo_evidence_role: "Rôle actuel",
       demo_evidence_member_pda: "PDA du Membre",
@@ -1262,7 +1262,7 @@ document.addEventListener("DOMContentLoaded", () => {
       auth_method_solana_desc: "Phantom & Solflare",
       zklogin_modal_title: "Google zkLogin",
       zklogin_modal_subtitle: "Connectez-vous avec votre e-mail Google via des preuves zero-knowledge. Votre identité Web2 est traduite en clé souveraine sans fuite de mot de passe.",
-      zklogin_persona_title: "Sélectionner un Profil Préconfiguré (Testnet)",
+      zklogin_persona_title: "Sélectionner un Profil de Démo",
       zklogin_custom_title: "Adresse E-mail Google",
       zklogin_custom_placeholder: "ex. nom@gmail.com",
       zklogin_custom_btn: "Continuer avec Google zkLogin",
@@ -2793,7 +2793,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function launchGoogleOAuthPopup() {
     const clientId = window.__NODUS_GOOGLE_CLIENT_ID;
     if (!clientId) {
-      showToast("Google OAuth Client ID is not configured. Please use direct zkLogin with your email above.", "warning");
+      showToast("Direct zkLogin is active. Enter your email above to continue with zero-knowledge authentication.", "info");
       const input = document.getElementById("customGoogleEmailInput");
       if (input) input.focus();
       return;
@@ -4672,7 +4672,7 @@ document.addEventListener("DOMContentLoaded", () => {
           dockStep3.className = "dock-step completed";
           dockProgressFill.style.width = `${((completedInBatch + 1) / totalNum) * 100}%`;
           updateOptimisticCard(task.id, 3, 100, t("optimistic_anchored"));
-          showToast("Arquivo protegido e armazenado no Walrus Testnet.", "success");
+          showToast(t("toast_uploaded"), "success");
           completedInBatch++;
           await new Promise((r) => setTimeout(r, 400));
           state.activeUploads = state.activeUploads.filter((t) => t.id !== task.id);
@@ -4750,7 +4750,7 @@ document.addEventListener("DOMContentLoaded", () => {
           dockProgressFill.style.width = `${((completedInBatch + 1) / totalNum) * 100}%`;
           updateOptimisticCard(task.id, 3, 100, t("optimistic_anchored"));
 
-          showToast("Arquivo protegido e armazenado no Walrus Testnet.", "success");
+          showToast(t("toast_uploaded"), "success");
           completedInBatch++;
 
           // Give a brief moment to celebrate the green checkmark

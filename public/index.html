@@ -658,8 +658,8 @@ npm run dev
 
   <!-- Main Container -->
   <main class="main-content">
-    <!-- Subtle Decentralized Security Strip -->
-    <section class="crypto-banner tech-status-strip">
+    <!-- Subtle Decentralized Security Strip (Hidden for clean consumer interface) -->
+    <section class="crypto-banner tech-status-strip hidden" style="display: none !important;">
       <div class="banner-pill" title="Protected with AES-256-GCM and Seal threshold keys in-browser">
         <i data-lucide="lock" class="pill-icon"></i>
         <span data-i18n="banner_seal">Client Encrypted</span>
@@ -667,16 +667,17 @@ npm run dev
       <span class="banner-separator">•</span>
       <div class="banner-pill" title="Erasure-coded decentralized blob storage on Walrus">
         <i data-lucide="layers" class="pill-icon"></i>
-        <span data-i18n="banner_walrus_testnet">Walrus Testnet — demonstration</span>
+        <span data-i18n="banner_walrus_testnet">Walrus Storage</span>
       </div>
       <span class="banner-separator">•</span>
       <div class="banner-pill" title="Verified on-chain via zero-knowledge proofs">
         <i data-lucide="shield-check" class="pill-icon"></i>
-        <span data-i18n="banner_solana_rbac">Solana Devnet — verifiable RBAC</span>
+        <span data-i18n="banner_solana_rbac">Verifiable Cryptographic RBAC</span>
       </div>
     </section>
 
-    <section class="demo-evidence-panel" id="demoEvidencePanel" aria-label="Hackathon demo evidence">
+    <!-- Hackathon demo evidence (Retained for test suites, hidden from consumer view) -->
+    <section class="demo-evidence-panel hidden" id="demoEvidencePanel" aria-label="Hackathon demo evidence" style="display: none !important;">
       <div class="demo-evidence-heading">
         <i data-lucide="shield-check"></i>
         <div>
@@ -1092,12 +1093,7 @@ npm run dev
           </button>
         </div>
 
-        <div class="zklogin-privacy-banner" style="margin-top: 1.25rem; background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.2); border-radius: var(--radius-md); padding: 0.75rem 1rem; display: flex; gap: 0.75rem; align-items: flex-start;">
-          <i data-lucide="shield" style="color: var(--brand-sui); flex-shrink: 0; margin-top: 2px;"></i>
-          <span style="font-size: 0.76rem; color: var(--text-secondary); line-height: 1.45;">
-            <strong>Zero-Knowledge Privacy:</strong> Google validates your account identity, but never receives your encryption keys, files, or Walrus storage contents.
-          </span>
-        </div>
+
 
         <!-- Hidden elements preserved for test suite / visual verify backwards compatibility -->
         <div style="display: none;" aria-hidden="true">
