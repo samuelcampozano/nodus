@@ -4,6 +4,9 @@ import fs from "node:fs";
 import path from "node:path";
 import os from "node:os";
 
+const adapterSource = fs.readFileSync(path.resolve("server/walrus-direct-adapter.js"), "utf8");
+const clientSource = fs.readFileSync(path.resolve("server/walrus-client.js"), "utf8");
+
 function assert(condition, message) {
   if (!condition) {
     throw new Error(`Assertion failed: ${message}`);
@@ -26,6 +29,8 @@ async function run() {
 
   const productionAdapter = new DirectWalrusTestnetAdapter({ enabled: true, environment: "production" });
   assert(productionAdapter.enabled === false, "Production forcibly disables the direct Walrus Testnet adapter");
+  assert(adapterSource.includes("fs.createReadStream(data)") && adapterSource.includes('duplex: "half"'), "Disk uploads stream ciphertext instead of buffering the whole file twice");
+  assert(!/async uploadPhoto[\s\S]*?const bucket = await this\.getBucketDetails\(bucketId\)/.test(clientSource), "Upload skips the redundant remote bucket lookup");
 
   // [TEST 2] Health Check Liveness Probe
   console.log("\n[TEST 2] Public Walrus Aggregator Liveness Probe");
@@ -34,7 +39,7 @@ async function run() {
   if (!health.ok) {
     console.log("  ⚠️  External Walrus Testnet unreachable (offline runner or network restricted). Skipping live network tests.");
     console.log("\n==================================================");
-    console.log("SUMMARY: 4 PASSED, 0 FAILED (Live network probes skipped gracefully)");
+    console.log("SUMMARY: LOCAL CHECKS PASSED (Live network probes skipped gracefully)");
     console.log("==================================================");
     return;
   }
@@ -49,7 +54,7 @@ async function run() {
   } catch (err) {
     console.log(`  ⚠️  External Walrus Testnet publisher unavailable or timed out: ${err.message}. Skipping live write tests.`);
     console.log("\n==================================================");
-    console.log("SUMMARY: 4 PASSED, 0 FAILED (Live network write probe skipped gracefully)");
+    console.log("SUMMARY: LOCAL CHECKS PASSED (Live network write probe skipped gracefully)");
     console.log("==================================================");
     return;
   }

@@ -68,15 +68,20 @@ export class DirectWalrusTestnetAdapter {
       throw new Error("Direct Walrus Testnet adapter is disabled");
     }
 
-    let payloadBuffer;
+    let requestBody;
+    let payloadSize;
+    let streaming = false;
     if (typeof data === "string") {
-      // It's a file path
       if (!fs.existsSync(data)) {
         throw new Error(`File not found at path: ${data}`);
       }
-      payloadBuffer = fs.readFileSync(data);
+      const stat = fs.statSync(data);
+      payloadSize = stat.size;
+      requestBody = fs.createReadStream(data);
+      streaming = true;
     } else if (Buffer.isBuffer(data) || data instanceof Uint8Array) {
-      payloadBuffer = data;
+      requestBody = data;
+      payloadSize = data.byteLength;
     } else {
       throw new Error("Invalid payload: must be Buffer, Uint8Array, or file path");
     }
@@ -95,9 +100,10 @@ export class DirectWalrusTestnetAdapter {
         method: "PUT",
         headers: {
           "Content-Type": "application/octet-stream",
-          "Content-Length": String(payloadBuffer.length)
+          "Content-Length": String(payloadSize)
         },
-        body: payloadBuffer,
+        body: requestBody,
+        ...(streaming ? { duplex: "half" } : {}),
         signal: controller.signal
       });
 
@@ -110,7 +116,7 @@ export class DirectWalrusTestnetAdapter {
 
       let blobId = null;
       let suiObjectId = null;
-      let size = payloadBuffer.length;
+      let size = payloadSize;
       let newlyCreated = false;
 
       if (result.newlyCreated) {

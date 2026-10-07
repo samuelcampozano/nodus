@@ -2199,7 +2199,15 @@ app.use((error, req, res, next) => {
   if (error?.message === "Origin is not allowed by CORS policy") {
     return res.status(403).json({ success: false, error: error.message });
   }
-  return next(error);
+  if (error instanceof multer.MulterError) {
+    const message = error.code === "LIMIT_FILE_SIZE"
+      ? "File exceeds the 50 MB single-request limit. Use the resumable upload flow."
+      : `Upload request rejected: ${error.message}`;
+    return res.status(error.code === "LIMIT_FILE_SIZE" ? 413 : 400).json({ success: false, error: message, code: error.code });
+  }
+  if (res.headersSent) return next(error);
+  console.error("❌ [API] Unhandled request error:", error);
+  return res.status(500).json({ success: false, error: error?.message || "Unexpected server error" });
 });
 
 // Start Server only if executed directly and not in test mode

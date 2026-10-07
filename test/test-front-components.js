@@ -30,5 +30,9 @@ assert(appSource.includes('role: "viewer", expiresAt: null') && appSource.includ
 assert(appSource.includes("Cópias já baixadas não podem ser apagadas"), "Revocation UI communicates its cryptographic limitation honestly");
 assert(htmlSource.includes('id="shareFlowStatus"') && htmlSource.includes('aria-live="polite"'), "Sharing exposes accessible loading, success and error feedback");
 assert(htmlSource.includes('id="sidebarCurrentRole"') && htmlSource.includes('id="sidebarSolanaProofLink"'), "File details expose the current role and only render a Devnet proof link when available");
+assert(appSource.includes("const WALRUS_UPLOAD_TIMEOUT_MS = 3 * 60 * 1000") && appSource.includes("timeoutMs: WALRUS_UPLOAD_TIMEOUT_MS"), "Walrus uploads are not aborted by the generic 35-second API timeout");
+assert(appSource.includes('const RESUMABLE_THRESHOLD_BYTES = 8 * 1024 * 1024'), "Medium and large images switch to progress-aware resumable upload at 8 MiB");
+assert(appSource.includes('retrySafe: true') && appSource.includes("was not retried automatically"), "Only explicitly idempotent upload operations are retried");
+assert(appSource.includes("await Promise.allSettled([fetchPhotos(), fetchStatus()])"), "Catalog and quota refresh once per upload batch instead of once per image");
 
 console.log("🎉 ALL FRONT-END COMPONENT CONTRACT TESTS PASSED");
