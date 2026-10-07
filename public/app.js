@@ -1788,6 +1788,9 @@ document.addEventListener("DOMContentLoaded", () => {
     if (walletSelectorModal) {
       walletSelectorModal.classList.remove("hidden");
       document.body.style.overflow = "hidden";
+      broadcastAppReady();
+      scanNavigatorWallets();
+      scanWindowProviders();
       refreshWalletSelectorStatus();
       if (window.lucide) window.lucide.createIcons();
     }
@@ -1881,34 +1884,157 @@ document.addEventListener("DOMContentLoaded", () => {
   // ==========================================
   // SUI WALLET STANDARD REGISTRY & DISCOVERY
   // ==========================================
+  const OFFICIAL_SLUSH_STORE_URL = "https://chromewebstore.google.com/detail/slush-%E2%80%94-a-sui-wallet/opcgpfmipidbgpenhmajoajpbobppdil";
+  const OFFICIAL_SLUSH_SITE_URL = "https://slush.app";
+
   const standardWallets = new Map();
 
   function registerStandardWallet(wallet) {
-    if (!wallet || !wallet.name) return;
-    standardWallets.set(wallet.name, wallet);
+    if (!wallet) return;
+    const name = wallet.name || (typeof wallet === "object" && wallet.toString !== Object.prototype.toString ? String(wallet) : "");
+    if (!name || typeof name !== "string") return;
+    standardWallets.set(name, wallet);
     refreshWalletSelectorStatus();
   }
 
-  // Register listener for standard Sui wallets (Slush, Sui Wallet, Nightly, etc.)
+  // Handle incoming wallet-standard:register-wallet event per Wallet Standard specification.
+  // In the standard, event.detail is a callback: (api) => api.register(wallet).
+  // Some wallets may also pass wallet directly as event.detail or as an object with .register().
   window.addEventListener("wallet-standard:register-wallet", (event) => {
-    if (event.detail) registerStandardWallet(event.detail);
+    try {
+      const detail = event?.detail;
+      if (typeof detail === "function") {
+        detail({ register: registerStandardWallet });
+      } else if (detail && typeof detail.register === "function") {
+        detail.register(registerStandardWallet);
+      } else if (detail && detail.name) {
+        registerStandardWallet(detail);
+      }
+    } catch (e) {
+      console.warn("[Wallet Standard] Error handling register-wallet event:", e);
+    }
   });
 
-  // Discover any wallets already in navigator.wallets
-  if (typeof navigator !== "undefined" && navigator.wallets) {
-    for (const w of navigator.wallets) registerStandardWallet(w);
+  // Notify wallets that loaded before the dApp that the dApp is ready (standard handshake)
+  function broadcastAppReady() {
+    try {
+      window.dispatchEvent(new CustomEvent("wallet-standard:app-ready", {
+        detail: { register: registerStandardWallet }
+      }));
+    } catch (e) {
+      console.warn("[Wallet Standard] Error dispatching app-ready event:", e);
+    }
+  }
+
+  // Discover any wallets registered in navigator.wallets
+  function scanNavigatorWallets() {
+    if (typeof navigator !== "undefined" && navigator.wallets) {
+      try {
+        if (typeof navigator.wallets[Symbol.iterator] === "function") {
+          for (const w of navigator.wallets) registerStandardWallet(w);
+        } else if (Array.isArray(navigator.wallets)) {
+          for (const w of navigator.wallets) registerStandardWallet(w);
+        }
+      } catch (_) {}
+    }
+  }
+
+  // Scan window injected providers (Slush, Sui Wallet, in-app mobile browsers)
+  function scanWindowProviders() {
+    const slush = window.slush || window.slushWallet;
+    if (slush) {
+      const name = slush.name || "Slush Wallet";
+      registerStandardWallet({ ...slush, name, instance: slush });
+    }
+    if (window.suiWallet) {
+      const name = window.suiWallet.name || "Sui Wallet";
+      registerStandardWallet({ ...window.suiWallet, name, instance: window.suiWallet });
+    }
+    if (window.sui) {
+      const name = window.sui.name || "Sui Standard Wallet";
+      registerStandardWallet({ ...window.sui, name, instance: window.sui });
+    }
+    if (window.nightly?.sui) {
+      registerStandardWallet({ ...window.nightly.sui, name: "Nightly Wallet", instance: window.nightly.sui });
+    }
+    refreshWalletSelectorStatus();
+  }
+
+  // Trigger discovery immediately and at scheduled intervals for late injected extensions / mobile webviews
+  scanNavigatorWallets();
+  broadcastAppReady();
+  scanWindowProviders();
+
+  setTimeout(() => { broadcastAppReady(); scanNavigatorWallets(); scanWindowProviders(); }, 120);
+  setTimeout(() => { broadcastAppReady(); scanNavigatorWallets(); scanWindowProviders(); }, 350);
+  setTimeout(() => { broadcastAppReady(); scanNavigatorWallets(); scanWindowProviders(); }, 900);
+  setTimeout(() => { broadcastAppReady(); scanNavigatorWallets(); scanWindowProviders(); }, 2000);
+
+  window.addEventListener("focus", () => {
+    broadcastAppReady();
+    scanNavigatorWallets();
+    scanWindowProviders();
+  });
+
+  // Helpers to resolve Slush Wallet / Sui Wallet across Wallet Standard & Injected properties
+  function findSlushWallet() {
+    // 1. Search in Wallet Standard registered wallets for "slush"
+    for (const [name, wallet] of standardWallets.entries()) {
+      const lower = name.toLowerCase();
+      if (lower.includes("slush")) {
+        return { name: wallet.name || "Slush Wallet", standard: true, instance: wallet };
+      }
+    }
+    // 2. Search for "sui wallet" in standardWallets (since Sui Wallet rebranded to Slush)
+    for (const [name, wallet] of standardWallets.entries()) {
+      const lower = name.toLowerCase();
+      if (lower.includes("sui wallet") || lower === "sui") {
+        return { name: wallet.name || "Slush / Sui Wallet", standard: true, instance: wallet };
+      }
+    }
+    // 3. Any standard wallet supporting sui: chains
+    for (const [name, wallet] of standardWallets.entries()) {
+      if (Array.isArray(wallet.chains) && wallet.chains.some((c) => String(c).startsWith("sui:"))) {
+        return { name: wallet.name || "Sui Wallet", standard: true, instance: wallet };
+      }
+    }
+    // 4. Injected window providers
+    const slushObj = window.slush || window.slushWallet;
+    if (slushObj) return { name: "Slush Wallet", standard: Boolean(slushObj.features?.["standard:connect"]), instance: slushObj };
+    if (window.suiWallet) return { name: "Slush / Sui Wallet", standard: Boolean(window.suiWallet.features?.["standard:connect"]), instance: window.suiWallet };
+    if (window.sui) return { name: "Sui Standard Wallet", standard: Boolean(window.sui.features?.["standard:connect"]), instance: window.sui };
+    return null;
+  }
+
+  function findOfficialSuiWallet() {
+    for (const [name, wallet] of standardWallets.entries()) {
+      const lower = name.toLowerCase();
+      if (lower.includes("sui wallet") || lower.includes("slush")) {
+        return { name: wallet.name || "Slush / Sui Wallet", standard: true, instance: wallet };
+      }
+    }
+    for (const [name, wallet] of standardWallets.entries()) {
+      if (Array.isArray(wallet.chains) && wallet.chains.some((c) => String(c).startsWith("sui:"))) {
+        return { name: wallet.name || "Sui Wallet", standard: true, instance: wallet };
+      }
+    }
+    if (window.suiWallet) return { name: "Sui Wallet", standard: Boolean(window.suiWallet.features?.["standard:connect"]), instance: window.suiWallet };
+    const slushObj = window.slush || window.slushWallet;
+    if (slushObj) return { name: "Slush Wallet", standard: Boolean(slushObj.features?.["standard:connect"]), instance: slushObj };
+    if (window.sui) return { name: "Sui Standard Wallet", standard: Boolean(window.sui.features?.["standard:connect"]), instance: window.sui };
+    return null;
   }
 
   function detectSuiWallets() {
     const list = [];
     for (const [name, w] of standardWallets.entries()) {
-      list.push({ id: name, name: w.name, icon: w.icon || null, standard: true, instance: w });
+      list.push({ id: name, name: w.name || name, icon: w.icon || null, standard: true, instance: w });
     }
     const slush = window.slush || window.slushWallet;
     if (slush && !list.some((w) => w.name.toLowerCase().includes("slush"))) {
       list.push({ id: "slush", name: "Slush Wallet", icon: null, standard: false, instance: slush });
     }
-    if (window.suiWallet && !list.some((w) => w.name.toLowerCase() === "sui wallet")) {
+    if (window.suiWallet && !list.some((w) => w.name.toLowerCase().includes("sui"))) {
       list.push({ id: "suiWallet", name: "Sui Wallet", icon: null, standard: false, instance: window.suiWallet });
     }
     if (window.sui && !list.some((w) => w.name.toLowerCase() === "sui")) {
@@ -1921,19 +2047,11 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function refreshWalletSelectorStatus() {
-    const isSlushDetected = Boolean(
-      window.slush ||
-      window.slushWallet ||
-      standardWallets.has("Slush") ||
-      standardWallets.has("Slush Wallet") ||
-      Array.from(standardWallets.keys()).some((k) => k.toLowerCase().includes("slush"))
-    );
+    const slushWallet = findSlushWallet();
+    const suiWallet = findOfficialSuiWallet();
 
-    const isSuiWalletDetected = Boolean(
-      window.suiWallet ||
-      standardWallets.has("Sui Wallet") ||
-      Array.from(standardWallets.keys()).some((k) => k.toLowerCase() === "sui wallet")
-    );
+    const isSlushDetected = Boolean(slushWallet);
+    const isSuiWalletDetected = Boolean(suiWallet);
 
     if (slushWalletStatus && connectSlushBtn) {
       if (isSlushDetected) {
@@ -1976,7 +2094,7 @@ document.addEventListener("DOMContentLoaded", () => {
       dynamicWalletsContainer.innerHTML = "";
       for (const [name, wallet] of standardWallets.entries()) {
         const lower = name.toLowerCase();
-        if (lower.includes("slush") || lower === "sui wallet") continue;
+        if (lower.includes("slush") || lower.includes("sui wallet")) continue;
         const card = document.createElement("div");
         card.className = "wallet-option-card";
         card.innerHTML = `
@@ -2004,42 +2122,34 @@ document.addEventListener("DOMContentLoaded", () => {
       showToast(`Connecting to ${wallet.name}...`, "info");
       let accounts = [];
       const walletName = wallet.name;
+      const inst = wallet.instance || wallet;
 
-      if (wallet.standard && wallet.instance?.features?.["standard:connect"]) {
-        const res = await wallet.instance.features["standard:connect"].connect();
-        accounts = res.accounts || [];
-        if (accounts.length > 0) {
-          const addr = accounts[0].address || accounts[0];
-          const session = {
-            id: `wallet_${Date.now()}`,
-            method: "sui_wallet",
-            provider: walletName,
-            name: `${walletName} User`,
-            email: shortenAddress(addr),
-            address: addr,
-            scheme: "ED25519 (Wallet Standard)",
-            createdAt: new Date().toISOString()
-          };
-          saveAuthSession(session);
-          closeWalletSelectorModal();
-          closeZkLoginModal();
-          showToast(t("toast_wallet_connected", { addr: shortenAddress(addr) }), "success");
-          return true;
+      // 1. Standard connect feature (Wallet Standard specification)
+      if (inst?.features?.["standard:connect"]) {
+        const res = await inst.features["standard:connect"].connect();
+        if (res && res.accounts && res.accounts.length > 0) {
+          accounts = res.accounts;
+        } else if (inst.accounts && inst.accounts.length > 0) {
+          accounts = inst.accounts;
         }
       }
-
-      const inst = wallet.instance;
-      if (inst.requestPermissions) {
-        const permitted = await inst.requestPermissions();
-        if (permitted && inst.getAccounts) {
+      // 2. Legacy / alternative methods
+      if (!accounts || accounts.length === 0) {
+        if (inst?.requestPermissions) {
+          const permitted = await inst.requestPermissions();
+          if (permitted && inst.getAccounts) {
+            accounts = await inst.getAccounts();
+          }
+        } else if (inst?.connect) {
+          const res = await inst.connect();
+          if (res && res.accounts) accounts = res.accounts;
+          else if (inst.getAccounts) accounts = await inst.getAccounts();
+          else if (inst.accounts) accounts = inst.accounts;
+        } else if (inst?.getAccounts) {
           accounts = await inst.getAccounts();
+        } else if (inst?.accounts) {
+          accounts = inst.accounts;
         }
-      } else if (inst.connect) {
-        const res = await inst.connect();
-        if (res && res.accounts) accounts = res.accounts;
-        else if (inst.getAccounts) accounts = await inst.getAccounts();
-      } else if (inst.getAccounts) {
-        accounts = await inst.getAccounts();
       }
 
       if (accounts && accounts.length > 0) {
@@ -2052,7 +2162,7 @@ document.addEventListener("DOMContentLoaded", () => {
           name: `${walletName} User`,
           email: shortenAddress(addr),
           address: addr,
-          scheme: "ED25519 (Extension)",
+          scheme: "ED25519 (Wallet Standard)",
           createdAt: new Date().toISOString()
         };
         saveAuthSession(session);
@@ -2060,40 +2170,60 @@ document.addEventListener("DOMContentLoaded", () => {
         closeZkLoginModal();
         showToast(t("toast_wallet_connected", { addr: shortenAddress(addr) }), "success");
         return true;
+      } else {
+        throw new Error("No account was returned by the wallet.");
       }
     } catch (err) {
       console.warn(`[Wallet] Connect error for ${wallet.name}:`, err);
       showToast(`Connection to ${wallet.name} cancelled or rejected: ${err.message}`, "danger");
+      return false;
     }
-    return false;
   }
 
   async function handleConnectSlush() {
-    const slushObj = window.slush || window.slushWallet;
-    const standardSlush = standardWallets.get("Slush") || standardWallets.get("Slush Wallet");
-    if (slushObj) {
-      const ok = await connectWalletInstance({ name: "Slush Wallet", standard: false, instance: slushObj });
-      if (ok) return;
-    } else if (standardSlush) {
-      const ok = await connectWalletInstance({ name: "Slush Wallet", standard: true, instance: standardSlush });
+    let wallet = findSlushWallet();
+    if (!wallet) {
+      // Re-scan and re-broadcast to catch late injections
+      broadcastAppReady();
+      scanNavigatorWallets();
+      scanWindowProviders();
+      await new Promise((r) => setTimeout(r, 150));
+      wallet = findSlushWallet();
+    }
+
+    if (wallet) {
+      const ok = await connectWalletInstance(wallet);
       if (ok) return;
     }
-    window.open("https://slushwallet.com", "_blank");
-    showToast("Opening Slush Wallet official page (slushwallet.com)...", "info");
+
+    // Fallback: route to official Slush channels
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    if (isMobile) {
+      showToast("Opening official Slush Wallet (slush.app)...", "info");
+      window.open(OFFICIAL_SLUSH_SITE_URL, "_blank");
+    } else {
+      showToast("Opening Slush — A Sui wallet on Chrome Web Store...", "info");
+      window.open(OFFICIAL_SLUSH_STORE_URL, "_blank");
+    }
   }
 
   async function handleConnectOfficialSui() {
-    const suiObj = window.suiWallet;
-    const standardSui = standardWallets.get("Sui Wallet");
-    if (suiObj) {
-      const ok = await connectWalletInstance({ name: "Sui Wallet", standard: false, instance: suiObj });
-      if (ok) return;
-    } else if (standardSui) {
-      const ok = await connectWalletInstance({ name: "Sui Wallet", standard: true, instance: standardSui });
+    let wallet = findOfficialSuiWallet();
+    if (!wallet) {
+      broadcastAppReady();
+      scanNavigatorWallets();
+      scanWindowProviders();
+      await new Promise((r) => setTimeout(r, 150));
+      wallet = findOfficialSuiWallet();
+    }
+
+    if (wallet) {
+      const ok = await connectWalletInstance(wallet);
       if (ok) return;
     }
-    window.open("https://chrome.google.com/webstore/detail/sui-wallet/opcgpfmipidbgpenhmajoajpbobppdil", "_blank");
-    showToast("Opening Sui Wallet on Chrome Web Store...", "info");
+
+    showToast("Opening Slush (formerly Sui Wallet) on Chrome Web Store...", "info");
+    window.open(OFFICIAL_SLUSH_STORE_URL, "_blank");
   }
 
   function handleConnectSuiWallet() {
