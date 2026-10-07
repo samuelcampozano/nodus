@@ -1151,8 +1151,15 @@ npm run dev
           <i data-lucide="info"></i>
           <div>
             <span>No Sui wallet detected in browser?</span>
+            <p class="wallet-mobile-hint" style="margin: 4px 0 8px 0; font-size: 0.75rem; color: var(--text-secondary); line-height: 1.4;">
+              On mobile? Open Nodus inside your wallet's built-in browser (Sui Wallet, Slush), or use Google zkLogin without installing extensions.
+            </p>
             <div class="wallet-download-links">
-              <a href="https://chrome.google.com/webstore/detail/sui-wallet/opcgpfmipidbgpenhmajoajpbobppdil" target="_blank" class="download-link">Get Sui Wallet ↗</a>
+              <button class="btn btn-sm btn-primary" id="suiModalZkLoginBtn" style="display: inline-flex; align-items: center; gap: 6px; font-size: 0.76rem; padding: 0.35rem 0.75rem;">
+                <i data-lucide="shield-check" style="width: 14px; height: 14px;"></i>
+                <span>Use Google zkLogin Instead</span>
+              </button>
+              <a href="https://chromewebstore.google.com/detail/sui-wallet/opcgpfmipidbgpenhmajoajpbobppdil" target="_blank" rel="noopener noreferrer" class="download-link desktop-only-link" style="font-size: 0.72rem;">Desktop Extension ↗</a>
             </div>
           </div>
         </div>
@@ -1332,10 +1339,17 @@ npm run dev
           <i data-lucide="info"></i>
           <div>
             <span>No Solana wallet detected in browser?</span>
+            <p class="wallet-mobile-hint" style="margin: 4px 0 8px 0; font-size: 0.75rem; color: var(--text-secondary); line-height: 1.4;">
+              On mobile? Open Nodus inside your wallet's built-in browser (Phantom, Solflare), or use Google zkLogin without installing extensions.
+            </p>
             <div class="wallet-download-links">
-              <a href="https://phantom.app" target="_blank" class="download-link solana-link">Get Phantom ↗</a>
-              <a href="https://solflare.com" target="_blank" class="download-link solana-link">Get Solflare ↗</a>
-              <a href="https://backpack.app" target="_blank" class="download-link solana-link">Get Backpack ↗</a>
+              <button class="btn btn-sm btn-primary" id="solanaModalZkLoginBtn" style="display: inline-flex; align-items: center; gap: 6px; font-size: 0.76rem; padding: 0.35rem 0.75rem;">
+                <i data-lucide="shield-check" style="width: 14px; height: 14px;"></i>
+                <span>Use Google zkLogin Instead</span>
+              </button>
+              <a href="https://phantom.app" target="_blank" rel="noopener noreferrer" class="download-link solana-link desktop-only-link" style="font-size: 0.72rem;">Get Phantom ↗</a>
+              <a href="https://solflare.com" target="_blank" rel="noopener noreferrer" class="download-link solana-link desktop-only-link" style="font-size: 0.72rem;">Get Solflare ↗</a>
+              <a href="https://backpack.app" target="_blank" rel="noopener noreferrer" class="download-link solana-link desktop-only-link" style="font-size: 0.72rem;">Get Backpack ↗</a>
             </div>
           </div>
         </div>

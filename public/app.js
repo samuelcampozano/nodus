@@ -2376,6 +2376,11 @@ document.addEventListener("DOMContentLoaded", () => {
     return encoded;
   }
 
+  function isMobileDevice() {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+      (window.innerWidth <= 768 && ("ontouchstart" in window || navigator.maxTouchPoints > 0));
+  }
+
   // ==========================================
   // SUI WALLET STANDARD REGISTRY & DISCOVERY
   // ==========================================
@@ -2551,9 +2556,9 @@ document.addEventListener("DOMContentLoaded", () => {
         connectOfficialSuiBtn.textContent = "Connect";
         connectOfficialSuiBtn.className = "btn btn-sm btn-primary wallet-action-btn";
       } else {
-        suiWalletStatus.textContent = "Browser Extension";
+        suiWalletStatus.textContent = isMobileDevice() ? "Mobile Web3 App" : "Browser Extension";
         suiWalletStatus.className = "wallet-card-status";
-        connectOfficialSuiBtn.textContent = "Connect / Install";
+        connectOfficialSuiBtn.textContent = "Connect";
         connectOfficialSuiBtn.className = "btn btn-sm btn-outline wallet-action-btn";
       }
     }
@@ -2697,8 +2702,14 @@ document.addEventListener("DOMContentLoaded", () => {
       if (ok) return;
     }
 
-    showToast("Opening Slush (formerly Sui Wallet) on Chrome Web Store...", "info");
-    window.open(OFFICIAL_SLUSH_STORE_URL, "_blank");
+    if (isMobileDevice()) {
+      showToast("No mobile Web3 wallet detected. Please open Nodus in your wallet app browser, or continue with Google zkLogin.", "info");
+      closeWalletSelectorModal();
+      openGoogleZkModal();
+      return;
+    }
+
+    showToast("Sui Wallet extension is not detected in your browser. Please enable the extension or continue with Google zkLogin.", "warning");
   }
 
   function handleConnectSuiWallet() {
@@ -3092,12 +3103,14 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       const provider = getProviderFn();
       if (!provider) {
-        if (installUrl) {
-          window.open(installUrl, "_blank");
-          showToast(`Opening ${walletName} installation page...`, "info");
-        } else {
-          showToast(`${walletName} is not detected in your browser.`, "danger");
+        if (isMobileDevice()) {
+          showToast(`No ${walletName} detected. Please open Nodus in your wallet's in-app browser, or continue with Google zkLogin.`, "info");
+          closeSolanaWalletModal();
+          openGoogleZkModal();
+          return;
         }
+
+        showToast(`${walletName} extension is not detected in your browser. Please enable the extension or use Google zkLogin.`, "warning");
         return;
       }
 
@@ -3279,6 +3292,22 @@ document.addEventListener("DOMContentLoaded", () => {
   if (walletSelectorModalClose) walletSelectorModalClose.addEventListener("click", closeWalletSelectorModal);
   if (walletSelectorModalBackdrop) walletSelectorModalBackdrop.addEventListener("click", closeWalletSelectorModal);
   if (connectOfficialSuiBtn) connectOfficialSuiBtn.addEventListener("click", handleConnectOfficialSui);
+
+  const suiModalZkLoginBtn = document.getElementById("suiModalZkLoginBtn");
+  if (suiModalZkLoginBtn) {
+    suiModalZkLoginBtn.addEventListener("click", () => {
+      closeWalletSelectorModal();
+      openGoogleZkModal();
+    });
+  }
+
+  const solanaModalZkLoginBtn = document.getElementById("solanaModalZkLoginBtn");
+  if (solanaModalZkLoginBtn) {
+    solanaModalZkLoginBtn.addEventListener("click", () => {
+      closeSolanaWalletModal();
+      openGoogleZkModal();
+    });
+  }
   if (walletFallbackSeedBtn) {
     walletFallbackSeedBtn.addEventListener("click", () => {
       closeWalletSelectorModal();

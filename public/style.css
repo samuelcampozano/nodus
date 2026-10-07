@@ -2279,6 +2279,10 @@ body.select-mode .photo-select-checkbox {
     padding: 0.45rem 0.55rem;
   }
 
+  .desktop-only-link {
+    display: none !important;
+  }
+
   /* Mobile Floating Upload Dock */
   .upload-dock {
     right: 0.75rem;
