@@ -626,7 +626,7 @@ npm run dev
             </div>
           </div>
 
-          <div class="quota-pill" id="quotaPill" title="Decentralized Walrus Storage Quota">
+          <div class="quota-pill" id="quotaPill" title="Decentralized Walrus Storage Quota — Click to inspect on Walrus Console" style="cursor: pointer;">
             <div class="quota-info">
               <span class="quota-label" data-i18n="quota_label">Walrus Storage</span>
               <span class="quota-val" id="quotaValue">0.0 MB / 5.0 GB</span>
@@ -1428,6 +1428,9 @@ npm run dev
               </div>
             </div>
             <div class="tech-mini-actions" style="margin-top: 8px; display: flex; gap: 8px; flex-wrap: wrap;">
+              <a id="accountWalrusConsoleLink" href="https://console.walrus.xyz/buckets/" target="_blank" rel="noopener noreferrer" class="explorer-mini-btn" title="Inspect your decentralized bucket on Walrus Console">
+                <i data-lucide="layers"></i> <span>Walrus Console ↗</span>
+              </a>
               <a id="accountSuiScanLink" href="#" target="_blank" class="explorer-mini-btn">
                 <i data-lucide="compass"></i> <span>View on SuiScan</span>
               </a>
@@ -1626,6 +1629,25 @@ npm run dev
               </div>
               <h5>Cloudflare R2 / MinIO</h5>
               <p>Zero egress fees or self-hosted S3-compatible private storage endpoint.</p>
+            </div>
+          </div>
+
+          <!-- Walrus Console Official Portal Integration Card -->
+          <div class="byos-walrus-info-box" id="walrusConsoleInfoBox" style="margin-top: 1.25rem; background: rgba(56, 189, 248, 0.05); border: 1px solid rgba(56, 189, 248, 0.2); border-radius: var(--radius-md); padding: 1.25rem;">
+            <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
+              <div>
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                  <span class="meta-chip" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; font-weight: 600; border: 1px solid rgba(56, 189, 248, 0.3);">Walrus Console Live</span>
+                  <span style="font-size: 0.8rem; color: var(--text-secondary);">5 GB Sovereign Decentralized Vault</span>
+                </div>
+                <h5 style="margin: 0 0 6px 0; font-size: 0.95rem; color: var(--text-primary);">Pre-Configured Sovereign Storage</h5>
+                <p style="margin: 0; font-size: 0.82rem; color: var(--text-secondary); line-height: 1.45; max-width: 540px;">
+                  All media and files are sealed client-side with AES-256-GCM before being dispersed across Walrus storage nodes. Inspect and audit your live decentralized bucket directly on the official Walrus Console.
+                </p>
+              </div>
+              <a href="https://console.walrus.xyz/buckets/" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm" style="display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;">
+                <i data-lucide="external-link"></i> <span>Open Walrus Console ↗</span>
+              </a>
             </div>
           </div>
 

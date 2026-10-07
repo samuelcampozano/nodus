@@ -3251,6 +3251,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (vaultPill) vaultPill.addEventListener("click", openVaultModal);
   if (vaultModalClose) vaultModalClose.addEventListener("click", closeVaultModal);
   if (vaultModalBackdrop) vaultModalBackdrop.addEventListener("click", closeVaultModal);
+  if (quotaPill) quotaPill.addEventListener("click", () => window.open("https://console.walrus.xyz/buckets/", "_blank", "noopener,noreferrer"));
 
   if (googleZkLoginBtn) googleZkLoginBtn.addEventListener("click", () => handleGoogleZkLogin());
   if (connectSuiWalletBtn) connectSuiWalletBtn.addEventListener("click", handleConnectSuiWallet);
@@ -5719,6 +5720,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const byosActiveTitle = document.getElementById("byosActiveTitle");
     const byosActiveSubtitle = document.getElementById("byosActiveSubtitle");
     const byosBadgeStatus = document.getElementById("byosBadgeStatus");
+    const walrusConsoleInfoBox = document.getElementById("walrusConsoleInfoBox");
 
     let selectedByosProvider = "walrus";
 
@@ -5728,11 +5730,14 @@ document.addEventListener("DOMContentLoaded", () => {
       if (provider === "walrus") {
         byosCardWalrus?.classList.add("selected");
         byosFormContainer?.classList.add("hidden");
+        walrusConsoleInfoBox?.classList.remove("hidden");
       } else if (provider === "s3_byos" || provider === "s3") {
         byosCardS3?.classList.add("selected");
+        walrusConsoleInfoBox?.classList.add("hidden");
         byosFormContainer?.classList.remove("hidden");
       } else if (provider === "r2_byos" || provider === "r2") {
         byosCardR2?.classList.add("selected");
+        walrusConsoleInfoBox?.classList.add("hidden");
         byosFormContainer?.classList.remove("hidden");
       }
       if (window.lucide) window.lucide.createIcons();
@@ -5765,7 +5770,7 @@ document.addEventListener("DOMContentLoaded", () => {
         selectProviderCard(prov);
         if (prov === "walrus") {
           if (byosActiveTitle) byosActiveTitle.textContent = "Active Engine: Walrus Verify";
-          if (byosActiveSubtitle) byosActiveSubtitle.textContent = "Decentralized erasure-coded dispersal with Sui on-chain attestations.";
+          if (byosActiveSubtitle) byosActiveSubtitle.textContent = "Decentralized storage powered by Walrus Console (5 GB Tier).";
           if (byosBadgeStatus) byosBadgeStatus.textContent = "Connected";
         } else {
           if (byosActiveTitle) byosActiveTitle.textContent = `Active Engine: ${prov === "s3_byos" ? "AWS S3" : "Cloudflare R2"}`;
