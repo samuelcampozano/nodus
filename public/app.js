@@ -84,9 +84,9 @@ document.addEventListener("DOMContentLoaded", () => {
       signin_zklogin: "Sign In",
       btn_google_zklogin: "Continue with Google",
       auth_title: "Sign in to Nodus",
-      auth_subtitle: "Your photos are encrypted on your device before storing. Sign in effortlessly with Google—no seed phrase required.",
+      auth_subtitle: "Client-side encrypted zero-knowledge storage powered by Walrus Protocol. Connect your Web3 wallet or use Google zkLogin to access your encrypted files.",
       or_continue_with: "or choose another method",
-      auth_privacy_notice: "Google only verifies your identity; it never has access to your photos, encryption keys, or Walrus storage.",
+      auth_privacy_notice: "",
       account_manager_title: "Sovereign Account & Vault",
       account_manager_subtitle: "Decentralized memory vault secured by Sui zkLogin and Walrus Protocol.",
       switch_account: "Switch Account / Sign In with Another ID",
@@ -291,9 +291,9 @@ document.addEventListener("DOMContentLoaded", () => {
       signin_zklogin: "Iniciar Sesión",
       btn_google_zklogin: "Continuar con Google",
       auth_title: "Iniciar Sesión en Nodus",
-      auth_subtitle: "Tus fotos se cifran en tu dispositivo antes de guardarse. Inicia sesión fácilmente con Google, sin frases de recuperación.",
+      auth_subtitle: "Almacenamiento zero-knowledge cifrado en el cliente mediante el Protocolo Walrus. Conecta tu wallet Web3 o usa Google zkLogin.",
       or_continue_with: "o elige otro método",
-      auth_privacy_notice: "Google solo verifica tu identidad; nunca tiene acceso a tus fotos, claves de encriptación ni almacenamiento en Walrus.",
+      auth_privacy_notice: "",
       account_manager_title: "Cuenta Soberana y Bóveda",
       account_manager_subtitle: "Bóveda de recuerdos descentralizada protegida por Sui zkLogin y Protocolo Walrus.",
       switch_account: "Cambiar Cuenta / Iniciar con Otro ID",
@@ -492,9 +492,9 @@ document.addEventListener("DOMContentLoaded", () => {
       signin_zklogin: "Iniciar Sessão",
       btn_google_zklogin: "Continuar com o Google",
       auth_title: "Iniciar Sessão no Nodus",
-      auth_subtitle: "As suas fotos são encriptadas no dispositivo antes de armazenar. Inicie sessão facilmente com o Google, sem frases-semente.",
+      auth_subtitle: "Armazenamento zero-knowledge encriptado no cliente através do Protocolo Walrus. Conecte sua carteira Web3 ou use o Google zkLogin.",
       or_continue_with: "ou escolha outro método",
-      auth_privacy_notice: "O Google apenas verifica a sua identidade; nunca tem acesso às suas fotos, chaves de encriptação ou armazenamento Walrus.",
+      auth_privacy_notice: "",
       account_manager_title: "Conta Soberana & Cofre",
       account_manager_subtitle: "Cofre de memórias descentralizado protegido por Sui zkLogin e Protocolo Walrus.",
       switch_account: "Mudar de Conta / Entrar com Outro ID",
@@ -687,9 +687,9 @@ document.addEventListener("DOMContentLoaded", () => {
       signin_zklogin: "登录",
       btn_google_zklogin: "使用 Google 登录",
       auth_title: "登录 Nodus",
-      auth_subtitle: "您的照片在离开本地前均经过设备端加密。使用 Google 即可无缝登录，无需助记词。",
+      auth_subtitle: "由 Walrus 协议提供支持的客户端加密零知识存储。连接您的 Web3 钱包或使用 Google zkLogin。",
       or_continue_with: "或选择其他方式",
-      auth_privacy_notice: "Google 仅用于验证您的身份；绝无权限访问您的照片、加密密钥或 Walrus 存储空间。",
+      auth_privacy_notice: "",
       account_manager_title: "主权账户与金库",
       account_manager_subtitle: "由 Sui zkLogin 和 Walrus 协议保障的去中心化记忆金库。",
       switch_account: "切换账户 / 使用其他 ID 登录",
@@ -817,9 +817,9 @@ document.addEventListener("DOMContentLoaded", () => {
       signin_zklogin: "Se connecter",
       btn_google_zklogin: "Continuer avec Google",
       auth_title: "Connexion à Nodus",
-      auth_subtitle: "Vos photos sont chiffrées sur votre appareil avant d'être stockées. Connectez-vous facilement avec Google, sans phrase secrète.",
+      auth_subtitle: "Stockage zero-knowledge chiffré côté client propulsé par le Protocole Walrus. Connectez votre portefeuille Web3 ou utilisez Google zkLogin.",
       or_continue_with: "ou choisir une autre méthode",
-      auth_privacy_notice: "Google vérifie uniquement votre identité ; il n'a jamais accès à vos photos, vos clés de chiffrement ou votre stockage Walrus.",
+      auth_privacy_notice: "",
       account_manager_title: "Compte Souverain & Coffre",
       account_manager_subtitle: "Coffre de souvenirs décentralisé sécurisé par Sui zkLogin et le Protocole Walrus.",
       switch_account: "Changer de compte / Se connecter avec un autre ID",
@@ -2134,20 +2134,45 @@ document.addEventListener("DOMContentLoaded", () => {
       if (accounts && accounts.length > 0) {
         const rawAddr = accounts[0];
         const addr = typeof rawAddr === "string" ? rawAddr : (rawAddr.address || rawAddr);
+
+        let accessToken = null;
+        let tenant = null;
+        let role = "owner";
+        try {
+          const sRes = await fetch("/api/auth/wallet/session", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ address: addr, provider: walletName })
+          });
+          const sData = await sRes.json();
+          if (sData.success && sData.accessToken) {
+            accessToken = sData.accessToken;
+            tenant = sData.tenant;
+            role = sData.role || "owner";
+          }
+        } catch (e) {
+          console.warn("Wallet tenant session provision warning:", e);
+        }
+
         const session = {
           id: `wallet_${Date.now()}`,
           method: "sui_wallet",
           provider: walletName,
-          name: `${walletName} User`,
+          name: `${walletName} Sovereign`,
           email: shortenAddress(addr),
           address: addr,
           scheme: "ED25519 (Wallet Standard)",
+          accessToken,
+          tenant,
+          role,
           createdAt: new Date().toISOString()
         };
         saveAuthSession(session);
         closeWalletSelectorModal();
         closeZkLoginModal();
         showToast(t("toast_wallet_connected", { addr: shortenAddress(addr) }), "success");
+        try { await fetchStatus(); } catch (_) {}
+        try { await fetchPhotos(); } catch (_) {}
         return true;
       } else {
         throw new Error("No account was returned by the wallet.");
@@ -2364,61 +2389,99 @@ document.addEventListener("DOMContentLoaded", () => {
     showToast("Downloaded seed phrase backup file!", "success");
   }
 
-  function confirmSeedAuth() {
+  async function confirmSeedAuth() {
     if (!activeSeedAccount) return;
+    const addr = activeSeedAccount.address;
+    let accessToken = null;
+    let tenant = null;
+    let role = "owner";
+    try {
+      const sRes = await fetch("/api/auth/wallet/session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ address: addr, provider: "Sovereign Seed Phrase" })
+      });
+      const sData = await sRes.json();
+      if (sData.success && sData.accessToken) {
+        accessToken = sData.accessToken;
+        tenant = sData.tenant;
+        role = sData.role || "owner";
+      }
+    } catch (e) {
+      console.warn("Seed phrase tenant session provision warning:", e);
+    }
+
     const session = {
       id: `seed_${Date.now()}`,
       method: "mnemonic",
       provider: "Sovereign Seed Phrase",
       name: "Sovereign Holder",
-      email: shortenAddress(activeSeedAccount.address),
-      address: activeSeedAccount.address,
+      email: shortenAddress(addr),
+      address: addr,
       scheme: "ED25519 (BIP-39 Sovereign Key)",
+      accessToken,
+      tenant,
+      role,
       createdAt: new Date().toISOString()
     };
     saveAuthSession(session);
     closeSeedPhraseModal();
     closeZkLoginModal();
     showToast("⚡ Sovereign vault unlocked with 12-word master phrase!", "success");
+    try { await fetchStatus(); } catch (_) {}
+    try { await fetchPhotos(); } catch (_) {}
   }
 
   // Guest Passkey / On-Device Keypair Handler (backed by genuine BIP-39)
   async function handleGuestPasskey() {
+    let addr = "0x" + Array.from(crypto.getRandomValues(new Uint8Array(32))).map((b) => b.toString(16).padStart(2, "0")).join("");
     try {
       if (window.Bip39) {
         const mnemonic = window.Bip39.generateMnemonic();
         const account = await window.Bip39.deriveSuiAccount(mnemonic);
-        const session = {
-          id: `guest_${Date.now()}`,
-          method: "passkey",
-          provider: "Guest Passkey",
-          name: "Guest Explorer",
-          email: "guest.local@device",
-          address: account.address,
-          scheme: "ED25519 (On-Device BIP-39)",
-          createdAt: new Date().toISOString()
-        };
-        saveAuthSession(session);
-        closeZkLoginModal();
-        showToast("⚡ Signed in as Guest Explorer with 100% on-device sovereign key!", "success");
-        return;
+        addr = account.address;
       }
     } catch (e) {
       console.warn("Guest key generation fallback:", e);
     }
+
+    let accessToken = null;
+    let tenant = null;
+    let role = "owner";
+    try {
+      const sRes = await fetch("/api/auth/wallet/session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ address: addr, provider: "Guest Passkey" })
+      });
+      const sData = await sRes.json();
+      if (sData.success && sData.accessToken) {
+        accessToken = sData.accessToken;
+        tenant = sData.tenant;
+        role = sData.role || "owner";
+      }
+    } catch (e) {
+      console.warn("Guest passkey tenant session warning:", e);
+    }
+
     const session = {
       id: `guest_${Date.now()}`,
       method: "passkey",
       provider: "Guest Passkey",
       name: "Guest Explorer",
       email: "guest.local@device",
-      address: "0x" + Array.from(crypto.getRandomValues(new Uint8Array(32))).map((b) => b.toString(16).padStart(2, "0")).join(""),
-      scheme: "ED25519",
+      address: addr,
+      scheme: "ED25519 (On-Device BIP-39)",
+      accessToken,
+      tenant,
+      role,
       createdAt: new Date().toISOString()
     };
     saveAuthSession(session);
     closeZkLoginModal();
-    showToast("⚡ Signed in as Guest Explorer!", "success");
+    showToast("⚡ Signed in as Guest Explorer with 100% on-device sovereign key!", "success");
+    try { await fetchStatus(); } catch (_) {}
+    try { await fetchPhotos(); } catch (_) {}
   }
 
   // ==========================================

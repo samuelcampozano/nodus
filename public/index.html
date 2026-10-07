@@ -963,13 +963,37 @@ npm run dev
       </div>
 
       <div class="modal-body auth-modal-body">
-        <h2 class="auth-title" data-i18n="auth_title">Sign in to Nodus</h2>
-        <p class="auth-subtitle" data-i18n="auth_subtitle">
-          Your photos are client-side encrypted before touching Walrus. Powered by Sui zkLogin—no seed phrases, zero gas, and frictionless privacy.
+        <h2 class="auth-title">Connect Sovereign Vault</h2>
+        <p class="auth-subtitle">
+          Your vault is client-side encrypted before touching Walrus Protocol. Connect your Web3 wallet or sign in with zero-knowledge identity.
         </p>
 
         <div class="auth-methods">
-          <!-- Primary CTA: Google zkLogin -->
+          <div class="auth-primary-wallets-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.75rem;">
+            <!-- Primary Wallet: Sui / Slush -->
+            <button class="btn btn-outline" id="connectSuiWalletBtn" style="display: flex; align-items: center; justify-content: center; gap: 0.6rem; padding: 0.85rem 1rem; border: 1.5px solid rgba(77, 162, 255, 0.4); border-radius: var(--radius-md); background: rgba(77, 162, 255, 0.06); cursor: pointer; transition: all 0.2s;">
+              <i data-lucide="wallet" style="color: var(--brand-sui); width: 20px; height: 20px;"></i>
+              <div style="text-align: left;">
+                <span style="display: block; font-size: 0.88rem; font-weight: 600; color: var(--text-primary);">Sui & Slush</span>
+                <span style="display: block; font-size: 0.72rem; color: var(--text-secondary);">Official Wallet Standard</span>
+              </div>
+            </button>
+
+            <!-- Primary Wallet: Solana SIWS -->
+            <button class="btn btn-outline" id="connectSolanaBtn" style="display: flex; align-items: center; justify-content: center; gap: 0.6rem; padding: 0.85rem 1rem; border: 1.5px solid rgba(245, 158, 11, 0.4); border-radius: var(--radius-md); background: rgba(245, 158, 11, 0.06); cursor: pointer; transition: all 0.2s;">
+              <i data-lucide="sun" style="color: #f59e0b; width: 20px; height: 20px;"></i>
+              <div style="text-align: left;">
+                <span style="display: block; font-size: 0.88rem; font-weight: 600; color: var(--text-primary);">Solana (SIWS)</span>
+                <span style="display: block; font-size: 0.72rem; color: var(--text-secondary);">Phantom & Solflare</span>
+              </div>
+            </button>
+          </div>
+
+          <div class="auth-divider">
+            <span>or zero-knowledge Web2 sign-in</span>
+          </div>
+
+          <!-- Google zkLogin -->
           <button class="btn btn-google-auth" id="googleZkLoginBtn">
             <svg class="google-icon" viewBox="0 0 24 24" width="20" height="20">
               <path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.7l3.1-3.1C17.3 1.8 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.4 9 5 12 5z"/>
@@ -977,23 +1001,15 @@ npm run dev
               <path fill="#FBBC05" d="M5.6 14.8c-.2-.7-.4-1.5-.4-2.3 0-.8.2-1.6.4-2.3L1.9 7.3C.7 9.7 0 12.3 1.9 7.9l3.7-2.9z"/>
               <path fill="#34A853" d="M12 23.5c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2.4-6.4-5.3L1.9 16.5C3.7 20.2 7.5 23.5 12 23.5z"/>
             </svg>
-            <span data-i18n="btn_google_zklogin">Continue with Google</span>
+            <span data-i18n="btn_google_zklogin">Continue with Google zkLogin</span>
           </button>
 
           <div class="auth-divider">
-            <span data-i18n="or_continue_with">or choose another method</span>
+            <span>or sovereign key options</span>
           </div>
 
           <!-- Secondary Options -->
           <div class="auth-secondary-grid">
-            <button class="auth-secondary-card" id="connectSuiWalletBtn">
-              <div class="auth-card-icon"><i data-lucide="wallet"></i></div>
-              <div class="auth-card-info">
-                <span class="auth-card-title">Sui Wallet</span>
-                <span class="auth-card-desc">Sui & Extensions</span>
-              </div>
-            </button>
-
             <button class="auth-secondary-card" id="seedPhraseBtn">
               <div class="auth-card-icon"><i data-lucide="key"></i></div>
               <div class="auth-card-info">
@@ -1002,27 +1018,14 @@ npm run dev
               </div>
             </button>
 
-            <button class="auth-secondary-card" id="connectSolanaBtn">
-              <div class="auth-card-icon solana-icon"><i data-lucide="sun"></i></div>
-              <div class="auth-card-info">
-                <span class="auth-card-title">Solana (SIWS)</span>
-                <span class="auth-card-desc">Phantom / Solflare</span>
-              </div>
-            </button>
-
             <button class="auth-secondary-card" id="guestPasskeyBtn">
               <div class="auth-card-icon"><i data-lucide="sparkles"></i></div>
               <div class="auth-card-info">
                 <span class="auth-card-title">Guest Passkey</span>
-                <span class="auth-card-desc" data-i18n="auth_guest_desc">100% on-device</span>
+                <span class="auth-card-desc">100% on-device</span>
               </div>
             </button>
           </div>
-        </div>
-
-        <div class="auth-footer-notice">
-          <i data-lucide="lock"></i>
-          <span data-i18n="auth_privacy_notice">Google only verifies your identity; it never has access to your photos, encryption keys, or Walrus storage.</span>
         </div>
       </div>
     </div>
@@ -1069,13 +1072,6 @@ npm run dev
           <span style="font-size: 0.76rem; color: var(--text-secondary); line-height: 1.45;">
             <strong>Zero-Knowledge Privacy:</strong> Google validates your account identity, but never receives your encryption keys, files, or Walrus storage contents.
           </span>
-        </div>
-
-        <div style="margin-top: 1rem; text-align: center;">
-          <button class="btn btn-ghost btn-sm" id="launchGoogleOAuthPopupBtn" style="color: var(--text-tertiary); font-size: 0.78rem;">
-            <i data-lucide="external-link"></i>
-            <span>Launch Google OAuth Dialog</span>
-          </button>
         </div>
 
         <!-- Hidden elements preserved for test suite / visual verify backwards compatibility -->

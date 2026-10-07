@@ -687,6 +687,73 @@ app.post("/api/auth/zklogin", async (req, res) => {
   }
 });
 
+// Universal wallet session issuance for Sui/Slush, BIP-39, and Web3 keypairs
+app.post("/api/auth/wallet/session", async (req, res) => {
+  try {
+    const { address, provider = "Web3 Wallet", organizationId = "nodus-devs" } = req.body;
+    if (!address || typeof address !== "string" || address.trim().length < 8) {
+      return res.status(400).json({ success: false, error: "Valid wallet address required" });
+    }
+    const cleanAddress = address.trim();
+    const orgId = organizationId || "nodus-devs";
+
+    let accessToken = null;
+    let expiresAt = null;
+    let role = "owner";
+    let tenant = { organizationId: orgId };
+
+    if (authTenantStore) {
+      const client = await authTenantStore.pool.connect();
+      try {
+        await client.query("BEGIN");
+        await client.query(
+          "INSERT INTO organizations (id, name) VALUES ($1, $2) ON CONFLICT (id) DO NOTHING",
+          [orgId, "Nodus Sovereign Developers"]
+        );
+        await client.query(
+          "INSERT INTO tenant_storage_contexts (organization_id, space_id, bucket_id, seal_policy_id, quota_bytes, active) VALUES ($1, $2, $3, $4, $5, true) ON CONFLICT (organization_id) DO UPDATE SET active = true",
+          [orgId, DEFAULT_SPACE_ID, DEFAULT_BUCKET_ID, "active", 50000000000]
+        );
+        const userId = crypto.randomUUID();
+        await client.query(
+          "INSERT INTO users (id, solana_address) VALUES ($1, $2) ON CONFLICT (solana_address) DO NOTHING",
+          [userId, cleanAddress]
+        );
+        const user = await client.query("SELECT id FROM users WHERE solana_address = $1", [cleanAddress]);
+        await client.query(
+          "INSERT INTO memberships (organization_id, user_id, role) VALUES ($1, $2, 'owner') ON CONFLICT (organization_id, user_id) DO NOTHING",
+          [orgId, user.rows[0].id]
+        );
+        await client.query("COMMIT");
+      } catch (e) {
+        await client.query("ROLLBACK");
+        throw e;
+      } finally {
+        client.release();
+      }
+      const tenantSession = await authTenantStore.createSession({ address: cleanAddress, organizationId: orgId });
+      accessToken = tenantSession.token;
+      expiresAt = tenantSession.expiresAt;
+      role = tenantSession.role;
+      tenant = { organizationId: orgId, ...tenantSession.tenant };
+    }
+
+    return res.json({
+      success: true,
+      id: `wallet_${Date.now()}`,
+      provider,
+      address: cleanAddress,
+      accessToken,
+      expiresAt,
+      tenant,
+      role
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+
 
 // ==========================================
 // TENANT PROVISIONING ADMINISTRATION

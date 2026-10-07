@@ -168,6 +168,19 @@ async function run() {
     assert(html.includes('src="/bip39.js"'), "Must load bip39.js");
   });
 
+  it("Ensures legacy Google only verifies notice and broken OAuth popup button are eliminated from frontend", () => {
+    const html = fs.readFileSync("public/index.html", "utf-8");
+    assert(!html.includes("Google only verifies your identity"), "Must NOT contain legacy Google only verifies notice");
+    assert(!html.includes('id="launchGoogleOAuthPopupBtn"'), "Must NOT contain broken launchGoogleOAuthPopupBtn");
+  });
+
+  it("Ensures universal wallet session endpoint POST /api/auth/wallet/session exists in server and app.js", () => {
+    const serverJs = fs.readFileSync("server/index.js", "utf-8");
+    const appJs = fs.readFileSync("public/app.js", "utf-8");
+    assert(serverJs.includes('app.post("/api/auth/wallet/session"'), "Must have POST /api/auth/wallet/session");
+    assert(appJs.includes('/api/auth/wallet/session'), "app.js must call /api/auth/wallet/session on wallet connect");
+  });
+
   console.log("\n[TEST GROUP 4] Solana SIWS & Multi-Wallet Standards (Phantom, Solflare, Backpack)");
 
   it("Ensures index.html contains dedicated Solana multi-wallet selector modal", () => {
