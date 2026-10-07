@@ -148,7 +148,7 @@
         <div class="nd-verb-card">
           <span class="nd-verb-pill">PROVE</span>
           <h3 data-i18n="verb_prove_title">Zero-Knowledge Identity</h3>
-          <p data-i18n="verb_prove_desc">Log in with Google zkLogin, Sui standard wallets (Slush, official Sui), or 12-word BIP-39 mnemonic seed. Your Web2 email is cryptographically translated to a Sui address without leaking credentials.</p>
+          <p data-i18n="verb_prove_desc">Log in with Google zkLogin, Sui standard wallets, or 12-word BIP-39 mnemonic seed. Your Web2 email is cryptographically translated to a Sui address without leaking credentials.</p>
         </div>
         <div class="nd-verb-card">
           <span class="nd-verb-pill">GOVERN</span>
@@ -989,8 +989,8 @@ npm run dev
             <button class="auth-secondary-card" id="connectSuiWalletBtn">
               <div class="auth-card-icon"><i data-lucide="wallet"></i></div>
               <div class="auth-card-info">
-                <span class="auth-card-title">Sui / Slush Wallet</span>
-                <span class="auth-card-desc">Slush, Sui & Extensions</span>
+                <span class="auth-card-title">Sui Wallet</span>
+                <span class="auth-card-desc">Sui & Extensions</span>
               </div>
             </button>
 
@@ -1087,7 +1087,7 @@ npm run dev
     </div>
   </div>
 
-  <!-- Multi-Wallet Selector Modal (Slush, Sui, Nightly, etc.) -->
+  <!-- Multi-Wallet Selector Modal (Sui, Nightly, etc.) -->
   <div class="modal-dialog hidden" id="walletSelectorModal">
     <div class="modal-backdrop" id="walletSelectorModalBackdrop"></div>
     <div class="modal-content auth-modal-content">
@@ -1107,20 +1107,6 @@ npm run dev
 
         <!-- Wallet Options List -->
         <div class="wallet-options-list" id="walletOptionsList">
-          <!-- Slush Wallet Item -->
-          <div class="wallet-option-card" id="walletCardSlush">
-            <div class="wallet-card-left">
-              <div class="wallet-logo-badge slush-logo">
-                <i data-lucide="droplet"></i>
-              </div>
-              <div class="wallet-card-info">
-                <span class="wallet-card-name">Slush Wallet</span>
-                <span class="wallet-card-status" id="slushWalletStatus">Scanning...</span>
-              </div>
-            </div>
-            <button class="btn btn-sm btn-outline wallet-action-btn" id="connectSlushBtn">Connect</button>
-          </div>
-
           <!-- Sui Wallet Item -->
           <div class="wallet-option-card" id="walletCardSui">
             <div class="wallet-card-left">
@@ -1145,8 +1131,7 @@ npm run dev
           <div>
             <span>No Sui wallet detected in browser?</span>
             <div class="wallet-download-links">
-              <a href="https://slush.app" target="_blank" rel="noopener noreferrer" class="download-link">Get Slush Wallet (slush.app) ↗</a>
-              <a href="https://chromewebstore.google.com/detail/slush-%E2%80%94-a-sui-wallet/opcgpfmipidbgpenhmajoajpbobppdil" target="_blank" rel="noopener noreferrer" class="download-link">Chrome Web Store ↗</a>
+              <a href="https://chrome.google.com/webstore/detail/sui-wallet/opcgpfmipidbgpenhmajoajpbobppdil" target="_blank" class="download-link">Get Sui Wallet ↗</a>
             </div>
           </div>
         </div>

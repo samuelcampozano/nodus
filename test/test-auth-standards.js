@@ -149,15 +149,13 @@ async function run() {
     assert(appJs.includes("wallet-standard:app-ready"), "Must dispatch wallet-standard:app-ready for early-loaded extensions");
   });
 
-  it("Ensures Slush Wallet and official Sui Wallet support exists in app.js with verified Mysten Labs URLs", () => {
+  it("Ensures Slush Wallet login was removed and official Sui Wallet support exists", () => {
     const appJs = fs.readFileSync("public/app.js", "utf-8");
     const html = fs.readFileSync("public/index.html", "utf-8");
-    assert(appJs.includes("Slush Wallet") || appJs.includes("window.slush"), "Must support Slush Wallet");
+    assert(!appJs.includes("slushwallet.com"), "Must not redirect to the Slush Wallet domain");
+    assert(!html.includes('id="connectSlushBtn"'), "Must not contain the Slush login button");
+    assert(!html.includes("slushwallet.com"), "Must not link to the Slush Wallet domain");
     assert(appJs.includes("window.suiWallet"), "Must support Sui Wallet");
-    assert(!appJs.includes("slushwallet.com"), "Must NOT reference unverified slushwallet.com domain in app.js");
-    assert(!html.includes("slushwallet.com"), "Must NOT reference unverified slushwallet.com domain in index.html");
-    assert(appJs.includes("https://slush.app"), "Must link to official https://slush.app");
-    assert(appJs.includes("opcgpfmipidbgpenhmajoajpbobppdil"), "Must reference official Slush Chrome extension ID");
   });
 
   it("Ensures index.html contains all auth modal elements", () => {
