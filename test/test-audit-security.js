@@ -10,7 +10,8 @@ import bs58 from "bs58";
 import fs from "node:fs";
 import path from "node:path";
 import http from "node:http";
-import app from "../server/index.js";
+process.env.NODE_ENV = "test";
+const { default: app } = await import("../server/index.js");
 import {
   generateAuthChallenge,
   verifySolanaSignature,

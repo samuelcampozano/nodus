@@ -19,6 +19,8 @@ const suites = [
   { name: "Solana Devnet RBAC Provisioning", file: "test/test-solana-devnet-provisioning.js" },
   { name: "Solana Collaboration RBAC", file: "test/test-solana-collaboration-rbac.js" },
   { name: "Hackathon Demo Preflight", file: "test/test-hackathon-readiness.js" },
+  { name: "Local Collaboration Runner Diagnostics", file: "test/test-local-collaboration-runner.js" },
+  { name: "Live Collaboration Runner Boundary", file: "test/test-demo-collaboration-script.js" },
   { name: "Direct Walrus Testnet Fallback", file: "test/test-walrus-testnet-fallback.js" },
   { name: "Auth Standards, Sui Wallets & BIP-39", file: "test/test-auth-standards.js" },
   { name: "Security Audit & Pen-Test", file: "test/test-audit-security.js" },

@@ -6,6 +6,14 @@ Esta rotina valida PostgreSQL, provisionamento, envelopes, compartilhamento e re
 
 Pré-requisito: Docker Desktop ativo com Docker Compose.
 
+Antes de reservar tempo para a suíte, valide somente a disponibilidade do ambiente:
+
+```bash
+npm run test:collaboration:local:check
+```
+
+O diagnóstico escreve `scratch/local-collaboration-report.json` (ignorado pelo Git). Ele não contém `.env`, chaves, tokens ou ciphertext; serve para registrar a versão de Docker/Compose, as etapas executadas e uma falha operacional se houver.
+
 ```bash
 npm run test:collaboration:local
 ```
@@ -19,6 +27,8 @@ O comando:
 5. testa share, atualização idempotente, expiração, revogação, re-share e isolamento entre tenants;
 6. executa o fluxo completo de envelopes e remoção de membro;
 7. remove o container e os dados temporários, inclusive quando algum teste falha.
+
+Ao final, o mesmo relatório em `scratch/local-collaboration-report.json` registra o resultado de cada etapa e a limpeza do container. Ele é uma evidência técnica local, não uma prova de Solana Devnet ou Walrus Testnet.
 
 Essa suíte não afirma que houve transação Solana ou upload Walrus. Os identificadores de storage do manifesto são locais e servem somente para satisfazer o contrato do control plane.
 
