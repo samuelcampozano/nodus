@@ -5567,6 +5567,9 @@ document.addEventListener("DOMContentLoaded", () => {
       loadApiKeys();
       loadStorageConfig();
       revealProvisionedApiKey();
+      // Render the snippet against the origin actually serving this page, so the
+      // example never advertises a stale deployment URL.
+      updateCodeSnippet("curl");
       if (window.lucide) window.lucide.createIcons();
     }
 

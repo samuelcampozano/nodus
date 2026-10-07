@@ -42,7 +42,7 @@ flowchart LR
 ## 15-Minute Integration Guide
 
 ### Step 1: Obtain Your API Key
-1. Sign in to the Nodus Console at `https://suigallery-dev.onrender.com` (or your local Docker instance at `http://localhost:3000`).
+1. Sign in to the Nodus Console at your deployment URL (or your local Docker instance at `http://localhost:3000`).
 2. Navigate to **Developers & API Keys**.
 3. Click **Generate API Key**, select the `assets:read` and `assets:write` scopes, and copy your secret key (`nd_live_...`).
 
@@ -50,7 +50,7 @@ flowchart LR
 
 ```bash
 export NODUS_API_KEY="nd_live_your_secret_key_here"
-export NODUS_GATEWAY_URL="https://suigallery-dev.onrender.com"
+export NODUS_GATEWAY_URL="https://your-nodus-deployment"
 ```
 
 ### Step 3: Run the Quickstart Script
