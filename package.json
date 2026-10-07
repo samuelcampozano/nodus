@@ -40,6 +40,7 @@
     "test:collaboration:local": "node scripts/run-local-collaboration-tests.mjs",
     "test:collaboration:local:check": "node scripts/run-local-collaboration-tests.mjs --dry-run",
     "demo:provision:local": "node scripts/init-demo-org.mjs --config config/local-demo-provisioning.json",
+    "demo:collaboration": "node scripts/execute-demo-collaboration.mjs",
     "test:m4-search": "node test/test-private-search.js && node test/test-tenant-catalog-search.js",
     "test-connection": "node test-connection.js",
     "mcp:install": "npx -y @mysten-incubation/walrus-console-mcp@beta install",
