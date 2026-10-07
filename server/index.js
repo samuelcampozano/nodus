@@ -95,6 +95,15 @@ const corsOptions = {
     // Browser requests from this application and non-browser clients without an
     // Origin header are allowed; cross-origin browsers must be explicitly listed.
     if (!origin || allowedOrigins.has(origin)) return callback(null, true);
+    if (process.env.RENDER_EXTERNAL_URL && origin === process.env.RENDER_EXTERNAL_URL.replace(/\/+$/, "")) {
+      return callback(null, true);
+    }
+    try {
+      const parsed = new URL(origin);
+      if (parsed.hostname.endsWith(".onrender.com")) {
+        return callback(null, true);
+      }
+    } catch (_) {}
     return callback(new Error("Origin is not allowed by CORS policy"));
   },
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],

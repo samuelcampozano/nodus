@@ -1594,6 +1594,11 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 3200);
   }
 
+  // Intercept any native browser window.alert calls and route them into the in-app built-in toast UI
+  window.alert = function (message) {
+    showToast(String(message), "danger");
+  };
+
   // Promise-based in-app confirmation dialog. Replaces native window.confirm so
   // destructive actions stay inside the product UI.
   function showConfirm(message, { title, confirmLabel, cancelLabel } = {}) {
@@ -5608,6 +5613,9 @@ document.addEventListener("DOMContentLoaded", () => {
         if (document.getElementById("scopeAssetsDelete")?.checked) scopes.push("assets:delete");
         if (document.getElementById("scopeSearchRead")?.checked) scopes.push("search:read");
 
+        const devKeyErrorAlert = document.getElementById("devKeyErrorAlert");
+        if (devKeyErrorAlert) devKeyErrorAlert.classList.add("hidden");
+
         try {
           generateSubmitBtn.disabled = true;
           generateSubmitBtn.innerHTML = '<span class="spinner-sm"></span> Generating...';
@@ -5633,6 +5641,13 @@ document.addEventListener("DOMContentLoaded", () => {
           loadUsage();
         } catch (err) {
           showToast("Error generating API key: " + err.message, "danger");
+          const errorAlert = document.getElementById("devKeyErrorAlert");
+          const errorMsg = document.getElementById("devKeyErrorMessage");
+          if (errorAlert && errorMsg) {
+            errorMsg.textContent = err.message;
+            errorAlert.classList.remove("hidden");
+            if (window.lucide) window.lucide.createIcons();
+          }
         } finally {
           generateSubmitBtn.disabled = false;
           generateSubmitBtn.innerHTML = '<i data-lucide="plus-circle"></i> <span>Generate Key</span>';
@@ -6005,6 +6020,9 @@ document.addEventListener("DOMContentLoaded", () => {
           return;
         }
 
+        const teamInviteErrorAlert = document.getElementById("teamInviteErrorAlert");
+        if (teamInviteErrorAlert) teamInviteErrorAlert.classList.add("hidden");
+
         try {
           inviteSubmitBtn.disabled = true;
           inviteSubmitBtn.innerHTML = '<span class="spinner-sm"></span> Inviting...';
@@ -6024,6 +6042,13 @@ document.addEventListener("DOMContentLoaded", () => {
           loadMembers();
         } catch (err) {
           showToast("Error inviting member: " + err.message, "danger");
+          const errorAlert = document.getElementById("teamInviteErrorAlert");
+          const errorMsg = document.getElementById("teamInviteErrorMessage");
+          if (errorAlert && errorMsg) {
+            errorMsg.textContent = err.message;
+            errorAlert.classList.remove("hidden");
+            if (window.lucide) window.lucide.createIcons();
+          }
         } finally {
           inviteSubmitBtn.disabled = false;
           inviteSubmitBtn.innerHTML = '<i data-lucide="user-plus"></i> <span>Invite</span>';

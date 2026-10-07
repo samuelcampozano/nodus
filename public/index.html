@@ -1545,6 +1545,10 @@ npm run dev
               <label class="dev-scope-checkbox"><input type="checkbox" id="scopeAssetsDelete"> <span>assets:delete</span></label>
               <label class="dev-scope-checkbox"><input type="checkbox" id="scopeSearchRead" checked> <span>search:read</span></label>
             </div>
+            <div class="inline-card-alert hidden" id="devKeyErrorAlert" style="margin-top: 0.75rem; padding: 0.6rem 0.85rem; border-radius: 6px; background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.35); color: #fca5a5; font-size: 0.8rem; display: flex; align-items: center; gap: 8px;">
+              <i data-lucide="alert-circle" style="width: 16px; height: 16px; flex-shrink: 0; color: #ef4444;"></i>
+              <span id="devKeyErrorMessage"></span>
+            </div>
           </div>
 
           <!-- One-Time Secret Reveal Banner (Shown after creation) -->
