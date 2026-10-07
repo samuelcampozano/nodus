@@ -44,6 +44,30 @@
           <a href="#developers" class="nd-nav-link" data-i18n="nav_developers">Developers</a>
         </div>
         <div class="nd-nav-actions">
+          <div class="lang-dropdown landing-lang-dropdown" id="landingLangDropdown">
+            <button class="btn btn-ghost lang-btn" id="landingLangBtn" title="Select Language" aria-haspopup="menu" aria-expanded="false">
+              <i data-lucide="globe"></i>
+              <span class="current-lang-code" id="landingCurrentLangCode">EN</span>
+              <i data-lucide="chevron-down" class="chevron-icon"></i>
+            </button>
+            <div class="lang-menu hidden" id="landingLangMenu" role="menu">
+              <button class="lang-option active" data-lang="en">
+                <span class="flag">🇺🇸</span> English
+              </button>
+              <button class="lang-option" data-lang="es">
+                <span class="flag">🇪🇸</span> Español
+              </button>
+              <button class="lang-option" data-lang="pt">
+                <span class="flag">🇧🇷</span> Português
+              </button>
+              <button class="lang-option" data-lang="zh">
+                <span class="flag">🇨🇳</span> 简体中文
+              </button>
+              <button class="lang-option" data-lang="fr">
+                <span class="flag">🇫🇷</span> Français
+              </button>
+            </div>
+          </div>
           <button class="btn-launch-app" id="launchAppNavBtn">
             <span data-i18n="launch_app">Launch App</span>
             <i data-lucide="arrow-right"></i>
@@ -78,7 +102,7 @@
           </a>
         </div>
         <div class="nd-tech-tags">
-          <span>2D Red Stuff</span>
+          <span>2D Reed-Solomon</span>
           <span class="nd-tech-dot">•</span>
           <span>Zero-Knowledge zkLogin</span>
           <span class="nd-tech-dot">•</span>
@@ -290,8 +314,8 @@
                   </div>
                   <p>Cryptographic ownership certificates anchored on Sui with Solana Anchor RBAC boundary.</p>
                   <div class="nd-tele-meta">
-                    <div><span>Sui Object:</span> <code id="teleSuiObj">0x7cd0...9856</code></div>
-                    <div><span>Solana PDA:</span> <code id="teleSolanaPda">NodUs...7e41</code></div>
+                    <div><span>Sui Object:</span> <code id="teleSuiObj">—</code></div>
+                    <div><span>Solana PDA:</span> <code id="teleSolanaPda">—</code></div>
                   </div>
                 </div>
               </div>
@@ -302,7 +326,7 @@
                 <div class="nd-step-details">
                   <div class="nd-step-header">
                     <h4>4. In-Memory Decryption & Verification</h4>
-                    <span class="nd-tele-badge badge-green" id="teleIntegrityBadge">Verified</span>
+                    <span class="nd-tele-badge" id="teleIntegrityBadge">Pending</span>
                   </div>
                   <p>Decrypted 100% in browser RAM. Zero cleartext bytes exposed during network transit.</p>
                   <div class="nd-tele-meta">
@@ -524,98 +548,99 @@ npm run dev
             <button class="btn btn-primary zklogin-nav-btn" id="loginTriggerBtn">
               <svg class="google-icon" viewBox="0 0 24 24" width="16" height="16">
                 <path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.7l3.1-3.1C17.3 1.8 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.4 9 5 12 5z"/>
-              <path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.7-.2-2.3H12v4.6h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.9z"/>
-              <path fill="#FBBC05" d="M5.6 14.8c-.2-.7-.4-1.5-.4-2.3 0-.8.2-1.6.4-2.3L1.9 7.3C.7 9.7 0 12.3 1.9 7.9l3.7-2.9z"/>
-              <path fill="#34A853" d="M12 23.5c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2.4-6.4-5.3L1.9 16.5C3.7 20.2 7.5 23.5 12 23.5z"/>
-            </svg>
-            <span data-i18n="signin_zklogin">Sign In</span>
+                <path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.7-.2-2.3H12v4.6h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.9z"/>
+                <path fill="#FBBC05" d="M5.6 14.8c-.2-.7-.4-1.5-.4-2.3 0-.8.2-1.6.4-2.3L1.9 7.3C.7 9.7 0 12.3 1.9 7.9l3.7-2.9z"/>
+                <path fill="#34A853" d="M12 23.5c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2.4-6.4-5.3L1.9 16.5C3.7 20.2 7.5 23.5 12 23.5z"/>
+              </svg>
+              <span data-i18n="signin_zklogin">Sign In</span>
+            </button>
+
+            <!-- Authenticated State: User Profile Pill -->
+            <button class="vault-pill user-profile-pill hidden" id="vaultPill" title="Manage Account & Sovereign Vault">
+              <div class="vault-avatar user-avatar-badge" id="userAvatar">
+                <i data-lucide="shield-check"></i>
+              </div>
+              <div class="vault-meta">
+                <span class="vault-label" id="userDisplayName">zkLogin User</span>
+                <span class="vault-addr" id="activeVaultAddr">Not connected</span>
+              </div>
+              <i data-lucide="chevron-down" class="chevron-icon"></i>
+            </button>
+          </div>
+
+          <!-- Developer API Keys Button -->
+          <button class="btn btn-ghost nav-action-btn" id="devPortalNavBtn" title="Developer API Keys & Usage Ledger">
+            <i data-lucide="key"></i>
+            <span data-i18n="nav_api_keys">API Keys</span>
           </button>
 
-          <!-- Authenticated State: User Profile Pill -->
-          <button class="vault-pill user-profile-pill hidden" id="vaultPill" title="Manage Account & Sovereign Vault">
-            <div class="vault-avatar user-avatar-badge" id="userAvatar">
-              <i data-lucide="shield-check"></i>
+          <!-- Team Access & RBAC Button -->
+          <button class="btn btn-ghost nav-action-btn" id="teamRbacNavBtn" title="Team Access & RBAC Roles">
+            <i data-lucide="users"></i>
+            <span data-i18n="nav_team">Team</span>
+          </button>
+
+          <!-- Theme Selector Dropdown -->
+          <div class="theme-dropdown" id="themeDropdown">
+            <button class="btn btn-ghost theme-btn" id="themeBtn" title="Select Theme" aria-haspopup="menu" aria-expanded="false">
+              <i data-lucide="moon" id="themeIcon"></i>
+              <span class="current-theme-code" id="currentThemeCode" data-i18n="theme_dark">Dark</span>
+              <i data-lucide="chevron-down" class="chevron-icon"></i>
+            </button>
+            <div class="theme-menu hidden" id="themeMenu" role="menu">
+              <button class="theme-option active" data-theme="dark">
+                <span>🌙</span> <span data-i18n="theme_dark">Dark</span>
+              </button>
+              <button class="theme-option" data-theme="light">
+                <span>☀️</span> <span data-i18n="theme_light">Light</span>
+              </button>
+              <button class="theme-option" data-theme="midnight">
+                <span>🌌</span> <span data-i18n="theme_midnight">Midnight</span>
+              </button>
             </div>
-            <div class="vault-meta">
-              <span class="vault-label" id="userDisplayName">zkLogin User</span>
-              <span class="vault-addr" id="activeVaultAddr">alex@gmail.com</span>
+          </div>
+
+          <!-- Language Selector Dropdown -->
+          <div class="lang-dropdown" id="langDropdown">
+            <button class="btn btn-ghost lang-btn" id="langBtn" title="Select Language" aria-haspopup="menu" aria-expanded="false">
+              <i data-lucide="globe"></i>
+              <span class="current-lang-code" id="currentLangCode">EN</span>
+              <i data-lucide="chevron-down" class="chevron-icon"></i>
+            </button>
+            <div class="lang-menu hidden" id="langMenu" role="menu">
+              <button class="lang-option active" data-lang="en">
+                <span class="flag">🇺🇸</span> English
+              </button>
+              <button class="lang-option" data-lang="es">
+                <span class="flag">🇪🇸</span> Español
+              </button>
+              <button class="lang-option" data-lang="pt">
+                <span class="flag">🇧🇷</span> Português
+              </button>
+              <button class="lang-option" data-lang="zh">
+                <span class="flag">🇨🇳</span> 简体中文
+              </button>
+              <button class="lang-option" data-lang="fr">
+                <span class="flag">🇫🇷</span> Français
+              </button>
             </div>
-            <i data-lucide="chevron-down" class="chevron-icon"></i>
+          </div>
+
+          <div class="quota-pill" id="quotaPill" title="Decentralized Walrus Storage Quota">
+            <div class="quota-info">
+              <span class="quota-label" data-i18n="quota_label">Walrus Storage</span>
+              <span class="quota-val" id="quotaValue">0.0 MB / 5.0 GB</span>
+            </div>
+            <div class="quota-bar-bg">
+              <div class="quota-bar-fill" id="quotaFill" style="width: 0%;"></div>
+            </div>
+          </div>
+
+          <button class="btn btn-primary upload-header-btn" id="uploadTriggerBtn">
+            <i data-lucide="upload-cloud"></i>
+            <span data-i18n="upload_btn">Upload Photos</span>
           </button>
         </div>
-
-        <!-- Developer API Keys Button -->
-        <button class="btn btn-ghost nav-action-btn" id="devPortalNavBtn" title="Developer API Keys & Usage Ledger">
-          <i data-lucide="key"></i>
-          <span data-i18n="nav_api_keys">API Keys</span>
-        </button>
-
-        <!-- Team Access & RBAC Button -->
-        <button class="btn btn-ghost nav-action-btn" id="teamRbacNavBtn" title="Team Access & RBAC Roles">
-          <i data-lucide="users"></i>
-          <span data-i18n="nav_team">Team</span>
-        </button>
-
-        <!-- Theme Selector Dropdown -->
-        <div class="theme-dropdown" id="themeDropdown">
-          <button class="btn btn-ghost theme-btn" id="themeBtn" title="Select Theme" aria-haspopup="menu" aria-expanded="false">
-            <i data-lucide="moon" id="themeIcon"></i>
-            <span class="current-theme-code" id="currentThemeCode" data-i18n="theme_dark">Dark</span>
-            <i data-lucide="chevron-down" class="chevron-icon"></i>
-          </button>
-          <div class="theme-menu hidden" id="themeMenu" role="menu">
-            <button class="theme-option active" data-theme="dark">
-              <span>🌙</span> <span data-i18n="theme_dark">Dark</span>
-            </button>
-            <button class="theme-option" data-theme="light">
-              <span>☀️</span> <span data-i18n="theme_light">Light</span>
-            </button>
-            <button class="theme-option" data-theme="midnight">
-              <span>🌌</span> <span data-i18n="theme_midnight">Midnight</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- Language Selector Dropdown -->
-        <div class="lang-dropdown" id="langDropdown">
-          <button class="btn btn-ghost lang-btn" id="langBtn" title="Select Language" aria-haspopup="menu" aria-expanded="false">
-            <i data-lucide="globe"></i>
-            <span class="current-lang-code" id="currentLangCode">EN</span>
-            <i data-lucide="chevron-down" class="chevron-icon"></i>
-          </button>
-          <div class="lang-menu hidden" id="langMenu" role="menu">
-            <button class="lang-option active" data-lang="en">
-              <span class="flag">🇺🇸</span> English
-            </button>
-            <button class="lang-option" data-lang="es">
-              <span class="flag">🇪🇸</span> Español
-            </button>
-            <button class="lang-option" data-lang="pt">
-              <span class="flag">🇧🇷</span> Português
-            </button>
-            <button class="lang-option" data-lang="zh">
-              <span class="flag">🇨🇳</span> 简体中文
-            </button>
-            <button class="lang-option" data-lang="fr">
-              <span class="flag">🇫🇷</span> Français
-            </button>
-          </div>
-        </div>
-
-        <div class="quota-pill" id="quotaPill" title="Decentralized Walrus Storage Quota">
-          <div class="quota-info">
-            <span class="quota-label" data-i18n="quota_label">Walrus Storage</span>
-            <span class="quota-val" id="quotaValue">0.0 MB / 5.0 GB</span>
-          </div>
-          <div class="quota-bar-bg">
-            <div class="quota-bar-fill" id="quotaFill" style="width: 0%;"></div>
-          </div>
-        </div>
-
-        <button class="btn btn-primary upload-header-btn" id="uploadTriggerBtn">
-          <i data-lucide="upload-cloud"></i>
-          <span data-i18n="upload_btn">Upload Photos</span>
-        </button>
 
         <input type="file" id="fileInput" multiple accept="image/*,video/*" class="hidden">
       </div>
@@ -642,12 +667,12 @@ npm run dev
       <span class="banner-separator">•</span>
       <div class="banner-pill" title="Erasure-coded decentralized blob storage on Walrus">
         <i data-lucide="layers" class="pill-icon"></i>
-        <span>Walrus Testnet — demonstration</span>
+        <span data-i18n="banner_walrus_testnet">Walrus Testnet — demonstration</span>
       </div>
       <span class="banner-separator">•</span>
       <div class="banner-pill" title="Verified on-chain via zero-knowledge proofs">
         <i data-lucide="shield-check" class="pill-icon"></i>
-        <span>Solana Devnet — verifiable RBAC</span>
+        <span data-i18n="banner_solana_rbac">Solana Devnet — verifiable RBAC</span>
       </div>
     </section>
 
@@ -655,22 +680,22 @@ npm run dev
       <div class="demo-evidence-heading">
         <i data-lucide="shield-check"></i>
         <div>
-          <strong>Demo evidence</strong>
+          <strong data-i18n="demo_evidence_title">Demo evidence</strong>
           <span id="demoEnvironmentLabel">Checking local demo environment…</span>
         </div>
       </div>
       <div class="demo-evidence-items">
         <div class="demo-evidence-item">
-          <span>Organization</span>
+          <span data-i18n="demo_evidence_org">Organization</span>
           <strong id="demoOrganizationValue">Sign in required</strong>
         </div>
         <div class="demo-evidence-item">
-          <span>Current role</span>
+          <span data-i18n="demo_evidence_role">Current role</span>
           <strong id="demoRoleValue">Not verified</strong>
         </div>
         <a class="demo-evidence-item demo-proof-link hidden" id="demoSolanaProofLink" href="#" target="_blank" rel="noopener noreferrer">
-          <span>Member PDA</span>
-          <strong>Open Solana Explorer ↗</strong>
+          <span data-i18n="demo_evidence_member_pda">Member PDA</span>
+          <strong data-i18n="demo_evidence_open_solana">Open Solana Explorer ↗</strong>
         </a>
       </div>
       <p class="demo-evidence-note" id="demoEvidenceNote">The encrypted file never leaves this device in plaintext. A real SIWS session is required before access is granted.</p>
@@ -792,12 +817,12 @@ npm run dev
         <div class="sidebar-meta-list">
           <div class="privacy-status-pill">
             <i data-lucide="shield-check"></i>
-            <span>Cifrado no dispositivo</span>
+            <span data-i18n="banner_seal">Client Encrypted</span>
           </div>
 
-          <div class="asset-demo-context" aria-label="Contexto de acesso da demonstração">
-            <span>Papel atual</span>
-            <strong id="sidebarCurrentRole">Não verificado</strong>
+          <div class="asset-demo-context" aria-label="Demo access context">
+            <span data-i18n="demo_evidence_role">Current role</span>
+            <strong id="sidebarCurrentRole" data-i18n="demo_not_verified">Not authenticated</strong>
           </div>
 
           <div class="meta-grid">
@@ -895,23 +920,23 @@ npm run dev
         <div class="header-icon-title">
           <div class="vault-modal-icon"><i data-lucide="share-2"></i></div>
           <div>
-            <h3>Compartilhar acesso cifrado</h3>
-            <p class="modal-subtitle">Conceda acesso de visualização a um membro. O envelope é cifrado neste navegador.</p>
+            <h3 data-i18n="share_modal_title">Share Encrypted Access</h3>
+            <p class="modal-subtitle" data-i18n="share_modal_subtitle">Grant viewing access to an organization member. Key envelope is sealed in this browser.</p>
           </div>
         </div>
         <button class="btn-close" id="shareModalClose"><i data-lucide="x"></i></button>
       </div>
       <div class="modal-body">
         <div class="share-selected-asset">
-          <span>Arquivo</span>
-          <strong id="shareSelectedAsset">Nenhum arquivo selecionado</strong>
+          <span data-i18n="share_asset_label">Asset</span>
+          <strong id="shareSelectedAsset" data-i18n="share_no_asset">No file selected</strong>
         </div>
         <div class="form-group">
-          <label for="shareRecipientSelect">Membro da organização</label><select id="shareRecipientSelect" class="form-input"></select>
-          <span class="form-help">Somente membros com identidade de criptografia podem receber acesso.</span>
+          <label for="shareRecipientSelect" data-i18n="share_recipient_label">Organization Member</label><select id="shareRecipientSelect" class="form-input"></select>
+          <span class="form-help" data-i18n="share_recipient_help">Only members with a registered device encryption identity can receive access.</span>
         </div>
-        <div class="share-permission-summary"><span>Permissão</span><strong>Viewer — visualizar e baixar</strong></div>
-        <button class="btn btn-primary btn-sm" id="grantShareBtn"><i data-lucide="shield"></i> Cifrar e conceder acesso</button>
+        <div class="share-permission-summary"><span data-i18n="share_permission_label">Permission</span><strong data-i18n="share_permission_val">Viewer — visualizar e baixar</strong></div>
+        <button class="btn btn-primary btn-sm" id="grantShareBtn"><i data-lucide="shield"></i> <span data-i18n="share_grant_btn">Seal & Grant Access</span></button>
         <div id="shareFlowStatus" class="share-flow-status" role="status" aria-live="polite"></div>
         <div id="shareAccessList" class="share-access-list" aria-live="polite"></div>
       </div>
@@ -940,12 +965,29 @@ npm run dev
         </div>
         <div class="form-group">
           <label data-i18n="edit_tags">Tags (comma separated)</label>
-          <input type="text" id="editTagsInput" class="form-input" placeholder="photo, nodus, family, travel">
+          <input type="text" id="editTagsInput" class="form-input" placeholder="photo, family, travel">
         </div>
       </div>
       <div class="modal-footer">
         <button class="btn btn-secondary" id="editCancelBtn" data-i18n="cancel">Cancel</button>
         <button class="btn btn-primary" id="editSaveBtn" data-i18n="save_changes">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Generic confirmation dialog (replaces native window.confirm) -->
+  <div class="modal-dialog hidden" id="confirmModal" role="dialog" aria-modal="true" aria-labelledby="confirmModalTitle">
+    <div class="modal-backdrop" id="confirmModalBackdrop"></div>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="confirmModalTitle">Please confirm</h3>
+      </div>
+      <div class="modal-body">
+        <p id="confirmModalMessage"></p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="confirmModalCancel" data-i18n="cancel">Cancel</button>
+        <button class="btn btn-danger" id="confirmModalOk">Confirm</button>
       </div>
     </div>
   </div>
@@ -963,8 +1005,8 @@ npm run dev
       </div>
 
       <div class="modal-body auth-modal-body">
-        <h2 class="auth-title">Connect Sovereign Vault</h2>
-        <p class="auth-subtitle">
+        <h2 class="auth-title" data-i18n="auth_modal_title">Connect Sovereign Vault</h2>
+        <p class="auth-subtitle" data-i18n="auth_modal_subtitle">
           Your vault is client-side encrypted before touching Walrus Protocol. Connect your Web3 wallet or sign in with zero-knowledge identity.
         </p>
 
@@ -974,8 +1016,8 @@ npm run dev
             <button class="btn btn-outline" id="connectSuiWalletBtn" style="display: flex; align-items: center; justify-content: center; gap: 0.6rem; padding: 0.85rem 1rem; border: 1.5px solid rgba(77, 162, 255, 0.4); border-radius: var(--radius-md); background: rgba(77, 162, 255, 0.06); cursor: pointer; transition: all 0.2s;">
               <i data-lucide="wallet" style="color: var(--brand-sui); width: 20px; height: 20px;"></i>
               <div style="text-align: left;">
-                <span style="display: block; font-size: 0.88rem; font-weight: 600; color: var(--text-primary);">Sui & Slush</span>
-                <span style="display: block; font-size: 0.72rem; color: var(--text-secondary);">Official Wallet Standard</span>
+                <span style="display: block; font-size: 0.88rem; font-weight: 600; color: var(--text-primary);" data-i18n="auth_method_sui">Sui Wallet Standard</span>
+                <span style="display: block; font-size: 0.72rem; color: var(--text-secondary);" data-i18n="auth_method_sui_desc">Sui Wallet, Slush & more</span>
               </div>
             </button>
 
@@ -983,14 +1025,14 @@ npm run dev
             <button class="btn btn-outline" id="connectSolanaBtn" style="display: flex; align-items: center; justify-content: center; gap: 0.6rem; padding: 0.85rem 1rem; border: 1.5px solid rgba(245, 158, 11, 0.4); border-radius: var(--radius-md); background: rgba(245, 158, 11, 0.06); cursor: pointer; transition: all 0.2s;">
               <i data-lucide="sun" style="color: #f59e0b; width: 20px; height: 20px;"></i>
               <div style="text-align: left;">
-                <span style="display: block; font-size: 0.88rem; font-weight: 600; color: var(--text-primary);">Solana (SIWS)</span>
-                <span style="display: block; font-size: 0.72rem; color: var(--text-secondary);">Phantom & Solflare</span>
+                <span style="display: block; font-size: 0.88rem; font-weight: 600; color: var(--text-primary);" data-i18n="auth_method_solana">Solana (SIWS)</span>
+                <span style="display: block; font-size: 0.72rem; color: var(--text-secondary);" data-i18n="auth_method_solana_desc">Phantom & Solflare</span>
               </div>
             </button>
           </div>
 
           <div class="auth-divider">
-            <span>or zero-knowledge Web2 sign-in</span>
+            <span data-i18n="or_continue_with">or choose another method</span>
           </div>
 
           <!-- Google zkLogin -->
@@ -1004,27 +1046,10 @@ npm run dev
             <span data-i18n="btn_google_zklogin">Continue with Google zkLogin</span>
           </button>
 
-          <div class="auth-divider">
-            <span>or sovereign key options</span>
-          </div>
-
-          <!-- Secondary Options -->
-          <div class="auth-secondary-grid">
-            <button class="auth-secondary-card" id="seedPhraseBtn">
-              <div class="auth-card-icon"><i data-lucide="key"></i></div>
-              <div class="auth-card-info">
-                <span class="auth-card-title">Seed Phrase (BIP-39)</span>
-                <span class="auth-card-desc">12-word sovereign key</span>
-              </div>
-            </button>
-
-            <button class="auth-secondary-card" id="guestPasskeyBtn">
-              <div class="auth-card-icon"><i data-lucide="sparkles"></i></div>
-              <div class="auth-card-info">
-                <span class="auth-card-title">Guest Passkey</span>
-                <span class="auth-card-desc">100% on-device</span>
-              </div>
-            </button>
+          <!-- Hidden preserved triggers for backwards-compatibility -->
+          <div style="display: none;" aria-hidden="true" class="hidden">
+            <button id="seedPhraseBtn"></button>
+            <button id="guestPasskeyBtn"></button>
           </div>
         </div>
       </div>
@@ -1049,21 +1074,21 @@ npm run dev
       </div>
 
       <div class="modal-body auth-modal-body">
-        <h2 class="auth-title">Google zkLogin</h2>
-        <p class="auth-subtitle">
+        <h2 class="auth-title" data-i18n="zklogin_modal_title">Google zkLogin</h2>
+        <p class="auth-subtitle" data-i18n="zklogin_modal_subtitle">
           Sign in with your Google email using Zero-Knowledge proofs. Your Web2 identity is translated to a sovereign vault key without leaking passwords or private data.
         </p>
 
         <!-- Email Sign-In Form -->
         <div class="custom-email-form" style="margin-top: 1rem;">
-          <label style="display: block; font-size: 0.82rem; font-weight: 500; color: var(--text-secondary); margin-bottom: 6px;">Google Email Address</label>
+          <label style="display: block; font-size: 0.82rem; font-weight: 500; color: var(--text-secondary); margin-bottom: 6px;" data-i18n="zklogin_custom_title">Google Email Address</label>
           <div class="input-with-icon">
             <i data-lucide="mail"></i>
             <input type="email" id="customGoogleEmailInput" class="form-input" placeholder="e.g. your.email@gmail.com" autocomplete="email" autofocus>
           </div>
           <button class="btn btn-primary btn-block" id="submitCustomEmailZkLoginBtn" style="margin-top: 10px;">
             <i data-lucide="shield-check"></i>
-            <span>Continue with Google zkLogin</span>
+            <span data-i18n="zklogin_custom_btn">Continue with Google zkLogin</span>
           </button>
         </div>
 
@@ -1090,14 +1115,14 @@ npm run dev
       <div class="modal-header auth-modal-header">
         <div class="auth-brand-badge">
           <div class="logo-icon-sm"><i data-lucide="wallet"></i></div>
-          <span class="auth-badge-label">Sui Wallet Standard</span>
+          <span class="auth-badge-label" data-i18n="auth_method_sui">Sui Wallet Standard</span>
         </div>
         <button class="btn-close" id="walletSelectorModalClose"><i data-lucide="x"></i></button>
       </div>
 
       <div class="modal-body auth-modal-body">
-        <h2 class="auth-title">Connect Sui Wallet</h2>
-        <p class="auth-subtitle">
+        <h2 class="auth-title" data-i18n="sui_modal_title">Connect Sui Wallet</h2>
+        <p class="auth-subtitle" data-i18n="sui_modal_subtitle">
           Connect your preferred Sui wallet standard extension or mobile provider.
         </p>
 
@@ -1132,20 +1157,16 @@ npm run dev
           </div>
         </div>
 
-        <div class="auth-divider">
-          <span>or create a wallet without extension</span>
+        <!-- Hidden preserved trigger for test suite backwards compatibility -->
+        <div style="display: none;" aria-hidden="true" class="hidden">
+          <button id="walletFallbackSeedBtn"></button>
         </div>
-
-        <button class="btn btn-secondary btn-block" id="walletFallbackSeedBtn">
-          <i data-lucide="key"></i>
-          <span>Create 12-Word Sovereign Seed Phrase (Free)</span>
-        </button>
       </div>
     </div>
   </div>
 
   <!-- Sovereign Seed Phrase (BIP-39 Mnemonic) Modal -->
-  <div class="modal-dialog hidden" id="seedPhraseModal">
+  <div class="modal-dialog hidden" id="seedPhraseModal" style="display: none !important;" aria-hidden="true">
     <div class="modal-backdrop" id="seedPhraseModalBackdrop"></div>
     <div class="modal-content auth-modal-content seed-modal-content">
       <div class="modal-header auth-modal-header">
@@ -1241,8 +1262,8 @@ npm run dev
       </div>
 
       <div class="modal-body auth-modal-body">
-        <h2 class="auth-title">Connect Solana Wallet</h2>
-        <p class="auth-subtitle">
+        <h2 class="auth-title" data-i18n="solana_modal_title">Connect Solana Wallet</h2>
+        <p class="auth-subtitle" data-i18n="solana_modal_subtitle">
           Sign-In with Solana (SIWS). Authenticate cryptographically via Ed25519 and anchor into Walrus decentralized storage.
         </p>
 
@@ -1259,7 +1280,7 @@ npm run dev
                 <span class="wallet-card-status" id="phantomWalletStatus">Scanning...</span>
               </div>
             </div>
-            <button class="btn btn-sm btn-outline wallet-action-btn" id="connectPhantomBtn">Connect</button>
+            <button class="btn btn-sm btn-outline wallet-action-btn" id="connectPhantomBtn" data-i18n="solana_phantom_btn">Connect</button>
           </div>
 
           <!-- Solflare Card -->
@@ -1273,7 +1294,7 @@ npm run dev
                 <span class="wallet-card-status" id="solflareWalletStatus">Scanning...</span>
               </div>
             </div>
-            <button class="btn btn-sm btn-outline wallet-action-btn" id="connectSolflareBtn">Connect</button>
+            <button class="btn btn-sm btn-outline wallet-action-btn" id="connectSolflareBtn" data-i18n="solana_solflare_btn">Connect</button>
           </div>
 
           <!-- Backpack Card -->
@@ -1297,12 +1318,12 @@ npm run dev
         <!-- Optional Organization Configuration Drawer -->
         <details class="solana-org-drawer">
           <summary class="solana-org-summary">
-            <span><i data-lucide="building-2"></i> Organization: <strong id="activeSolanaOrgLabel">nodus-devs</strong></span>
+            <span><i data-lucide="building-2"></i> Organization: <strong id="activeSolanaOrgLabel">not selected</strong></span>
             <i data-lucide="chevron-down" class="drawer-arrow"></i>
           </summary>
           <div class="solana-org-content">
-            <label class="solana-org-field-label">Target Tenant ID (default: nodus-devs)</label>
-            <input type="text" id="solanaOrgInput" class="form-input" placeholder="nodus-devs" value="nodus-devs">
+            <label class="solana-org-field-label">Target Tenant ID (optional)</label>
+            <input type="text" id="solanaOrgInput" class="form-input" placeholder="organization-id" value="">
           </div>
         </details>
 
@@ -1355,10 +1376,10 @@ npm run dev
           </div>
           <div class="account-info">
             <div class="account-name-row">
-              <h4 id="modalUserName" class="account-name">Alex</h4>
-              <span class="account-badge" id="modalAuthBadge">Google zkLogin</span>
+              <h4 id="modalUserName" class="account-name">Not connected</h4>
+              <span class="account-badge" id="modalAuthBadge">Wallet session</span>
             </div>
-            <p id="modalUserEmail" class="account-email">alex@gmail.com</p>
+            <p id="modalUserEmail" class="account-email">—</p>
             <div class="account-meta-chips">
               <span class="meta-chip" data-i18n="chip_e2e">🔒 End-to-End Encrypted</span>
               <span class="meta-chip" data-i18n="chip_vault">🌊 Walrus Sovereign Vault</span>
@@ -1450,13 +1471,13 @@ npm run dev
         <!-- Developer Portal Top Tabs -->
         <div class="dev-portal-tabs" role="tablist">
           <button class="dev-portal-tab-btn active" data-portal-tab="keys" id="portalTabKeysBtn">
-            <i data-lucide="key"></i> <span>API Keys & Ledger</span>
+            <i data-lucide="key"></i> <span data-i18n="dev_tab_keys">API Keys & Ledger</span>
           </button>
           <button class="dev-portal-tab-btn" data-portal-tab="storage" id="portalTabStorageBtn">
-            <i data-lucide="hard-drive"></i> <span>Storage Engine (BYOS)</span>
+            <i data-lucide="hard-drive"></i> <span data-i18n="dev_tab_storage">Storage Engine (BYOS)</span>
           </button>
           <button class="dev-portal-tab-btn" data-portal-tab="sdk" id="portalTabSdkBtn">
-            <i data-lucide="terminal"></i> <span>SDK Quickstart</span>
+            <i data-lucide="terminal"></i> <span data-i18n="dev_tab_sdk">SDK Quickstart</span>
           </button>
         </div>
 
@@ -1494,8 +1515,8 @@ npm run dev
 
           <!-- Generate API Key Form -->
           <div class="dev-key-create-card">
-            <h4>Create New API Key</h4>
-            <p class="dev-card-desc">Generate a high-entropy <code>nd_live_...</code> key for your backend services or automated CI pipelines.</p>
+            <h4 data-i18n="dev_create_title">Create New API Key</h4>
+            <p class="dev-card-desc" data-i18n="dev_create_desc">Generate a high-entropy <code>nd_live_...</code> key for your backend services or automated CI pipelines.</p>
             <div class="dev-create-row">
               <div class="form-group" style="flex: 1; margin-bottom: 0;">
                 <input type="text" id="newKeyNameInput" class="form-input" placeholder="Key name (e.g., Ingestion Pipeline, Backend Server)">
@@ -1531,7 +1552,7 @@ npm run dev
 
           <!-- Active API Keys Table -->
           <div class="dev-table-container">
-            <h4 style="margin-bottom: 0.75rem;">Active API Keys</h4>
+            <h4 style="margin-bottom: 0.75rem;" data-i18n="dev_active_title">Active API Keys</h4>
             <div id="devKeysTableWrapper">
               <table class="dev-table" id="devKeysTable">
                 <thead>
@@ -1688,8 +1709,8 @@ npm run dev
       <div class="modal-body">
         <!-- Invite Member Form -->
         <div class="dev-key-create-card">
-          <h4>Invite Team Member</h4>
-          <p class="dev-card-desc">Assign roles governed by Solana Anchor PDAs. Key envelopes are wrapped specifically for the member's public key.</p>
+          <h4 data-i18n="team_invite_title">Invite Team Member</h4>
+          <p class="dev-card-desc" data-i18n="team_invite_desc">Assign roles governed by Solana Anchor PDAs. Key envelopes are wrapped specifically for the member's public key.</p>
           <div class="team-invite-row">
             <input type="text" id="inviteMemberAddressInput" class="form-input" style="flex: 2;" placeholder="Solana Public Key (Base58 address)">
             <select id="inviteMemberRoleSelect" class="form-input" style="flex: 1;">
@@ -1705,7 +1726,7 @@ npm run dev
 
         <!-- Active Members Table -->
         <div class="dev-table-container">
-          <h4 style="margin-bottom: 0.75rem;">Organization Members</h4>
+          <h4 style="margin-bottom: 0.75rem;" data-i18n="team_members_title">Organization Members</h4>
           <table class="dev-table" id="teamMembersTable">
             <thead>
               <tr>

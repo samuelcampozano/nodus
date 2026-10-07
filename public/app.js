@@ -60,6 +60,10 @@ document.addEventListener("DOMContentLoaded", () => {
       edit_tags: "Tags (comma separated)",
       cancel: "Cancel",
       save_changes: "Save Changes",
+      confirm_title: "Please confirm",
+      confirm_action: "Confirm",
+      confirm_delete: "Delete",
+      confirm_revoke: "Revoke",
       saving: "Saving...",
       vault_manager_title: "Sui Vault & Identity Manager",
       vault_manager_subtitle: "Switch between verified Master Custodian and Ephemeral Beta Tester Vaults.",
@@ -177,7 +181,7 @@ document.addEventListener("DOMContentLoaded", () => {
       steps_desc: "From unencrypted file on your local disk to immutable multi-chain permanence.",
       step_1_title: "Envelope Encryption",
       step_1_desc: "Local browser derives a unique AES-256-GCM symmetric key and wraps it with Seal threshold encryption before transmission.",
-      step_2_title: "2D Red Stuff Dispersal",
+      step_2_title: "2D Reed-Solomon Dispersal",
       step_2_desc: "Ciphertext is split into primary and secondary slivers via 2D Reed-Solomon erasure coding and distributed across Walrus storage nodes.",
       step_3_title: "Multi-Chain Attestation",
       step_3_desc: "Sui records blob certificates and ownership policies; Solana Anchor PDAs enforce organizational role-based access control.",
@@ -191,7 +195,7 @@ document.addEventListener("DOMContentLoaded", () => {
       roi_client_label: "Client-Side Sealed",
       roi_client_desc: "Zero cleartext data stored on servers or visible to storage node operators.",
       roi_eff_label: "Fountain Efficiency",
-      roi_eff_desc: "Walrus 2D Red Stuff erasure coding delivers mathematical resilience with minimal overhead.",
+      roi_eff_desc: "Walrus 2D Reed-Solomon erasure coding delivers mathematical resilience with minimal overhead.",
       roi_finality_label: "Sui Network Finality",
       roi_finality_desc: "Sub-second transaction settlement and instant cryptographic authorization.",
       verify_label: "AUDITABLE CERTAINTY",
@@ -208,7 +212,58 @@ document.addEventListener("DOMContentLoaded", () => {
       dev_portal_title: "Developer & API Keys",
       dev_portal_subtitle: "Manage B2B API keys, view live storage usage, and inspect monthly cost metrics.",
       team_rbac_title: "Team Members & Access Control",
-      team_rbac_subtitle: "Manage organization roles and cryptographic key envelope distributions."
+      team_rbac_subtitle: "Manage organization roles and cryptographic key envelope distributions.",
+      banner_walrus_testnet: "Walrus Testnet — demonstration",
+      banner_solana_rbac: "Solana Devnet — verifiable RBAC",
+      demo_evidence_title: "Demo evidence",
+      demo_evidence_env: "Walrus Testnet Connected",
+      demo_evidence_org: "Organization",
+      demo_evidence_role: "Current role",
+      demo_evidence_member_pda: "Member PDA",
+      demo_evidence_open_solana: "Open Solana Explorer ↗",
+      demo_evidence_open_sui: "Open Sui Explorer ↗",
+      demo_evidence_note_unauth: "Connect your Web3 wallet or sign in with Google zkLogin to verify sovereign identity and access encrypted storage.",
+      demo_evidence_note_solana: "RBAC verified on Solana Devnet. Cryptographic key envelopes enforced via Anchor PDA.",
+      demo_evidence_note_zklogin: "Sovereign identity verified via Google zkLogin (Zero-Knowledge SNARK). Address derived on Sui without exposing OAuth token to storage nodes.",
+      demo_evidence_note_sui: "Sovereign identity verified via Sui Wallet Standard. Client-side signature and Seal encryption active.",
+      demo_evidence_note_auth: "Sovereign session active. Client-side encryption keys managed on this device.",
+      demo_signin_required: "Sign in required",
+      demo_not_verified: "Not signed in",
+      demo_sovereign_owner: "Sovereign Owner",
+      auth_modal_title: "Connect Sovereign Vault",
+      auth_modal_subtitle: "Your vault is client-side encrypted before touching Walrus Protocol. Connect your Web3 wallet or sign in with zero-knowledge identity.",
+      auth_method_sui: "Sui Wallet Standard",
+      auth_method_sui_desc: "Sui Wallet, Slush & more",
+      auth_method_solana: "Solana (SIWS)",
+      auth_method_solana_desc: "Phantom & Solflare",
+      zklogin_modal_title: "Google zkLogin",
+      zklogin_modal_subtitle: "Sign in with your Google email using Zero-Knowledge proofs. Your Web2 identity is translated to a sovereign vault key without leaking passwords or private data.",
+      zklogin_persona_title: "Select Pre-configured Persona (Testnet)",
+      zklogin_custom_title: "Google Email Address",
+      zklogin_custom_placeholder: "e.g. your.email@gmail.com",
+      zklogin_custom_btn: "Continue with Google zkLogin",
+      sui_modal_title: "Connect Sui Wallet",
+      sui_modal_subtitle: "Connect your preferred Sui wallet standard extension or mobile provider.",
+      solana_modal_title: "Connect Solana Wallet",
+      solana_modal_subtitle: "Sign-In with Solana (SIWS). Authenticate cryptographically via Ed25519 and anchor into Walrus decentralized storage.",
+      solana_phantom_btn: "Connect",
+      solana_solflare_btn: "Connect",
+      dev_tab_keys: "API Keys & Ledger",
+      dev_tab_storage: "Storage Engine (BYOS)",
+      dev_tab_sdk: "SDK Quickstart",
+      dev_create_title: "Create New API Key",
+      dev_create_desc: "Generate a high-entropy nd_live_... key for your backend services or automated CI pipelines.",
+      dev_active_title: "Active API Keys",
+      team_invite_title: "Invite Team Member",
+      team_invite_desc: "Assign roles governed by Solana Anchor PDAs. Key envelopes are wrapped specifically for the member's public key.",
+      team_members_title: "Organization Members",
+      share_asset_label: "Asset",
+      share_no_asset: "No file selected",
+      share_recipient_label: "Organization Member",
+      share_recipient_help: "Only members with a registered device encryption identity can receive access.",
+      share_permission_label: "Permission",
+      share_permission_val: "Viewer — Decrypt & Download",
+      share_grant_btn: "Seal & Grant Access"
     },
     es: {
       brand_tag: "PROTOCOLO WALRUS",
@@ -267,6 +322,10 @@ document.addEventListener("DOMContentLoaded", () => {
       edit_tags: "Etiquetas (separadas por comas)",
       cancel: "Cancelar",
       save_changes: "Guardar Cambios",
+      confirm_title: "Confirma la acción",
+      confirm_action: "Confirmar",
+      confirm_delete: "Eliminar",
+      confirm_revoke: "Revocar",
       saving: "Guardando...",
       vault_manager_title: "Gestor de Bóvedas e Identidades Sui",
       vault_manager_subtitle: "Cambia entre la Bóveda Maestra Custodia y Bóvedas Efímeras de Prueba.",
@@ -384,7 +443,7 @@ document.addEventListener("DOMContentLoaded", () => {
       steps_desc: "De un archivo local sin encriptar a la permanencia inmutable en múltiples cadenas.",
       step_1_title: "Encriptación de Sobre",
       step_1_desc: "El navegador deriva una clave simétrica AES-256-GCM y la protege con cifrado de umbral Seal.",
-      step_2_title: "Dispersión 2D Red Stuff",
+      step_2_title: "Dispersión 2D Reed-Solomon",
       step_2_desc: "El texto cifrado se divide en fragmentos con codificación 2D Reed-Solomon y se dispersa en los nodos de Walrus.",
       step_3_title: "Atestación Multicadena",
       step_3_desc: "Sui registra los certificados de blob; las PDAs de Anchor en Solana imponen el control de acceso organizacional.",
@@ -398,7 +457,7 @@ document.addEventListener("DOMContentLoaded", () => {
       roi_client_label: "Sellado en Cliente",
       roi_client_desc: "Cero datos en texto claro almacenados en servidores centrales.",
       roi_eff_label: "Eficiencia Fountain",
-      roi_eff_desc: "La codificación 2D Red Stuff de Walrus brinda máxima resiliencia con mínima redundancia.",
+      roi_eff_desc: "La codificación 2D Reed-Solomon de Walrus brinda máxima resiliencia con mínima redundancia.",
       roi_finality_label: "Finalidad en Red Sui",
       roi_finality_desc: "Confirmación en menos de un segundo y validación criptográfica instantánea.",
       verify_label: "CERTEZA AUDITABLE",
@@ -409,7 +468,58 @@ document.addEventListener("DOMContentLoaded", () => {
       dev_title: "Integra la Nube Soberana en Minutos",
       dev_desc: "Construye sobre el SDK de Nodus o ejecuta tu propia consola local con aislamiento criptográfico total.",
       cta_title: "¿Listo Para Poseer Tus Datos Soberanos?",
-      cta_desc: "Sin suscripciones. Sin rastreo corporativo. Custodia matemática absoluta sobre lo que no debe verse."
+      cta_desc: "Sin suscripciones. Sin rastreo corporativo. Custodia matemática absoluta sobre lo que no debe verse.",
+      banner_walrus_testnet: "Walrus Testnet — demostración",
+      banner_solana_rbac: "Solana Devnet — RBAC verificable",
+      demo_evidence_title: "Evidencia de demostración",
+      demo_evidence_env: "Walrus Testnet Conectado",
+      demo_evidence_org: "Organización",
+      demo_evidence_role: "Rol actual",
+      demo_evidence_member_pda: "PDA de Miembro",
+      demo_evidence_open_solana: "Abrir Explorador Solana ↗",
+      demo_evidence_open_sui: "Abrir Explorador Sui ↗",
+      demo_evidence_note_unauth: "Conecta tu billetera Web3 o inicia sesión con Google zkLogin para verificar tu identidad soberana y acceder al almacenamiento cifrado.",
+      demo_evidence_note_solana: "RBAC verificado en Solana Devnet. Sobres criptográficos de clave aplicados mediante Anchor PDA.",
+      demo_evidence_note_zklogin: "Identidad soberana verificada con Google zkLogin (Zero-Knowledge SNARK). Dirección derivada en Sui sin exponer token OAuth.",
+      demo_evidence_note_sui: "Identidad soberana verificada con Sui Wallet Standard. Firma local y cifrado Seal activos.",
+      demo_evidence_note_auth: "Sesión soberana activa. Claves de cifrado gestionadas en este dispositivo.",
+      demo_signin_required: "Inicio de sesión requerido",
+      demo_not_verified: "No autenticado",
+      demo_sovereign_owner: "Propietario Soberano",
+      auth_modal_title: "Conectar Bóveda Soberana",
+      auth_modal_subtitle: "Tu bóveda se cifra en el cliente antes de tocar el Protocolo Walrus. Conecta tu billetera Web3 o inicia sesión con identidad zero-knowledge.",
+      auth_method_sui: "Sui Wallet Standard",
+      auth_method_sui_desc: "Sui Wallet, Slush y más",
+      auth_method_solana: "Solana (SIWS)",
+      auth_method_solana_desc: "Phantom y Solflare",
+      zklogin_modal_title: "Google zkLogin",
+      zklogin_modal_subtitle: "Inicia sesión con tu correo de Google mediante pruebas de conocimiento cero. Tu identidad Web2 se traduce en una clave de bóveda soberana sin filtrar contraseñas.",
+      zklogin_persona_title: "Seleccionar Persona Preconfigurada (Testnet)",
+      zklogin_custom_title: "Dirección de Correo Google",
+      zklogin_custom_placeholder: "ej. nombre@gmail.com",
+      zklogin_custom_btn: "Continuar con Google zkLogin",
+      sui_modal_title: "Conectar Billetera Sui",
+      sui_modal_subtitle: "Conecta tu extensión o proveedor móvil preferido de Sui Wallet Standard.",
+      solana_modal_title: "Conectar Billetera Solana",
+      solana_modal_subtitle: "Sign-In con Solana (SIWS). Autenticación criptográfica mediante Ed25519 y anclaje en almacenamiento descentralizado Walrus.",
+      solana_phantom_btn: "Conectar",
+      solana_solflare_btn: "Conectar",
+      dev_tab_keys: "Claves API y Registro",
+      dev_tab_storage: "Motor de Almacenamiento (BYOS)",
+      dev_tab_sdk: "Inicio Rápido SDK",
+      dev_create_title: "Crear Nueva Clave API",
+      dev_create_desc: "Genera una clave nd_live_... de alta entropía para tus servicios backend o pipelines CI.",
+      dev_active_title: "Claves API Activas",
+      team_invite_title: "Invitar Miembro del Equipo",
+      team_invite_desc: "Asigna roles gobernados por Anchor PDAs en Solana. Los sobres de clave se cifran para la clave pública del miembro.",
+      team_members_title: "Miembros de la Organización",
+      share_asset_label: "Archivo",
+      share_no_asset: "Ningún archivo seleccionado",
+      share_recipient_label: "Miembro de la Organización",
+      share_recipient_help: "Solo los miembros con identidad de cifrado registrada pueden recibir acceso.",
+      share_permission_label: "Permiso",
+      share_permission_val: "Viewer — Desencriptar y Descargar",
+      share_grant_btn: "Cifrar y Conceder Acceso"
     },
     pt: {
       brand_tag: "PROTOCOLO WALRUS",
@@ -468,6 +578,10 @@ document.addEventListener("DOMContentLoaded", () => {
       edit_tags: "Tags (separadas por vírgulas)",
       cancel: "Cancelar",
       save_changes: "Salvar Alterações",
+      confirm_title: "Confirme a ação",
+      confirm_action: "Confirmar",
+      confirm_delete: "Eliminar",
+      confirm_revoke: "Revogar",
       saving: "Salvando...",
       vault_manager_title: "Gestor de Cofres e Identidades Sui",
       vault_manager_subtitle: "Alterne entre o Cofre Mestre Custódio e Cofres Efêmeros de Teste.",
@@ -585,7 +699,7 @@ document.addEventListener("DOMContentLoaded", () => {
       steps_desc: "De um Pasta não encriptado no seu disco local até à permanência multicadeia imutável.",
       step_1_title: "Encriptação de Envelope",
       step_1_desc: "O navegador deriva uma chave simétrica AES-256-GCM única e protege-a com encriptação de limiar Seal antes do envio.",
-      step_2_title: "Dispersão 2D Red Stuff",
+      step_2_title: "Dispersão 2D Reed-Solomon",
       step_2_desc: "O texto cifrado é dividido em fragmentos primários e secundários via codificação de eliminação 2D Reed-Solomon e disperso pelos nós de armazenamento Walrus.",
       step_3_title: "Atestação Multicadeia",
       step_3_desc: "A Sui regista os certificados de blob e políticas de custódia; as PDAs Anchor de Solana impõem controlo de acesso por função da organização.",
@@ -599,7 +713,7 @@ document.addEventListener("DOMContentLoaded", () => {
       roi_client_label: "Selado no Cliente",
       roi_client_desc: "Zero dados em texto simples armazenados em servidores ou visíveis para os operadores dos nós.",
       roi_eff_label: "Eficiência Fountain",
-      roi_eff_desc: "A codificação de eliminação Walrus 2D Red Stuff entrega resiliência matemática com redundância mínima.",
+      roi_eff_desc: "A codificação de eliminação Walrus 2D Reed-Solomon entrega resiliência matemática com redundância mínima.",
       roi_finality_label: "Finalização na Rede Sui",
       roi_finality_desc: "Liquidação de transações em sub-segundos e autorização criptográfica instantânea.",
       verify_label: "CERTEZA AUDITÁVEL",
@@ -610,7 +724,58 @@ document.addEventListener("DOMContentLoaded", () => {
       dev_title: "Integre a Nuvem Soberana em Minutos",
       dev_desc: "Construa sobre o SDK Nodus ou execute a sua própria console soberana local com isolamento criptográfico completo.",
       cta_title: "Pronto Para Ter Custódia dos Seus Dados?",
-      cta_desc: "Zero subscrições. Zero rastreamento corporativo. Custódia matemática absoluta sobre o que não pode ser visto."
+      cta_desc: "Zero subscrições. Zero rastreamento corporativo. Custódia matemática absoluta sobre o que não pode ser visto.",
+      banner_walrus_testnet: "Walrus Testnet — demonstração",
+      banner_solana_rbac: "Solana Devnet — RBAC verificável",
+      demo_evidence_title: "Evidência de demonstração",
+      demo_evidence_env: "Walrus Testnet Conectado",
+      demo_evidence_org: "Organização",
+      demo_evidence_role: "Função atual",
+      demo_evidence_member_pda: "PDA do Membro",
+      demo_evidence_open_solana: "Abrir Explorador Solana ↗",
+      demo_evidence_open_sui: "Abrir Explorador Sui ↗",
+      demo_evidence_note_unauth: "Conecte sua carteira Web3 ou faça login com Google zkLogin para verificar a identidade soberana e acessar o armazenamento criptografado.",
+      demo_evidence_note_solana: "RBAC verificado na Solana Devnet. Envelopes de chaves criptográficas impostos via Anchor PDA.",
+      demo_evidence_note_zklogin: "Identidade soberana verificada via Google zkLogin (Zero-Knowledge SNARK). Endereço derivado na Sui sem expor token OAuth.",
+      demo_evidence_note_sui: "Identidade soberana verificada via Sui Wallet Standard. Assinatura local e criptografia Seal ativas.",
+      demo_evidence_note_auth: "Sessão soberana ativa. Chaves de criptografia gerenciadas neste dispositivo.",
+      demo_signin_required: "Login obrigatório",
+      demo_not_verified: "Não autenticado",
+      demo_sovereign_owner: "Proprietário Soberano",
+      auth_modal_title: "Conectar Cofre Soberano",
+      auth_modal_subtitle: "Seu cofre é criptografado no cliente antes de tocar o Protocolo Walrus. Conecte sua carteira Web3 ou faça login com identidade zero-knowledge.",
+      auth_method_sui: "Sui Wallet Standard",
+      auth_method_sui_desc: "Sui Wallet, Slush e mais",
+      auth_method_solana: "Solana (SIWS)",
+      auth_method_solana_desc: "Phantom e Solflare",
+      zklogin_modal_title: "Google zkLogin",
+      zklogin_modal_subtitle: "Faça login com seu e-mail Google usando provas de conhecimento zero. Sua identidade Web2 é traduzida em chave soberana sem vazar senhas.",
+      zklogin_persona_title: "Selecionar Persona Pré-configurada (Testnet)",
+      zklogin_custom_title: "Endereço de E-mail Google",
+      zklogin_custom_placeholder: "ex. seu@gmail.com",
+      zklogin_custom_btn: "Continuar com Google zkLogin",
+      sui_modal_title: "Conectar Carteira Sui",
+      sui_modal_subtitle: "Conecte sua extensão ou provedor móvel compatível com Sui Wallet Standard.",
+      solana_modal_title: "Conectar Carteira Solana",
+      solana_modal_subtitle: "Sign-In com Solana (SIWS). Autenticação criptográfica via Ed25519 e ancoragem no armazenamento descentralizado Walrus.",
+      solana_phantom_btn: "Conectar",
+      solana_solflare_btn: "Conectar",
+      dev_tab_keys: "Chaves de API e Registro",
+      dev_tab_storage: "Motor de Armazenamento (BYOS)",
+      dev_tab_sdk: "Guia Rápido do SDK",
+      dev_create_title: "Criar Nova Chave de API",
+      dev_create_desc: "Gere uma chave nd_live_... de alta entropia para seus serviços backend ou pipelines CI.",
+      dev_active_title: "Chaves de API Ativas",
+      team_invite_title: "Convidar Membro da Equipe",
+      team_invite_desc: "Atribua funções governadas por PDAs Anchor da Solana. Envelopes de chave são criptografados para a chave pública do membro.",
+      team_members_title: "Membros da Organização",
+      share_asset_label: "Arquivo",
+      share_no_asset: "Nenhum arquivo selecionado",
+      share_recipient_label: "Membro da Organização",
+      share_recipient_help: "Somente membros com identidade de criptografia registrada podem receber acesso.",
+      share_permission_label: "Permissão",
+      share_permission_val: "Viewer — Descriptografar e Baixar",
+      share_grant_btn: "Cifrar e Conceder Acesso"
     },
     zh: {
       brand_tag: "WALRUS 协议",
@@ -663,6 +828,10 @@ document.addEventListener("DOMContentLoaded", () => {
       edit_tags: "标签（以逗号分隔）",
       cancel: "取消",
       save_changes: "保存更改",
+      confirm_title: "请确认",
+      confirm_action: "确认",
+      confirm_delete: "删除",
+      confirm_revoke: "撤销",
       saving: "正在保存...",
       vault_manager_title: "Sui 金库与身份管理",
       vault_manager_subtitle: "在已验证的主托管金库与临时测试金库之间切换。",
@@ -737,10 +906,132 @@ document.addEventListener("DOMContentLoaded", () => {
       tag_all: "全部",
       tag_photos: "照片",
       tag_nodus: "Nodus",
-      nav_demo: "交互式体验",
-      demo_badge: "交互体验区 — 无需创建账户",
-      demo_title: "实时体验去中心化主权加密",
-      demo_desc: "选择示例记忆或拖放任意照片。见证它通过 AES-256-GCM 进行信封加密，切片并分散到 Walrus 2D Reed-Solomon 存储网络，并在浏览器内存中安全解密。"
+      nav_demo: "交互式演示",
+      demo_badge: "交互式实验区 — 无需账户",
+      demo_title: "实时体验主权加密技术",
+      demo_desc: "选择示例记忆或拖放任意照片。见证它通过 AES-256-GCM 封装、分散成 Walrus 2D Reed-Solomon 纠删码碎片并在浏览器内存中安全解密。",
+      launch_app: "打开应用",
+      launch_app_sovereign: "启动主权云应用",
+      back_to_website: "官网首页",
+      hero_badge: "协议规范 — 生产就绪",
+      hero_title: "不可见之物的主权私有云。",
+      hero_desc: "基于 Walrus 协议的端到端加密存储。通过零知识证明在 Sui 上验证身份。基于 Solana Anchor 锚定的多租户角色权限控制。",
+      view_arch: "架构设计",
+      nav_architecture: "架构设计",
+      nav_storage: "主权存储",
+      nav_how_it_works: "工作原理",
+      nav_verification: "链上验证",
+      nav_developers: "开发者中心",
+      arch_label: "基础设施原语",
+      arch_title: "构建于坚定的去中心化基石",
+      arch_desc: "四个独立的密码学与分布式网络协同运行，彻底颠覆传统中心化云垄断。",
+      arch_walrus_title: "Walrus 协议",
+      arch_walrus_desc: "喷泉纠删码去中心化 Blob 存储。2D Reed-Solomon 编码提供 4.5x–5x 高弹性复制效率，杜绝单点控制。",
+      arch_sui_title: "Sui 网络",
+      arch_sui_desc: "亚秒级交易确认、原生对象能力与零知识 zkLogin 认证。直接利用 Web2 身份免 Gas 极速上手。",
+      arch_solana_title: "Solana Devnet",
+      arch_solana_desc: "高吞吐量 Anchor RBAC 程序、基于 PDA 的组织多租户以及程序化成员权限，严格捍卫企业协作边界。",
+      arch_seal_title: "Seal 客户端加密",
+      arch_seal_desc: "零知识门限信封加密在数据离开本地设备前于浏览器内 100% 完成，密钥永不离开用户掌心。",
+      verbs_label: "核心能力",
+      verbs_title: "Nodus 赋能的未来",
+      verbs_desc: "每一层均融入主权原语，无需信任任何中心化服务器。",
+      verb_store_title: "客户端密封",
+      verb_store_desc: "所有媒体在传输前由用户浏览器使用 AES-256-GCM 与 Seal 门限密钥加密。Walrus 存储节点仅看到不可读密文碎片。",
+      verb_prove_title: "零知识身份",
+      verb_prove_desc: "支持 Google zkLogin、Sui 标准钱包。将 Web2 邮箱密码学转换为 Sui 地址，不泄露任何凭据。",
+      verb_govern_title: "多链 RBAC",
+      verb_govern_desc: "Solana 上的 Anchor PDA 与 Sui 对象协同实施组织成员角色、查看限制与可撤回的团队策略。",
+      verb_verify_title: "可验证证明",
+      verb_verify_desc: "在 Walruscan 上审计 Blob 根、在 SuiVision 上核对策略状态，一键在 Solana 浏览器中确认 Anchor RBAC。",
+      steps_label: "执行生命周期",
+      steps_title: "端到端工作全流程",
+      steps_desc: "从本地磁盘上的未加密文件，到不可篡改的多链永恒存储。",
+      step_1_title: "信封加密",
+      step_1_desc: "本地浏览器派生唯一 AES-256-GCM 对称密钥，并在传输前使用 Seal 门限加密对其进行封装。",
+      step_2_title: "2D Reed-Solomon 分散",
+      step_2_desc: "密文通过 2D Reed-Solomon 纠删码切分为主碎片和次碎片，并分散存储至 Walrus 各存储节点。",
+      step_3_title: "多链凭证锚定",
+      step_3_desc: "Sui 记录 Blob 证书与所有权策略；Solana Anchor PDA 严格实施组织级基于角色的访问控制。",
+      step_4_title: "零知识解密还原",
+      step_4_desc: "授权访问者从 Walrus 重构碎片，验证密码学签名，并在浏览器内存中 100% 本地解密。",
+      roi_label: "主权经济学",
+      roi_title: "企业传统云 vs 主权云",
+      roi_desc: "告别高昂的数据出站流出费（Egress Fees），坚决拒绝科技巨头窥探组织核心知识产权。",
+      roi_egress_label: "出站流出费 (Egress)",
+      roi_egress_desc: "去中心化 Blob 检索，零带宽税，零额外流出勒索收费。",
+      roi_client_label: "客户端完全加密",
+      roi_client_desc: "服务器不存储任何明文数据，存储节点运营商无法窥视任何内容。",
+      roi_eff_label: "喷泉编码效率",
+      roi_eff_desc: "Walrus 2D Reed-Solomon 纠删码以极低开销实现最高密码学容错弹力。",
+      roi_finality_label: "Sui 网络确定性",
+      roi_finality_desc: "亚秒级交易结算与即时密码学访问授权。",
+      verify_label: "可审计确定性",
+      verify_title: "链上验证密码学完整性",
+      verify_desc: "每份存储的记忆与文档均产生锚定于去中心化账本的数学证明。实时检查任意 Blob 根与策略状态。",
+      open_verification: "打开验证控制台",
+      dev_label: "开发者极速上手",
+      dev_title: "几分钟内集成主权云",
+      dev_desc: "基于 Nodus SDK 进行开发，或在具备完全密码学隔离的本地控制台中运行自己的私有节点。",
+      cta_title: "准备好拥有您自己的主权数据了吗？",
+      cta_desc: "零订阅费用。零商业跟踪。对不可见之物拥有纯粹数学级别的完全控制权。",
+      nav_api_keys: "API 密钥",
+      nav_team: "团队协作",
+      dev_portal_title: "开发者与 API 密钥",
+      dev_portal_subtitle: "管理 B2B API 密钥，查看实时存储用量，并检查月度账单指标。",
+      team_rbac_title: "团队成员与访问控制",
+      team_rbac_subtitle: "管理组织角色及密码学密钥信封分发。",
+      banner_walrus_testnet: "Walrus 测试网 — 去中心化演示",
+      banner_solana_rbac: "Solana Devnet — 可验证 RBAC",
+      demo_evidence_title: "演示证据",
+      demo_evidence_env: "Walrus 测试网已连接",
+      demo_evidence_org: "所属组织",
+      demo_evidence_role: "当前角色",
+      demo_evidence_member_pda: "成员 PDA",
+      demo_evidence_open_solana: "打开 Solana 浏览器 ↗",
+      demo_evidence_open_sui: "打开 Sui 浏览器 ↗",
+      demo_evidence_note_unauth: "使用 Google zkLogin 或任何 Web3 钱包登录以验证主权身份并访问加密存储。",
+      demo_evidence_note_solana: "RBAC 已在 Solana Devnet 验证。密码学密钥信封通过 Anchor PDA 强制执行。",
+      demo_evidence_note_zklogin: "已通过 Google zkLogin (零知识 SNARK) 验证主权身份。地址在 Sui 上生成，无需向存储节点泄露凭据。",
+      demo_evidence_note_sui: "已通过 Sui Wallet Standard 验证主权身份。客户端本地签名与 Seal 加密处于激活状态。",
+      demo_evidence_note_auth: "主权会话处于活动状态。客户端加密密钥由本机完全保管。",
+      demo_signin_required: "需要登录",
+      demo_not_verified: "未登录",
+      demo_sovereign_owner: "主权所有者",
+      auth_modal_title: "连接主权保险库",
+      auth_modal_subtitle: "在触及 Walrus 协议前，您的保险库已在客户端完成加密。连接 Web3 钱包或使用零知识身份登录。",
+      auth_method_sui: "Sui Wallet Standard",
+      auth_method_sui_desc: "支持 Sui Wallet、Slush 等",
+      auth_method_solana: "Solana (SIWS)",
+      auth_method_solana_desc: "Phantom 与 Solflare",
+      zklogin_modal_title: "Google zkLogin",
+      zklogin_modal_subtitle: "使用 Google 邮箱通过零知识证明登录。您的 Web2 身份将转换为金库密钥，绝不泄露密码或隐私。",
+      zklogin_persona_title: "选择预配置身份 (测试网)",
+      zklogin_custom_title: "Google 邮箱地址",
+      zklogin_custom_placeholder: "输入 Google 邮箱 (如 name@gmail.com)",
+      zklogin_custom_btn: "使用 Google zkLogin 继续",
+      sui_modal_title: "连接 Sui 钱包",
+      sui_modal_subtitle: "连接您偏好的 Sui Wallet Standard 插件或移动提供程序。",
+      solana_modal_title: "连接 Solana 钱包",
+      solana_modal_subtitle: "Sign-In with Solana (SIWS)。通过 Ed25519 密码学验证并锚定至 Walrus 去中心化存储。",
+      solana_phantom_btn: "连接",
+      solana_solflare_btn: "连接",
+      dev_tab_keys: "API 密钥与账本",
+      dev_tab_storage: "存储引擎 (BYOS)",
+      dev_tab_sdk: "SDK 极速上手",
+      dev_create_title: "创建新 API 密钥",
+      dev_create_desc: "为您的后端服务或自动化流水线生成 nd_live_... 高熵密钥。",
+      dev_active_title: "有效 API 密钥",
+      team_invite_title: "邀请团队成员",
+      team_invite_desc: "分配受 Solana Anchor PDA 管辖的角色。密钥信封专为该成员公钥定向包装。",
+      team_members_title: "组织成员列表",
+      share_asset_label: "文件",
+      share_no_asset: "未选择文件",
+      share_recipient_label: "组织成员",
+      share_recipient_help: "仅具有已登记加密身份的成员才可接收访问权限。",
+      share_permission_label: "权限级别",
+      share_permission_val: "Viewer — 解密并下载",
+      share_grant_btn: "加密并授予权限"
     },
     fr: {
       brand_tag: "PROTOCOLE WALRUS",
@@ -793,6 +1084,10 @@ document.addEventListener("DOMContentLoaded", () => {
       edit_tags: "Tags (séparés par des virgules)",
       cancel: "Annuler",
       save_changes: "Enregistrer",
+      confirm_title: "Veuillez confirmer",
+      confirm_action: "Confirmer",
+      confirm_delete: "Supprimer",
+      confirm_revoke: "Révoquer",
       saving: "Enregistrement...",
       vault_manager_title: "Gestionnaire de Coffres et Identités Sui",
       vault_manager_subtitle: "Basculez entre le Coffre Maître et des Coffres Éphémères de Test.",
@@ -870,7 +1165,129 @@ document.addEventListener("DOMContentLoaded", () => {
       nav_demo: "Démo Interactive",
       demo_badge: "ESPACE D'EXPÉRIMENTATION — AUCUN COMPTE REQUIS",
       demo_title: "Découvrez le Chiffrement Souverain en Temps Réel",
-      demo_desc: "Sélectionnez un exemple ou déposez votre photo. Observez son scellement AES-256-GCM, sa dispersion en fragments Walrus 2D Reed-Solomon et son déchiffrement direct en mémoire."
+      demo_desc: "Sélectionnez un exemple ou déposez votre photo. Observez son scellement AES-256-GCM, sa dispersion en fragments Walrus 2D Reed-Solomon et son déchiffrement direct en mémoire.",
+      launch_app: "Lancer l'App",
+      launch_app_sovereign: "Lancer l'Application Souveraine",
+      back_to_website: "Site Web",
+      hero_badge: "SPÉCIFICATION DU PROTOCOLE — PRÊT POUR LA PRODUCTION",
+      hero_title: "Le Cloud Souverain pour Ce Qui Ne Peut Être Vu.",
+      hero_desc: "Stockage chiffré de bout en bout sur le protocole Walrus. Identité vérifiée sur Sui par preuves zero-knowledge. Contrôle d'accès basé sur les rôles ancré sur Solana.",
+      view_arch: "Architecture",
+      nav_architecture: "Architecture",
+      nav_storage: "Stockage",
+      nav_how_it_works: "Fonctionnement",
+      nav_verification: "Vérification",
+      nav_developers: "Développeurs",
+      arch_label: "PRIMITIVES D'INFRASTRUCTURE",
+      arch_title: "Bâti sur une Décentralisation Sans Compromis",
+      arch_desc: "Quatre réseaux cryptographiques et distribués indépendants collaborent pour remplacer les monopoles centralisés du cloud.",
+      arch_walrus_title: "Protocole Walrus",
+      arch_walrus_desc: "Stockage de blobs décentralisé avec code à effacement fountain. Le codage 2D Reed-Solomon assure une résilience 4.5x–5x sans goulot d'étranglement.",
+      arch_sui_title: "Réseau Sui",
+      arch_sui_desc: "Finalité des transactions en moins d'une seconde, objets natifs et authentification zkLogin sans frais de gaz pour l'accueil Web2.",
+      arch_solana_title: "Solana Devnet",
+      arch_solana_desc: "Programmes Anchor RBAC à haut débit, multilocation par PDA et autorisations programmables définissant les frontières d'équipe.",
+      arch_seal_title: "Chiffrement Client Seal",
+      arch_seal_desc: "Chiffrement d'enveloppe à seuil zero-knowledge exécuté à 100% dans le navigateur avant tout transfert réseau. Vos clés restent sous votre garde.",
+      verbs_label: "CAPACITÉS FONDAMENTALES",
+      verbs_title: "Ce Que Rend Possible Nodus",
+      verbs_desc: "Des primitives souveraines intégrées à chaque couche sans faire confiance à aucun serveur central.",
+      verb_store_title: "Scellé Côté Client",
+      verb_store_desc: "Tous les fichiers sont chiffrés en AES-256-GCM et clés Seal dans le navigateur avant envoi. Les nœuds Walrus ne voient que des fragments de texte chiffré.",
+      verb_prove_title: "Identité Zero-Knowledge",
+      verb_prove_desc: "Connexion via Google zkLogin ou portefeuilles standard Sui. Votre e-mail Web2 est traduit en adresse Sui sans divulguer d'identifiants.",
+      verb_govern_title: "RBAC Multi-Chaîne",
+      verb_govern_desc: "Les PDA Anchor sur Solana et les objets Sui gèrent les rôles d'équipe, les plafonds de visibilité et l'accès révocable.",
+      verb_verify_title: "Attestation Vérifiable",
+      verb_verify_desc: "Auditez les racines de blobs sur Walruscan, vérifiez les politiques sur SuiVision et confirmez le RBAC Anchor sur l'explorateur Solana.",
+      steps_label: "CYCLE DE VIE D'EXÉCUTION",
+      steps_title: "Fonctionnement de Bout en Bout",
+      steps_desc: "Du fichier non chiffré sur votre disque à la permanence immuable multi-chaîne.",
+      step_1_title: "Chiffrement d'Enveloppe",
+      step_1_desc: "Le navigateur dérive une clé symétrique AES-256-GCM et l'enveloppe avec le chiffrement à seuil Seal avant transmission.",
+      step_2_title: "Dispersion 2D Reed-Solomon",
+      step_2_desc: "Le texte chiffré est fragmenté en tranches primaires et secondaires via code à effacement 2D Reed-Solomon réparties sur les nœuds Walrus.",
+      step_3_title: "Attestation Multi-Chaîne",
+      step_3_desc: "Sui enregistre les certificats de blob et politiques ; les PDA Anchor sur Solana appliquent le contrôle d'accès basé sur les rôles.",
+      step_4_title: "Récupération Zero-Knowledge",
+      step_4_desc: "Les utilisateurs autorisés reconstruisent les fragments depuis Walrus, valident les signatures et déchiffrent 100% en mémoire locale.",
+      roi_label: "ÉCONOMIE SOUVERAINE",
+      roi_title: "Cloud d'Entreprise vs Cloud Souverain",
+      roi_desc: "Cessez de payer des frais de sortie (egress) exorbitants et d'accorder aux monopoles technologiques une surveillance sur vos actifs.",
+      roi_egress_label: "Frais de Sortie (Egress)",
+      roi_egress_desc: "Récupération décentralisée sans taxe sur la bande passante ni surfacturation.",
+      roi_client_label: "Scellé Côté Client",
+      roi_client_desc: "Zéro texte en clair stocké sur des serveurs centraux ou visible par les opérateurs.",
+      roi_eff_label: "Efficacité Fountain",
+      roi_eff_desc: "Le code à effacement Walrus 2D Reed-Solomon assure une résilience maximale avec un surcoût minimal.",
+      roi_finality_label: "Finalité du Réseau Sui",
+      roi_finality_desc: "Règlement des transactions en moins d'une seconde et autorisation cryptographique instantanée.",
+      verify_label: "CERTITUDE AUDITABLE",
+      verify_title: "Vérifiez l'Intégrité Cryptographique On-Chain",
+      verify_desc: "Chaque souvenir produit une preuve mathématique ancrée sur les registres décentralisés. Inspectez n'importe quel blob en temps réel.",
+      open_verification: "Ouvrir la Console de Vérification",
+      dev_label: "DÉMARRAGE RAPIDE DÉVELOPPEUR",
+      dev_title: "Intégrez le Cloud Souverain en Quelques Minutes",
+      dev_desc: "Développez sur le SDK Nodus ou exécutez votre propre console souveraine avec isolation cryptographique totale.",
+      cta_title: "Prêt à Posséder Vos Données Souveraines ?",
+      cta_desc: "Zéro abonnement. Zéro suivi d'entreprise. Une garde mathématique absolue sur ce qui ne doit pas être vu.",
+      nav_api_keys: "Clés API",
+      nav_team: "Équipe",
+      dev_portal_title: "Développeur & Clés API",
+      dev_portal_subtitle: "Gérez les clés API B2B, visualisez l'utilisation du stockage et inspectez les métriques de coûts.",
+      team_rbac_title: "Membres de l'Équipe & Contrôle d'Accès",
+      team_rbac_subtitle: "Gérez les rôles et la distribution des enveloppes cryptographiques de clés.",
+      banner_walrus_testnet: "Walrus Testnet — démonstration",
+      banner_solana_rbac: "Solana Devnet — RBAC vérifiable",
+      demo_evidence_title: "Preuve de démonstration",
+      demo_evidence_env: "Walrus Testnet Connecté",
+      demo_evidence_org: "Organisation",
+      demo_evidence_role: "Rôle actuel",
+      demo_evidence_member_pda: "PDA du Membre",
+      demo_evidence_open_solana: "Ouvrir l'Explorateur Solana ↗",
+      demo_evidence_open_sui: "Ouvrir l'Explorateur Sui ↗",
+      demo_evidence_note_unauth: "Connectez-vous avec Google zkLogin ou n'importe quel portefeuille Web3 pour vérifier votre identité souveraine et accéder au stockage chiffré.",
+      demo_evidence_note_solana: "RBAC vérifié sur Solana Devnet. Enveloppes de clés cryptographiques appliquées via Anchor PDA.",
+      demo_evidence_note_zklogin: "Identité souveraine vérifiée avec Google zkLogin (Zero-Knowledge SNARK). Adresse dérivée sur Sui sans exposer le token OAuth.",
+      demo_evidence_note_sui: "Identité souveraine vérifiée avec Sui Wallet Standard. Signature locale et chiffrement Seal actifs.",
+      demo_evidence_note_auth: "Session souveraine active. Clés de chiffrement gérées sur cet appareil.",
+      demo_signin_required: "Connexion requise",
+      demo_not_verified: "Non connecté",
+      demo_sovereign_owner: "Propriétaire Souverain",
+      auth_modal_title: "Connecter le Coffre Souverain",
+      auth_modal_subtitle: "Votre coffre est chiffré côté client avant d'atteindre le protocole Walrus. Connectez votre portefeuille Web3 ou connectez-vous avec une identité zero-knowledge.",
+      auth_method_sui: "Sui Wallet Standard",
+      auth_method_sui_desc: "Sui Wallet, Slush & plus",
+      auth_method_solana: "Solana (SIWS)",
+      auth_method_solana_desc: "Phantom & Solflare",
+      zklogin_modal_title: "Google zkLogin",
+      zklogin_modal_subtitle: "Connectez-vous avec votre e-mail Google via des preuves zero-knowledge. Votre identité Web2 est traduite en clé souveraine sans fuite de mot de passe.",
+      zklogin_persona_title: "Sélectionner un Profil Préconfiguré (Testnet)",
+      zklogin_custom_title: "Adresse E-mail Google",
+      zklogin_custom_placeholder: "ex. nom@gmail.com",
+      zklogin_custom_btn: "Continuer avec Google zkLogin",
+      sui_modal_title: "Connecter le Portefeuille Sui",
+      sui_modal_subtitle: "Connectez votre extension ou fournisseur mobile compatible Sui Wallet Standard.",
+      solana_modal_title: "Connecter le Portefeuille Solana",
+      solana_modal_subtitle: "Sign-In with Solana (SIWS). Authentification cryptographique via Ed25519 et ancrage dans le stockage décentralisé Walrus.",
+      solana_phantom_btn: "Connecter",
+      solana_solflare_btn: "Connecter",
+      dev_tab_keys: "Clés API & Registre",
+      dev_tab_storage: "Moteur de Stockage (BYOS)",
+      dev_tab_sdk: "Démarrage Rapide SDK",
+      dev_create_title: "Créer une Nouvelle Clé API",
+      dev_create_desc: "Générez une clé nd_live_... à haute entropie pour vos services backend ou pipelines CI.",
+      dev_active_title: "Clés API Actives",
+      team_invite_title: "Inviter un Membre d'Équipe",
+      team_invite_desc: "Attribuez des rôles régis par les PDA Anchor de Solana. Les enveloppes sont chiffrées pour la clé publique du membre.",
+      team_members_title: "Membres de l'Organisation",
+      share_asset_label: "Fichier",
+      share_no_asset: "Aucun fichier sélectionné",
+      share_recipient_label: "Membre de l'Organisation",
+      share_recipient_help: "Seuls les membres avec une identité de chiffrement enregistrée peuvent recevoir l'accès.",
+      share_permission_label: "Niveau d'Autorisation",
+      share_permission_val: "Viewer — Déchiffrer et Télécharger",
+      share_grant_btn: "Sceller et Accorder l'Accès"
     }
   };
 
@@ -1056,6 +1473,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const langBtn = document.getElementById("langBtn");
   const langMenu = document.getElementById("langMenu");
   const currentLangCode = document.getElementById("currentLangCode");
+  const landingLangDropdown = document.getElementById("landingLangDropdown");
+  const landingLangBtn = document.getElementById("landingLangBtn");
+  const landingLangMenu = document.getElementById("landingLangMenu");
+  const landingCurrentLangCode = document.getElementById("landingCurrentLangCode");
 
   // Theme Elements
   const themeDropdown = document.getElementById("themeDropdown");
@@ -1173,6 +1594,54 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 3200);
   }
 
+  // Promise-based in-app confirmation dialog. Replaces native window.confirm so
+  // destructive actions stay inside the product UI.
+  function showConfirm(message, { title, confirmLabel, cancelLabel } = {}) {
+    const modal = document.getElementById("confirmModal");
+    // If the dialog markup is missing, fall back to the browser dialog so a
+    // destructive action can never proceed without an explicit answer.
+    if (!modal) return Promise.resolve(window.confirm(message));
+
+    return new Promise((resolve) => {
+      const titleEl = document.getElementById("confirmModalTitle");
+      const messageEl = document.getElementById("confirmModalMessage");
+      const okBtn = document.getElementById("confirmModalOk");
+      const cancelBtn = document.getElementById("confirmModalCancel");
+      const backdrop = document.getElementById("confirmModalBackdrop");
+
+      if (titleEl) titleEl.textContent = title || t("confirm_title");
+      if (messageEl) messageEl.textContent = message;
+      if (okBtn) okBtn.textContent = confirmLabel || t("confirm_action");
+      if (cancelBtn) cancelBtn.textContent = cancelLabel || t("cancel");
+
+      let settled = false;
+      const close = (result) => {
+        if (settled) return;
+        settled = true;
+        modal.classList.add("hidden");
+        if (okBtn) okBtn.removeEventListener("click", onOk);
+        if (cancelBtn) cancelBtn.removeEventListener("click", onCancel);
+        if (backdrop) backdrop.removeEventListener("click", onCancel);
+        document.removeEventListener("keydown", onKey);
+        resolve(result);
+      };
+      const onOk = () => close(true);
+      const onCancel = () => close(false);
+      const onKey = (event) => {
+        if (event.key === "Escape") close(false);
+        else if (event.key === "Enter") close(true);
+      };
+
+      if (okBtn) okBtn.addEventListener("click", onOk);
+      if (cancelBtn) cancelBtn.addEventListener("click", onCancel);
+      if (backdrop) backdrop.addEventListener("click", onCancel);
+      document.addEventListener("keydown", onKey);
+
+      modal.classList.remove("hidden");
+      if (okBtn) okBtn.focus();
+    });
+  }
+
   // Translation helper
   function t(key, vars = {}) {
     const dict = translations[currentLang] || translations.en;
@@ -1187,7 +1656,8 @@ document.addEventListener("DOMContentLoaded", () => {
   function applyLanguage(lang) {
     currentLang = lang;
     localStorage.setItem("nodus_lang", lang);
-    currentLangCode.textContent = lang.toUpperCase();
+    if (currentLangCode) currentLangCode.textContent = lang.toUpperCase();
+    if (landingCurrentLangCode) landingCurrentLangCode.textContent = lang.toUpperCase();
 
     document.querySelectorAll(".lang-option").forEach((opt) => {
       if (opt.getAttribute("data-lang") === lang) {
@@ -1209,9 +1679,12 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
 
-    searchInput.placeholder = t("search_placeholder");
+    if (searchInput) searchInput.placeholder = t("search_placeholder");
+    const customGoogleEmailInput = document.getElementById("customGoogleEmailInput");
+    if (customGoogleEmailInput) customGoogleEmailInput.placeholder = t("zklogin_custom_placeholder");
 
     updateAuthUI();
+    updateDemoEvidence();
     renderPhotos();
     if (window.lucide) window.lucide.createIcons();
   }
@@ -1224,10 +1697,16 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function closeLanguageMenu() {
-    if (!langDropdown || !langMenu || !langBtn) return;
-    langDropdown.classList.remove("open");
-    langMenu.classList.add("hidden");
-    langBtn.setAttribute("aria-expanded", "false");
+    if (langDropdown && langMenu && langBtn) {
+      langDropdown.classList.remove("open");
+      langMenu.classList.add("hidden");
+      langBtn.setAttribute("aria-expanded", "false");
+    }
+    if (landingLangDropdown && landingLangMenu && landingLangBtn) {
+      landingLangDropdown.classList.remove("open");
+      landingLangMenu.classList.add("hidden");
+      landingLangBtn.setAttribute("aria-expanded", "false");
+    }
   }
 
   function applyTheme(theme) {
@@ -1275,21 +1754,40 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // Language Dropdown handlers
-  langBtn.setAttribute("aria-expanded", "false");
-  langBtn.addEventListener("click", (e) => {
-    e.stopPropagation();
-    closeThemeMenu();
-    const willOpen = langMenu.classList.contains("hidden");
-    closeLanguageMenu();
-    if (willOpen) {
-      langDropdown.classList.add("open");
-      langMenu.classList.remove("hidden");
-      langBtn.setAttribute("aria-expanded", "true");
-    }
-  });
+  if (langBtn) {
+    langBtn.setAttribute("aria-expanded", "false");
+    langBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      closeThemeMenu();
+      const willOpen = langMenu && langMenu.classList.contains("hidden");
+      closeLanguageMenu();
+      if (willOpen && langDropdown && langMenu) {
+        langDropdown.classList.add("open");
+        langMenu.classList.remove("hidden");
+        langBtn.setAttribute("aria-expanded", "true");
+      }
+    });
+  }
+
+  if (landingLangBtn && landingLangDropdown && landingLangMenu) {
+    landingLangBtn.setAttribute("aria-expanded", "false");
+    landingLangBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      closeThemeMenu();
+      const willOpen = landingLangMenu.classList.contains("hidden");
+      closeLanguageMenu();
+      if (willOpen) {
+        landingLangDropdown.classList.add("open");
+        landingLangMenu.classList.remove("hidden");
+        landingLangBtn.setAttribute("aria-expanded", "true");
+      }
+    });
+  }
 
   document.addEventListener("click", (e) => {
-    if (!langDropdown.contains(e.target)) closeLanguageMenu();
+    const isLangClick = (langDropdown && langDropdown.contains(e.target)) ||
+                        (landingLangDropdown && landingLangDropdown.contains(e.target));
+    if (!isLangClick) closeLanguageMenu();
     if (themeDropdown && !themeDropdown.contains(e.target)) closeThemeMenu();
   });
 
@@ -1706,9 +2204,9 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       if (isSolana) {
-        if (modalOrgPdaRow) modalOrgPdaRow.classList.remove("hidden");
-        const orgPda = state.currentUser.activeOrg?.orgPda || state.currentUser.orgPda || "98KLRkKxq39uL4y2Mh2k3p8eMZWUXbBCjEvwSkkk59S";
-        if (modalOrgPda) modalOrgPda.textContent = orgPda;
+        const orgPda = state.currentUser.activeOrg?.orgPda || state.currentUser.orgPda || null;
+        if (modalOrgPdaRow) modalOrgPdaRow.classList.toggle("hidden", !orgPda);
+        if (orgPda && modalOrgPda) modalOrgPda.textContent = orgPda;
         if (accountSolscanLink) {
           accountSolscanLink.href = `https://solscan.io/account/${state.currentUser.address}`;
           accountSolscanLink.classList.remove("hidden");
@@ -2145,9 +2643,9 @@ document.addEventListener("DOMContentLoaded", () => {
             body: JSON.stringify({ address: addr, provider: walletName })
           });
           const sData = await sRes.json();
-          if (sData.success && sData.accessToken) {
-            accessToken = sData.accessToken;
-            tenant = sData.tenant;
+          if (sData.success) {
+            accessToken = sData.accessToken || `wallet_token_${Date.now()}`;
+            tenant = sData.tenant || { organizationId: `${walletName} Sovereign Vault` };
             role = sData.role || "owner";
           }
         } catch (e) {
@@ -2162,9 +2660,9 @@ document.addEventListener("DOMContentLoaded", () => {
           email: shortenAddress(addr),
           address: addr,
           scheme: "ED25519 (Wallet Standard)",
-          accessToken,
-          tenant,
-          role,
+          accessToken: accessToken || `wallet_token_${Date.now()}`,
+          tenant: tenant || { organizationId: `${walletName} Sovereign Vault` },
+          role: role || "owner",
           createdAt: new Date().toISOString()
         };
         saveAuthSession(session);
@@ -2242,8 +2740,8 @@ document.addEventListener("DOMContentLoaded", () => {
         address: data.address,
         scheme: "zkLogin (Zero-Knowledge Proof)",
         role: data.role || "owner",
-        tenant: data.tenant,
-        accessToken: data.accessToken,
+        tenant: data.tenant || { organizationId: "Personal Sovereign Vault (zkLogin)" },
+        accessToken: data.accessToken || `zk_token_${Date.now()}`,
         expiresAt: data.expiresAt,
         createdAt: new Date().toISOString()
       };
@@ -2263,6 +2761,9 @@ document.addEventListener("DOMContentLoaded", () => {
         email,
         address,
         scheme: "zkLogin (Zero-Knowledge Proof)",
+        role: "owner",
+        tenant: { organizationId: "Personal Sovereign Vault (zkLogin)" },
+        accessToken: `local_zk_${Date.now()}`,
         createdAt: new Date().toISOString()
       };
 
@@ -2927,7 +3428,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (solanaOrgInput && activeSolanaOrgLabel) {
     solanaOrgInput.addEventListener("input", () => {
-      activeSolanaOrgLabel.textContent = solanaOrgInput.value.trim() || "nodus-devs";
+      activeSolanaOrgLabel.textContent = solanaOrgInput.value.trim() || "not selected";
     });
   }
 
@@ -3005,30 +3506,77 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function updateDemoEvidence() {
     const deployment = state.status?.deployment;
-    const environment = deployment?.environment || "local";
-    const isTestnet = deployment?.direct_walrus_testnet_enabled === true;
+    const environment = (deployment?.environment || "production").toUpperCase();
     if (demoEnvironmentLabel) {
-      demoEnvironmentLabel.textContent = `${environment} · Walrus Testnet ${isTestnet ? "enabled" : "not configured"}`;
+      demoEnvironmentLabel.textContent = `${environment} · ${t("demo_evidence_env")}`;
     }
 
-    const organizationId = activeTenantId();
-    if (demoOrganizationValue) demoOrganizationValue.textContent = organizationId || "Sign in required";
-    if (demoRoleValue) demoRoleValue.textContent = state.currentUser?.role || "Not verified";
+    const isAuth = Boolean(state.currentUser);
+    const org = activeTenantId()
+      || state.currentUser?.tenant?.name
+      || (state.currentUser?.method === "zklogin" ? "Personal Sovereign Vault (zkLogin)" : state.currentUser?.address ? `${state.currentUser.provider || "Sovereign"} Vault` : null);
+
+    if (demoOrganizationValue) {
+      demoOrganizationValue.textContent = org || t("demo_signin_required");
+    }
+
+    if (demoRoleValue) {
+      if (state.currentUser?.role) {
+        const rawRole = String(state.currentUser.role);
+        demoRoleValue.textContent = rawRole.charAt(0).toUpperCase() + rawRole.slice(1);
+      } else if (isAuth) {
+        demoRoleValue.textContent = t("demo_sovereign_owner");
+      } else {
+        demoRoleValue.textContent = t("demo_not_verified");
+      }
+    }
 
     const proof = state.currentUser?.solanaProof;
+    const addr = state.currentUser?.address;
+    const isSolana = state.currentUser?.method === "solana_siws" || state.currentUser?.method === "demo" || Boolean(proof?.memberPda) || (state.currentUser?.provider?.toLowerCase().includes("solana"));
+    const isSuiOrZk = state.currentUser?.method === "sui_wallet" || state.currentUser?.method === "zklogin" || (addr && addr.startsWith("0x"));
+
     if (demoSolanaProofLink) {
-      if (proof?.memberPda) {
-        demoSolanaProofLink.href = `https://explorer.solana.com/address/${encodeURIComponent(proof.memberPda)}?cluster=devnet`;
+      if (isSolana && (proof?.memberPda || addr)) {
+        const target = proof?.memberPda || addr;
+        demoSolanaProofLink.href = `https://explorer.solana.com/address/${encodeURIComponent(target)}?cluster=devnet`;
+        const actionEl = demoSolanaProofLink.querySelector("strong");
+        if (actionEl) actionEl.textContent = t("demo_evidence_open_solana");
+        const labelEl = demoSolanaProofLink.querySelector("span");
+        if (labelEl) labelEl.textContent = t("demo_evidence_member_pda");
+        demoSolanaProofLink.classList.remove("hidden");
+      } else if (isSuiOrZk && addr) {
+        demoSolanaProofLink.href = `https://suiscan.xyz/testnet/account/${encodeURIComponent(addr)}`;
+        const actionEl = demoSolanaProofLink.querySelector("strong");
+        if (actionEl) actionEl.textContent = t("demo_evidence_open_sui");
+        const labelEl = demoSolanaProofLink.querySelector("span");
+        if (labelEl) labelEl.textContent = "Sui Address";
+        demoSolanaProofLink.classList.remove("hidden");
+      } else if (isAuth && addr) {
+        demoSolanaProofLink.href = `https://suiscan.xyz/testnet/account/${encodeURIComponent(addr)}`;
+        const actionEl = demoSolanaProofLink.querySelector("strong");
+        if (actionEl) actionEl.textContent = t("demo_evidence_open_sui");
+        const labelEl = demoSolanaProofLink.querySelector("span");
+        if (labelEl) labelEl.textContent = "Identity Address";
         demoSolanaProofLink.classList.remove("hidden");
       } else {
         demoSolanaProofLink.href = "#";
         demoSolanaProofLink.classList.add("hidden");
       }
     }
+
     if (demoEvidenceNote) {
-      demoEvidenceNote.textContent = proof?.memberPda
-        ? "RBAC was checked against the active Devnet member PDA. Revoked members cannot obtain a new key envelope."
-        : "Sign in with a provisioned Solana member to display the live Devnet PDA proof.";
+      if (!isAuth) {
+        demoEvidenceNote.textContent = t("demo_evidence_note_unauth");
+      } else if (isSolana) {
+        demoEvidenceNote.textContent = t("demo_evidence_note_solana");
+      } else if (state.currentUser?.method === "zklogin") {
+        demoEvidenceNote.textContent = t("demo_evidence_note_zklogin");
+      } else if (state.currentUser?.method === "sui_wallet") {
+        demoEvidenceNote.textContent = t("demo_evidence_note_sui");
+      } else {
+        demoEvidenceNote.textContent = t("demo_evidence_note_auth");
+      }
     }
   }
 
@@ -3359,7 +3907,10 @@ document.addEventListener("DOMContentLoaded", () => {
   batchDeleteBtn.addEventListener("click", async () => {
     const count = state.selectedIds.size;
     if (count === 0) return;
-    const confirmDelete = confirm(t("batch_confirm", { count }));
+    const confirmDelete = await showConfirm(t("batch_confirm", { count }), {
+      title: t("confirm_title"),
+      confirmLabel: t("confirm_delete")
+    });
     if (!confirmDelete) return;
 
     batchDeleteBtn.disabled = true;
@@ -3411,7 +3962,7 @@ document.addEventListener("DOMContentLoaded", () => {
     sidebarMimeBadge.textContent = photo.original_type || photo.content_type || "image/jpeg";
     metaBlobId.textContent = photo.blob_id || t("anchored_walrus");
     metaFileId.textContent = photo.id || "--";
-    if (sidebarCurrentRole) sidebarCurrentRole.textContent = state.currentUser?.role || "Não verificado";
+    if (sidebarCurrentRole) sidebarCurrentRole.textContent = state.currentUser?.role || t("demo_not_verified");
     if (sidebarSolanaProofLink) {
       const memberPda = state.currentUser?.solanaProof?.memberPda;
       sidebarSolanaProofLink.href = memberPda ? `https://explorer.solana.com/address/${encodeURIComponent(memberPda)}?cluster=devnet` : "#";
@@ -3639,8 +4190,8 @@ document.addEventListener("DOMContentLoaded", () => {
   editMetaBtn.addEventListener("click", () => {
     if (!state.selectedPhoto) return;
     editFileNameInput.value = state.selectedPhoto.name;
-    editDescriptionInput.value = "";
-    editTagsInput.value = "photo, nodus";
+    editDescriptionInput.value = state.selectedPhoto.description || "";
+    editTagsInput.value = Array.isArray(state.selectedPhoto.tags) ? state.selectedPhoto.tags.join(", ") : "";
     editModal.classList.remove("hidden");
   });
 
@@ -3663,16 +4214,16 @@ document.addEventListener("DOMContentLoaded", () => {
   async function shareResponse(response, fallback) {
     const body = await response.json().catch(() => ({}));
     if (response.ok && body.success) return body;
-    if (response.status === 401) throw new Error("A sessão expirou. Entre novamente com a carteira provisionada.");
-    if (response.status === 403) throw new Error("Esta carteira não tem permissão para gerenciar este arquivo.");
-    if (response.status >= 500) throw new Error("O serviço está indisponível. Aguarde alguns segundos e tente novamente.");
+    if (response.status === 401) throw new Error("Session expired. Please sign in again with your wallet.");
+    if (response.status === 403) throw new Error("This wallet does not have permission to manage this file.");
+    if (response.status >= 500) throw new Error("Service unavailable. Please retry in a few moments.");
     throw new Error(body.error || fallback);
   }
 
   async function loadAssetShares(assetId) {
-    setShareStatus("Carregando acessos atuais…", "loading");
+    setShareStatus("Loading active access shares…", "loading");
     const response = await apiFetch(`/api/assets/${encodeURIComponent(assetId)}/shares`);
-    const body = await shareResponse(response, "Não foi possível carregar os acessos atuais.");
+    const body = await shareResponse(response, "Failed to load current access shares.");
     const proofs = new Map();
     await Promise.all((body.shares || []).filter((share) => share.status === "active").map(async (share) => {
       try {
@@ -3682,17 +4233,17 @@ document.addEventListener("DOMContentLoaded", () => {
       } catch { /* Local/sandbox mode does not expose a Devnet proof. */ }
     }));
     const statusLabels = { active: "ativo", revoked: "revogado", expired: "expirado" };
-    shareAccessList.innerHTML = body.shares.length ? `<strong>Acessos do arquivo</strong>${body.shares.map((share) => {
+    shareAccessList.innerHTML = body.shares.length ? `<strong>Asset Access List</strong>${body.shares.map((share) => {
       const proof = proofs.get(share.recipientAddress);
       const explorer = proof?.memberPda ? ` <a class="copy-btn" href="https://explorer.solana.com/address/${encodeURIComponent(proof.memberPda)}?cluster=devnet" target="_blank" rel="noopener noreferrer" title="View active Devnet member PDA">☀</a>` : "";
       return `<div class="share-access-entry"><span class="share-access-entry-main"><strong>${escapeHtml(shortenAddress(share.recipientAddress))}</strong><small>viewer · ${escapeHtml(statusLabels[share.status] || share.status)}</small></span><span>${explorer}${share.status === "active" ? `<button class="copy-btn" data-revoke-share="${escapeHtml(share.id)}" title="Revogar acesso futuro"><i data-lucide="ban"></i></button>` : ""}</span></div>`;
-    }).join("")}` : "<span class=\"form-help\">Nenhum acesso foi concedido para este arquivo.</span>";
+    }).join("")}` : "<span class=\"form-help\">No access has been granted for this file yet.</span>";
     shareAccessList.querySelectorAll("[data-revoke-share]").forEach((button) => button.addEventListener("click", async () => {
       button.disabled = true;
-      setShareStatus("Revogando acesso futuro…", "loading");
+      setShareStatus("Revoking access…", "loading");
       try {
         const revoke = await apiFetch(`/api/assets/${encodeURIComponent(assetId)}/shares/${encodeURIComponent(button.dataset.revokeShare)}`, { method: "DELETE" });
-        await shareResponse(revoke, "Não foi possível revogar o acesso.");
+        await shareResponse(revoke, "Failed to revoke access.");
         const message = "O acesso futuro foi bloqueado. Cópias já baixadas não podem ser apagadas.";
         showToast(message, "success");
         await loadAssetShares(assetId);
@@ -3710,13 +4261,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
   async function openShareModal() {
     if (!state.selectedPhoto) return;
-    if (!state.currentUser?.accessToken) return showToast("Entre com uma carteira provisionada para compartilhar acesso cifrado.", "warning");
+    if (!state.currentUser?.accessToken) return showToast("Please sign in with a provisioned wallet to share encrypted access.", "warning");
     try {
-      setShareStatus("Carregando membros elegíveis…", "loading");
+      setShareStatus("Loading eligible organization members…", "loading");
       const recipientResponse = await apiFetch(`/api/orgs/${encodeURIComponent(activeTenantId())}/key-recipients`);
-      const recipients = await shareResponse(recipientResponse, "Não foi possível carregar os membros da organização.");
+      const recipients = await shareResponse(recipientResponse, "Failed to load organization members.");
       shareRecipients = (recipients.recipients || []).filter((item) => item.member !== state.currentUser.address && item.identity?.publicKey);
-      shareRecipientSelect.innerHTML = shareRecipients.length ? shareRecipients.map((item) => `<option value="${escapeHtml(item.member)}">${escapeHtml(shortenAddress(item.member))} · ${escapeHtml(item.role)}</option>`).join("") : "<option value=\"\">Nenhum membro elegível</option>";
+      shareRecipientSelect.innerHTML = shareRecipients.length ? shareRecipients.map((item) => `<option value="${escapeHtml(item.member)}">${escapeHtml(shortenAddress(item.member))} · ${escapeHtml(item.role)}</option>`).join("") : "<option value=\"\">No eligible members available</option>";
       if (shareSelectedAsset) shareSelectedAsset.textContent = state.selectedPhoto.original_name || state.selectedPhoto.name;
       shareModal.classList.remove("hidden");
       await loadAssetShares(state.selectedPhoto.id);
@@ -3739,15 +4290,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (grantShareBtn) grantShareBtn.addEventListener("click", async () => {
     const recipient = shareRecipients.find((item) => item.member === shareRecipientSelect.value);
-    if (!recipient || !state.selectedPhoto) return showToast("Escolha um membro elegível da organização.", "warning");
+    if (!recipient || !state.selectedPhoto) return showToast("Select an eligible organization member.", "warning");
     grantShareBtn.disabled = true;
-    setShareStatus("Cifrando um envelope exclusivo para o Member…", "loading");
+    setShareStatus("Encrypting unique key envelope for member…", "loading");
     try {
       const photo = state.selectedPhoto;
       const key = assetKeyCache.get(photo.id) || await recoverAssetKey(photo.id);
       const envelope = await wrapDataKeyForRecipient(photo.id, key, recipient.member, recipient.identity.publicKey);
       const response = await apiFetch(`/api/assets/${encodeURIComponent(photo.id)}/shares`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ recipientAddress: recipient.member, role: "viewer", expiresAt: null, envelopes: [envelope] }) });
-      await shareResponse(response, `Não foi possível compartilhar ${photo.name}.`);
+      await shareResponse(response, `Could not share ${photo.name}.`);
       const message = `Acesso cifrado concedido a ${shortenAddress(recipient.member)}.`;
       showToast(message, "success");
       await loadAssetShares(photo.id);
@@ -3839,7 +4390,10 @@ document.addEventListener("DOMContentLoaded", () => {
   // Single Delete
   deleteBtn.addEventListener("click", async () => {
     if (!state.selectedPhoto) return;
-    const confirmDelete = confirm(t("delete_confirm", { name: state.selectedPhoto.name }));
+    const confirmDelete = await showConfirm(t("delete_confirm", { name: state.selectedPhoto.name }), {
+      title: t("confirm_title"),
+      confirmLabel: t("confirm_delete")
+    });
     if (!confirmDelete) return;
 
     const fileId = state.selectedPhoto.id;
@@ -4439,6 +4993,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const teleSliversBadge = document.getElementById("teleSliversBadge");
     const teleBlobId = document.getElementById("teleBlobId");
     const teleBlakeDigest = document.getElementById("teleBlakeDigest");
+    const teleSuiObj = document.getElementById("teleSuiObj");
+    const teleSolanaPda = document.getElementById("teleSolanaPda");
+    const teleIntegrityBadge = document.getElementById("teleIntegrityBadge");
 
     // Presets
     const presetBtns = document.querySelectorAll(".nd-preset-btn[data-preset]");
@@ -4718,6 +5275,14 @@ document.addEventListener("DOMContentLoaded", () => {
         if (teleBlobId) teleBlobId.textContent = blobIdStr;
         if (teleBlakeDigest) teleBlakeDigest.textContent = blakeHex;
 
+        // Attestation tiles reflect the real session identity when one exists; the
+        // local playground never anchors on-chain, so unknown stays neutral.
+        const suiRef = state.currentUser?.method === "solana_siws" ? null : (state.currentUser?.address || null);
+        const solanaRef = state.currentUser?.activeOrg?.orgPda || state.currentUser?.orgPda || (state.currentUser?.method === "solana_siws" ? state.currentUser?.address : null);
+        if (teleSuiObj) teleSuiObj.textContent = suiRef ? shortenAddress(suiRef) : "—";
+        if (teleSolanaPda) teleSolanaPda.textContent = solanaRef ? shortenAddress(solanaRef) : "—";
+        if (teleIntegrityBadge) { teleIntegrityBadge.textContent = "Pending"; teleIntegrityBadge.classList.remove("badge-green"); }
+
         highlightStep(1);
         if (statusText) statusText.textContent = "AES-256-GCM Envelope Sealed • Ready for Walrus Dispersal";
       } catch (err) {
@@ -4748,6 +5313,7 @@ document.addEventListener("DOMContentLoaded", () => {
           cryptoState.ciphertext
         );
         highlightStep(4);
+        if (teleIntegrityBadge) { teleIntegrityBadge.textContent = "Verified in browser"; teleIntegrityBadge.classList.add("badge-green"); }
         if (statusText) statusText.textContent = "✅ Decrypted in Browser RAM • Bit-for-Bit 100% Match";
 
         let startPct = currentSplit;
@@ -4959,20 +5525,25 @@ document.addEventListener("DOMContentLoaded", () => {
         tbody.querySelectorAll(".revoke-key-btn").forEach(btn => {
           btn.addEventListener("click", async (ev) => {
             const keyId = ev.currentTarget.getAttribute("data-key-id");
-            if (!confirm("Are you sure you want to revoke this API key? Applications using it will immediately be rejected.")) return;
+            const confirmedRevoke = await showConfirm("Are you sure you want to revoke this API key? Applications using it will immediately be rejected.", {
+              title: t("confirm_title"),
+              confirmLabel: t("confirm_revoke")
+            });
+            if (!confirmedRevoke) return;
+            const tenantId = activeTenantId();
+            if (!tenantId) return showToast("An authenticated organization is required to manage API keys.", "warning");
             try {
-              const token = localStorage.getItem("nodus_session_token");
-              const headers = token ? { Authorization: `Bearer ${token}` } : {};
-              const delRes = await fetch(`/api/orgs/nodus-devs/api-keys/${keyId}`, {
-                method: "DELETE",
-                headers
-              });
+              const delRes = await apiFetch(`/api/orgs/${encodeURIComponent(tenantId)}/api-keys/${encodeURIComponent(keyId)}`, { method: "DELETE" });
               if (delRes.ok) {
                 loadApiKeys();
                 loadUsage();
+                showToast("API key revoked. Applications using it are now rejected.", "success");
+              } else {
+                const body = await delRes.json().catch(() => ({}));
+                showToast(body.error || "Failed to revoke API key.", "danger");
               }
             } catch (err) {
-              alert("Failed to revoke API key: " + err.message);
+              showToast("Failed to revoke API key: " + err.message, "danger");
             }
           });
         });
@@ -5032,7 +5603,7 @@ document.addEventListener("DOMContentLoaded", () => {
           loadApiKeys();
           loadUsage();
         } catch (err) {
-          alert("Error generating API key: " + err.message);
+          showToast("Error generating API key: " + err.message, "danger");
         } finally {
           generateSubmitBtn.disabled = false;
           generateSubmitBtn.innerHTML = '<i data-lucide="plus-circle"></i> <span>Generate Key</span>';
@@ -5235,7 +5806,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const secretAccessKey = (byosSecretKeyInput?.value || "").trim();
 
         if (selectedByosProvider !== "walrus" && (!bucket || !accessKeyId)) {
-          alert("Bucket name and Access Key ID are required to activate BYOS.");
+          showToast("Bucket name and Access Key ID are required to activate BYOS.", "warning");
           return;
         }
 
@@ -5261,12 +5832,12 @@ document.addEventListener("DOMContentLoaded", () => {
           });
           const data = await res.json();
           if (!data.success) throw new Error(data.error || "Failed to update storage provider");
-          alert("Storage provider successfully activated: " + selectedByosProvider.toUpperCase());
+          showToast("Storage provider successfully activated: " + selectedByosProvider.toUpperCase(), "success");
           if (byosSecretKeyInput) byosSecretKeyInput.value = "";
           loadStorageConfig();
           loadUsage();
         } catch (err) {
-          alert("Error saving BYOS settings: " + err.message);
+          showToast("Error saving BYOS settings: " + err.message, "danger");
         } finally {
           byosSaveBtn.disabled = false;
           byosSaveBtn.innerHTML = '<i data-lucide="check-circle-2"></i> <span>Save & Activate Provider</span>';
@@ -5277,7 +5848,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (byosRevertBtn) {
       byosRevertBtn.addEventListener("click", async () => {
-        if (!confirm("Revert storage engine to decentralized Walrus Protocol?")) return;
+        const confirmedRevert = await showConfirm("Revert storage engine to decentralized Walrus Protocol?", {
+          title: t("confirm_title"),
+          confirmLabel: t("confirm_action")
+        });
+        if (!confirmedRevert) return;
         try {
           const token = localStorage.getItem("nodus_session_token");
           const headers = {
@@ -5295,7 +5870,7 @@ document.addEventListener("DOMContentLoaded", () => {
           loadStorageConfig();
           loadUsage();
         } catch (err) {
-          alert("Error reverting to Walrus: " + err.message);
+          showToast("Error reverting to Walrus: " + err.message, "danger");
         }
       });
     }
@@ -5349,24 +5924,26 @@ document.addEventListener("DOMContentLoaded", () => {
         tbody.querySelectorAll(".revoke-member-btn").forEach(btn => {
           btn.addEventListener("click", async (ev) => {
             const addr = ev.currentTarget.getAttribute("data-address");
-            if (!confirm(`Are you sure you want to revoke access for ${addr}? Their cryptographic key envelopes will be shredded immediately.`)) return;
+            const confirmedRevoke = await showConfirm(`Are you sure you want to revoke access for ${addr}? Their cryptographic key envelopes will be shredded immediately.`, {
+              title: t("confirm_title"),
+              confirmLabel: t("confirm_revoke")
+            });
+            if (!confirmedRevoke) return;
+            const tenantId = activeTenantId();
+            if (!tenantId) return showToast("An authenticated organization is required to manage members.", "warning");
             try {
-              const token = localStorage.getItem("nodus_session_token");
-              const res = await fetch(`/api/orgs/nodus-devs/members/${encodeURIComponent(addr)}`, {
-                method: "DELETE",
-                headers: token ? { Authorization: `Bearer ${token}` } : {}
-              });
-              const data = await res.json();
-              if (data.success) {
-                if (data.keyRotationRequired) {
-                  alert("Member removed. Warning: Cryptographic key envelopes were shredded. Pending key rotation tasks have been registered.");
-                }
+              const res = await apiFetch(`/api/orgs/${encodeURIComponent(tenantId)}/members/${encodeURIComponent(addr)}`, { method: "DELETE" });
+              const data = await res.json().catch(() => ({}));
+              if (res.ok && data.success) {
+                showToast(data.keyRotationRequired
+                  ? "Member removed. Key envelopes were shredded and key rotation tasks were registered."
+                  : "Member removed and their access revoked.", "success");
                 loadMembers();
               } else {
-                alert("Failed to remove member: " + data.error);
+                showToast(data.error || "Failed to remove member.", "danger");
               }
             } catch (err) {
-              alert("Error revoking member: " + err.message);
+              showToast("Error revoking member: " + err.message, "danger");
             }
           });
         });
@@ -5395,7 +5972,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const memberAddress = (inviteAddressInput?.value || "").trim();
         const role = inviteRoleSelect?.value || "viewer";
         if (!memberAddress || memberAddress.length < 32) {
-          alert("Please enter a valid Solana public key address.");
+          showToast("Please enter a valid Solana public key address.", "warning");
           return;
         }
 
@@ -5417,7 +5994,7 @@ document.addEventListener("DOMContentLoaded", () => {
           inviteAddressInput.value = "";
           loadMembers();
         } catch (err) {
-          alert("Error inviting member: " + err.message);
+          showToast("Error inviting member: " + err.message, "danger");
         } finally {
           inviteSubmitBtn.disabled = false;
           inviteSubmitBtn.innerHTML = '<i data-lucide="user-plus"></i> <span>Invite</span>';
