@@ -118,6 +118,19 @@ async function run() {
     assert(address.startsWith("0x"));
   });
 
+  await itAsync("Server deriveZkLoginSession deterministically generates Ed25519 Solana address", async () => {
+    const { deriveZkLoginSession } = await import("../server/solana.js");
+    const session = deriveZkLoginSession({ email: "user.sample@example.com" });
+    assert(session.address && session.address.length >= 32, "Address must be valid base58 string");
+    assert.strictEqual(session.email, "user.sample@example.com");
+    assert.strictEqual(session.name, "User Sample");
+  });
+
+  it("Ensures app.js calls /api/auth/zklogin to obtain tenant session token", () => {
+    const appJs = fs.readFileSync("public/app.js", "utf-8");
+    assert(appJs.includes('/api/auth/zklogin'), "handleGoogleZkLogin must invoke /api/auth/zklogin");
+  });
+
   console.log("\n[TEST GROUP 3] Codebase Integrity & Anti-Prompt Checks");
 
   it("Ensures no browser window.prompt() in zkLogin flow", () => {

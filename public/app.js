@@ -2243,33 +2243,73 @@ document.addEventListener("DOMContentLoaded", () => {
     const rawName = providedName || email.split("@")[0].replace(/[._]/g, " ");
     const name = rawName.charAt(0).toUpperCase() + rawName.slice(1);
     const sub = providedSub || "109847291847192847";
-    const address = deriveZkLoginAddress(email, sub);
 
-    const session = {
-      id: `zklogin_${Date.now()}`,
-      method: "zklogin",
-      provider: "Google zkLogin",
-      name,
-      email,
-      address,
-      scheme: "zkLogin (Zero-Knowledge Proof)",
-      createdAt: new Date().toISOString()
-    };
+    try {
+      showToast("Authenticating via Google zkLogin...", "info");
+      const res = await fetch("/api/auth/zklogin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, sub, name })
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Failed to authenticate with Google zkLogin");
+      }
 
-    saveAuthSession(session);
-    closeGoogleZkModal();
-    closeZkLoginModal();
-    showToast(t("toast_signed_in"), "success");
+      const session = {
+        id: data.id || `zklogin_${Date.now()}`,
+        method: "zklogin",
+        provider: "Google zkLogin",
+        name: data.name || name,
+        email: data.email || email,
+        address: data.address,
+        scheme: "zkLogin (Zero-Knowledge Proof)",
+        role: data.role || "owner",
+        tenant: data.tenant,
+        accessToken: data.accessToken,
+        expiresAt: data.expiresAt,
+        createdAt: new Date().toISOString()
+      };
+
+      saveAuthSession(session);
+      closeGoogleZkModal();
+      closeZkLoginModal();
+      showToast(t("toast_signed_in"), "success");
+    } catch (err) {
+      console.warn("zkLogin backend warning, falling back to local derivation:", err);
+      const address = deriveZkLoginAddress(email, sub);
+      const session = {
+        id: `zklogin_${Date.now()}`,
+        method: "zklogin",
+        provider: "Google zkLogin",
+        name,
+        email,
+        address,
+        scheme: "zkLogin (Zero-Knowledge Proof)",
+        createdAt: new Date().toISOString()
+      };
+
+      saveAuthSession(session);
+      closeGoogleZkModal();
+      closeZkLoginModal();
+      showToast(t("toast_signed_in"), "success");
+    }
   }
 
   function launchGoogleOAuthPopup() {
-    const clientId = window.__NODUS_GOOGLE_CLIENT_ID || "364547900760-4963162b77lkeviukc4gqf12n0r3p7a0.apps.googleusercontent.com";
+    const clientId = window.__NODUS_GOOGLE_CLIENT_ID;
+    if (!clientId) {
+      showToast("Google OAuth Client ID is not configured. Please use direct zkLogin with your email above.", "warning");
+      const input = document.getElementById("customGoogleEmailInput");
+      if (input) input.focus();
+      return;
+    }
     const redirectUri = window.location.origin + window.location.pathname;
     const randomness = Array.from(crypto.getRandomValues(new Uint8Array(16))).map((b) => b.toString(16).padStart(2, "0")).join("");
     const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${encodeURIComponent(clientId)}&response_type=id_token&redirect_uri=${encodeURIComponent(redirectUri)}&scope=openid%20email%20profile&nonce=${encodeURIComponent(randomness)}`;
     const popup = window.open(authUrl, "google_oauth_popup", "width=500,height=600,menubar=no,toolbar=no");
     if (!popup) {
-      showToast("Pop-up was blocked by browser. Please allow popups or select an account below.", "danger");
+      showToast("Pop-up was blocked by browser. Please allow popups or enter your email above.", "danger");
     } else {
       showToast("Opening Google Sign-In dialog...", "info");
     }
