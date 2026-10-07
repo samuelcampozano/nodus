@@ -38,6 +38,7 @@
     "test:private-search": "node test/test-private-search.js",
     "test:asset-sharing": "node test/test-asset-sharing.js",
     "test:collaboration:local": "node scripts/run-local-collaboration-tests.mjs",
+    "test:collaboration:local:check": "node scripts/run-local-collaboration-tests.mjs --dry-run",
     "demo:provision:local": "node scripts/init-demo-org.mjs --config config/local-demo-provisioning.json",
     "test:m4-search": "node test/test-private-search.js && node test/test-tenant-catalog-search.js",
     "test-connection": "node test-connection.js",

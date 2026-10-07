@@ -141,6 +141,7 @@ Para considerar a entrega finalizada, todos os pontos abaixo devem acontecer sem
 - [x] Provisionamento reproduzível e idempotente por manifesto público, sem depender de `.env`.
 - [x] Ambiente PostgreSQL descartável e comando único documentados em `docs/LOCAL_TESTS_AND_PROVISIONING.md`.
 - [x] Casos locais completos de share, expiração, revogação, reativação e isolamento adicionados.
+- [x] O runner local verifica Docker/Compose antes de iniciar, grava relatório ignorado pelo Git e preserva a causa original de falha mesmo se a limpeza falhar.
 - [ ] Executar `npm run test:collaboration:local` em uma máquina com Docker e anexar a saída ao ensaio técnico.
 
 ### Dev 3 — tela que explica a prova
