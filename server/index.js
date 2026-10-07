@@ -19,6 +19,7 @@ import { AuthTenantStore } from "./auth-tenant-store.js";
 import { createStorageProvider } from "./storage-provider.js";
 import { WebhookDispatcher, encryptWebhookSecret } from "./webhook-dispatcher.js";
 import { TenantProvisioner } from "./tenant-provisioner.js";
+import { verifyGoogleIdToken } from "./google-identity.js";
 import {
   validateMagicBytes,
   validateCiphertextPayload,
@@ -48,6 +49,18 @@ import {
   verifyDevnetTenantAccess,
   deriveZkLoginSession
 } from "./solana.js";
+
+// Public OAuth client id for Google Identity Services. When it is absent Google
+// sign-in is reported as unavailable instead of falling back to a mock.
+const GOOGLE_CLIENT_ID = String(process.env.GOOGLE_CLIENT_ID || "").trim();
+const DEFAULT_API_KEY_SCOPES = ["assets:read", "assets:write", "assets:delete", "search:read"];
+
+// Every Google account owns exactly one tenant, keyed by its immutable subject
+// claim so the same account always resolves to the same vault.
+function googleOrganizationId(subject) {
+  const digest = crypto.createHash("sha256").update(String(subject)).digest("hex");
+  return `google-${digest.slice(0, 24)}`;
+}
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -334,11 +347,12 @@ app.use(
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],
-        scriptSrc: ["'self'", "'unsafe-inline'", "https://unpkg.com"],
+        scriptSrc: ["'self'", "'unsafe-inline'", "https://unpkg.com", "https://accounts.google.com"],
+        frameSrc: ["'self'", "https://accounts.google.com"],
         styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
         fontSrc: ["'self'", "https://fonts.gstatic.com"],
         imgSrc: ["'self'", "data:", "blob:"],
-        connectSrc: ["'self'", "https://*.sui.io", "https://*.solana.com", "https://*.walrus.xyz"],
+        connectSrc: ["'self'", "https://*.sui.io", "https://*.solana.com", "https://*.walrus.xyz", "https://accounts.google.com"],
         objectSrc: ["'none'"],
         upgradeInsecureRequests: []
       }
@@ -503,6 +517,15 @@ app.get("/api/status", async (req, res) => {
   }
 });
 
+// Public runtime configuration consumed by the browser bundle.
+app.get("/api/config", (req, res) => {
+  res.json({
+    success: true,
+    googleClientId: GOOGLE_CLIENT_ID,
+    googleSignInEnabled: Boolean(GOOGLE_CLIENT_ID)
+  });
+});
+
 // ==========================================
 // SOLANA IDENTITY & ANCHOR PDA ROUTES (PHASE 3)
 // ==========================================
@@ -626,28 +649,42 @@ app.post("/api/auth/solana/demo", async (req, res) => {
   }
 });
 
-// Google zkLogin authentication with zero-knowledge address derivation and tenant session issuance
+// Google sign-in. The browser posts the ID token issued by Google Identity
+// Services; the tenant is derived only from verified claims, so a caller can
+// never assert someone else's identity. Signing in provisions that account's
+// own organization and its first API key.
 app.post("/api/auth/zklogin", async (req, res) => {
   try {
-    const { email, sub = "109847291847192847", organizationId = "nodus-devs" } = req.body;
-    if (!email || typeof email !== "string" || !email.includes("@")) {
-      return res.status(400).json({ success: false, error: "Valid email address required" });
+    if (!GOOGLE_CLIENT_ID) {
+      return res.status(503).json({ success: false, error: "Google sign-in is not configured on this deployment" });
     }
-    const identity = deriveZkLoginSession({ email, sub });
-    const orgId = organizationId || "nodus-devs";
+    if (!authTenantStore) {
+      return res.status(503).json({ success: false, error: "Persistent tenant storage is required for Google sign-in" });
+    }
+    let identity;
+    try {
+      identity = await verifyGoogleIdToken(req.body?.credential, { clientId: GOOGLE_CLIENT_ID });
+    } catch (error) {
+      return res.status(401).json({ success: false, error: `Google credential rejected: ${error.message}` });
+    }
+    const identityAddress = deriveZkLoginSession({ email: identity.email, sub: identity.sub }).address;
+    const orgId = googleOrganizationId(identity.sub);
+    const organizationName = `${identity.email}'s Sovereign Vault`.slice(0, 160);
 
     let accessToken = null;
     let expiresAt = null;
     let role = "owner";
     let tenant = { organizationId: orgId };
+    let provisionedApiKey = null;
 
-    if (authTenantStore) {
+    {
+      let actorUserId = null;
       const client = await authTenantStore.pool.connect();
       try {
         await client.query("BEGIN");
         await client.query(
-          "INSERT INTO organizations (id, name) VALUES ($1, $2) ON CONFLICT (id) DO NOTHING",
-          [orgId, "Nodus Sovereign Developers"]
+          "INSERT INTO organizations (id, name) VALUES ($1, $2) ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name",
+          [orgId, organizationName]
         );
         await client.query(
           "INSERT INTO tenant_storage_contexts (organization_id, space_id, bucket_id, seal_policy_id, quota_bytes, active) VALUES ($1, $2, $3, $4, $5, true) ON CONFLICT (organization_id) DO UPDATE SET active = true",
@@ -656,12 +693,13 @@ app.post("/api/auth/zklogin", async (req, res) => {
         const userId = crypto.randomUUID();
         await client.query(
           "INSERT INTO users (id, solana_address) VALUES ($1, $2) ON CONFLICT (solana_address) DO NOTHING",
-          [userId, identity.address]
+          [userId, identityAddress]
         );
-        const user = await client.query("SELECT id FROM users WHERE solana_address = $1", [identity.address]);
+        const user = await client.query("SELECT id FROM users WHERE solana_address = $1", [identityAddress]);
+        actorUserId = user.rows[0].id;
         await client.query(
-          "INSERT INTO memberships (organization_id, user_id, role) VALUES ($1, $2, 'owner') ON CONFLICT (organization_id, user_id) DO NOTHING",
-          [orgId, user.rows[0].id]
+          "INSERT INTO memberships (organization_id, user_id, role) VALUES ($1, $2, 'owner') ON CONFLICT (organization_id, user_id) DO UPDATE SET role = 'owner'",
+          [orgId, actorUserId]
         );
         await client.query("COMMIT");
       } catch (e) {
@@ -670,11 +708,23 @@ app.post("/api/auth/zklogin", async (req, res) => {
       } finally {
         client.release();
       }
-      const tenantSession = await authTenantStore.createSession({ address: identity.address, organizationId: orgId });
+      const tenantSession = await authTenantStore.createSession({ address: identityAddress, organizationId: orgId });
       accessToken = tenantSession.token;
       expiresAt = tenantSession.expiresAt;
       role = tenantSession.role;
       tenant = { organizationId: orgId, ...tenantSession.tenant };
+
+      // The account's own service key, issued once when the vault is created.
+      const existingKeys = await authTenantStore.listApiKeys({ organizationId: orgId });
+      if (!existingKeys.some((key) => !key.revokedAt)) {
+        const created = await authTenantStore.createApiKey({
+          organizationId: orgId,
+          actorUserId,
+          name: "Default service key",
+          scopes: DEFAULT_API_KEY_SCOPES
+        });
+        provisionedApiKey = created.key;
+      }
     }
 
     return res.json({
@@ -682,14 +732,16 @@ app.post("/api/auth/zklogin", async (req, res) => {
       id: `zklogin_${Date.now()}`,
       method: "zklogin",
       provider: "Google zkLogin",
-      name: identity.name,
+      name: identity.name || identity.email.split("@")[0],
       email: identity.email,
-      address: identity.address,
+      picture: identity.picture,
+      address: identityAddress,
       scheme: "zkLogin (Zero-Knowledge Proof)",
       accessToken,
       expiresAt,
       tenant,
-      role
+      role,
+      provisionedApiKey
     });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });

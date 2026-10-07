@@ -691,13 +691,16 @@ export function generateDemoSolanaSession() {
 }
 
 /**
- * Derives a deterministic sovereign identity from a Google email address (zkLogin).
+ * Derives a deterministic sovereign identity from a verified Google account.
  * Uses SHA-256 seed derivation into an Ed25519 keypair, guaranteeing zero credential leaks.
  */
-export function deriveZkLoginSession({ email, sub = "109847291847192847" }) {
+export function deriveZkLoginSession({ email, sub = null }) {
   const normEmail = String(email || "").trim().toLowerCase();
   if (!normEmail || !normEmail.includes("@")) throw new Error("Valid email address required for zkLogin");
-  const seed = crypto.createHash("sha256").update(`zklogin:google:${normEmail}:${sub}`).digest();
+  // The sign-in route always passes the Google subject it verified. Callers that
+  // omit it get a deterministic email-scoped subject, never a shared constant.
+  const subject = sub ? String(sub) : `email:${normEmail}`;
+  const seed = crypto.createHash("sha256").update(`zklogin:google:${normEmail}:${subject}`).digest();
   const keypair = Keypair.fromSeed(seed);
   const address = keypair.publicKey.toBase58();
   return {

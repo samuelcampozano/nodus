@@ -1381,11 +1381,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const googleZkModal = document.getElementById("googleZkModal");
   const googleZkModalClose = document.getElementById("googleZkModalClose");
   const googleZkModalBackdrop = document.getElementById("googleZkModalBackdrop");
-  const personaAlexBtn = document.getElementById("personaAlexBtn");
-  const personaSamuelBtn = document.getElementById("personaSamuelBtn");
-  const customGoogleEmailInput = document.getElementById("customGoogleEmailInput");
-  const submitCustomEmailZkLoginBtn = document.getElementById("submitCustomEmailZkLoginBtn");
-  const launchGoogleOAuthPopupBtn = document.getElementById("launchGoogleOAuthPopupBtn");
+  const googleSignInButton = document.getElementById("googleSignInButton");
+  const googleSignInStatus = document.getElementById("googleSignInStatus");
 
   // Sui Multi-Wallet Modal Elements
   const walletSelectorModal = document.getElementById("walletSelectorModal");
@@ -1685,8 +1682,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     if (searchInput) searchInput.placeholder = t("search_placeholder");
-    const customGoogleEmailInput = document.getElementById("customGoogleEmailInput");
-    if (customGoogleEmailInput) customGoogleEmailInput.placeholder = t("zklogin_custom_placeholder");
 
     updateAuthUI();
     updateDemoEvidence();
@@ -1955,6 +1950,8 @@ document.addEventListener("DOMContentLoaded", () => {
   // absent from the gateway response, asset catalog, and storage metadata.
   const assetKeyCache = new Map();
 
+  // The bearer token always comes from the live session so it never has to be
+  // mirrored into persistent storage for other panels to find.
   function apiHeaders(headers = {}) {
     const result = new Headers(headers);
     if (state.currentUser?.accessToken) result.set("Authorization", `Bearer ${state.currentUser.accessToken}`);
@@ -2174,20 +2171,6 @@ document.addEventListener("DOMContentLoaded", () => {
   // ==========================================
   // ZKLOGIN & SOVEREIGN SESSION MANAGER
   // ==========================================
-  function deriveZkLoginAddress(email, sub = "109847291847192847") {
-    if (window.nobleBlake2?.blake2b) {
-      const enc = new TextEncoder();
-      const seed = enc.encode(`zklogin:google:${email.toLowerCase().trim()}:${sub}`);
-      const hash = window.nobleBlake2.blake2b(seed, { dkLen: 32 });
-      const fullMsg = new Uint8Array(33);
-      fullMsg[0] = 0x05; // Sui zkLogin scheme flag
-      fullMsg.set(hash, 1);
-      const finalHash = window.nobleBlake2.blake2b(fullMsg, { dkLen: 32 });
-      return "0x" + Array.from(finalHash).map((b) => b.toString(16).padStart(2, "0")).join("");
-    }
-    return "0x" + Array.from(crypto.getRandomValues(new Uint8Array(32))).map((b) => b.toString(16).padStart(2, "0")).join("");
-  }
-
   function updateAuthUI() {
     if (state.currentUser) {
       if (loginTriggerBtn) loginTriggerBtn.classList.add("hidden");
@@ -2272,9 +2255,9 @@ document.addEventListener("DOMContentLoaded", () => {
     if (googleZkModal) {
       googleZkModal.classList.remove("hidden");
       document.body.style.overflow = "hidden";
-      if (customGoogleEmailInput) customGoogleEmailInput.value = "";
       if (window.lucide) window.lucide.createIcons();
     }
+    ensureGoogleSignInReady();
   }
 
   function closeGoogleZkModal() {
@@ -2724,40 +2707,36 @@ document.addEventListener("DOMContentLoaded", () => {
   // ==========================================
   // GOOGLE ZKLOGIN HANDLERS
   // ==========================================
-  async function handleGoogleZkLogin(providedEmail, providedSub, providedName) {
-    let email = providedEmail;
-    if (!email) {
+  async function handleGoogleZkLogin(credential) {
+    if (!credential) {
       openGoogleZkModal();
       return;
     }
-    email = email.trim().toLowerCase();
-    const rawName = providedName || email.split("@")[0].replace(/[._]/g, " ");
-    const name = rawName.charAt(0).toUpperCase() + rawName.slice(1);
-    const sub = providedSub || "109847291847192847";
 
     try {
-      showToast("Authenticating via Google zkLogin...", "info");
+      showToast("Verifying your Google account...", "info");
       const res = await fetch("/api/auth/zklogin", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, sub, name })
+        body: JSON.stringify({ credential })
       });
       const data = await res.json();
       if (!res.ok || !data.success) {
-        throw new Error(data.error || "Failed to authenticate with Google zkLogin");
+        throw new Error(data.error || "Google sign-in was rejected");
       }
 
       const session = {
         id: data.id || `zklogin_${Date.now()}`,
         method: "zklogin",
         provider: "Google zkLogin",
-        name: data.name || name,
-        email: data.email || email,
+        name: data.name || data.email,
+        email: data.email,
+        picture: data.picture || null,
         address: data.address,
         scheme: "zkLogin (Zero-Knowledge Proof)",
         role: data.role || "owner",
-        tenant: data.tenant || { organizationId: "Personal Sovereign Vault (zkLogin)" },
-        accessToken: data.accessToken || `zk_token_${Date.now()}`,
+        tenant: data.tenant || { organizationId: null },
+        accessToken: data.accessToken,
         expiresAt: data.expiresAt,
         createdAt: new Date().toISOString()
       };
@@ -2766,72 +2745,97 @@ document.addEventListener("DOMContentLoaded", () => {
       closeGoogleZkModal();
       closeZkLoginModal();
       showToast(t("toast_signed_in"), "success");
-    } catch (err) {
-      console.warn("zkLogin backend warning, falling back to local derivation:", err);
-      const address = deriveZkLoginAddress(email, sub);
-      const session = {
-        id: `zklogin_${Date.now()}`,
-        method: "zklogin",
-        provider: "Google zkLogin",
-        name,
-        email,
-        address,
-        scheme: "zkLogin (Zero-Knowledge Proof)",
-        role: "owner",
-        tenant: { organizationId: "Personal Sovereign Vault (zkLogin)" },
-        accessToken: `local_zk_${Date.now()}`,
-        createdAt: new Date().toISOString()
-      };
 
-      saveAuthSession(session);
-      closeGoogleZkModal();
-      closeZkLoginModal();
-      showToast(t("toast_signed_in"), "success");
-    }
-  }
-
-  function launchGoogleOAuthPopup() {
-    const clientId = window.__NODUS_GOOGLE_CLIENT_ID;
-    if (!clientId) {
-      showToast("Direct zkLogin is active. Enter your email above to continue with zero-knowledge authentication.", "info");
-      const input = document.getElementById("customGoogleEmailInput");
-      if (input) input.focus();
-      return;
-    }
-    const redirectUri = window.location.origin + window.location.pathname;
-    const randomness = Array.from(crypto.getRandomValues(new Uint8Array(16))).map((b) => b.toString(16).padStart(2, "0")).join("");
-    const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${encodeURIComponent(clientId)}&response_type=id_token&redirect_uri=${encodeURIComponent(redirectUri)}&scope=openid%20email%20profile&nonce=${encodeURIComponent(randomness)}`;
-    const popup = window.open(authUrl, "google_oauth_popup", "width=500,height=600,menubar=no,toolbar=no");
-    if (!popup) {
-      showToast("Pop-up was blocked by browser. Please allow popups or enter your email above.", "danger");
-    } else {
-      showToast("Opening Google Sign-In dialog...", "info");
-    }
-  }
-
-  function checkOAuthRedirect() {
-    try {
-      const hash = window.location.hash.substring(1);
-      const search = window.location.search.substring(1);
-      const params = new URLSearchParams(hash || search);
-      const idToken = params.get("id_token");
-      if (idToken) {
-        const parts = idToken.split(".");
-        if (parts.length >= 2) {
-          const payloadJson = atob(parts[1].replace(/-/g, "+").replace(/_/g, "/"));
-          const payload = JSON.parse(payloadJson);
-          if (payload.email) {
-            handleGoogleZkLogin(payload.email, payload.sub, payload.name);
-            window.history.replaceState(null, document.title, window.location.pathname);
-            showToast(`Signed in via Google zkLogin: ${payload.email}`, "success");
-          }
-        }
+      if (data.provisionedApiKey) {
+        localStorage.setItem("nodus_provisioned_api_key", data.provisionedApiKey);
+        showToast("Your personal API key was created. Open the Developer Portal to copy it.", "info");
       }
-    } catch (e) {
-      console.warn("OAuth redirect parse warning:", e);
+
+      try { await fetchStatus(); } catch (_) {}
+      try { await fetchPhotos(); } catch (_) {}
+    } catch (err) {
+      showToast(`Google sign-in failed: ${err.message}`, "danger");
     }
   }
-  checkOAuthRedirect();
+
+  // ==========================================
+  // GOOGLE IDENTITY SERVICES (REAL SIGN-IN)
+  // ==========================================
+  const GOOGLE_GIS_SCRIPT_URL = "https://accounts.google.com/gsi/client";
+  let googleClientId = "";
+  let googleGisScriptPromise = null;
+  let googleButtonRendered = false;
+
+  function loadGoogleGisScript() {
+    if (window.google?.accounts?.id) return Promise.resolve();
+    if (!googleGisScriptPromise) {
+      googleGisScriptPromise = new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = GOOGLE_GIS_SCRIPT_URL;
+        script.async = true;
+        script.defer = true;
+        script.onload = () => resolve();
+        script.onerror = () => reject(new Error("Google Identity Services could not be loaded"));
+        document.head.appendChild(script);
+      });
+    }
+    return googleGisScriptPromise;
+  }
+
+  function setGoogleSignInStatus(message) {
+    if (googleSignInStatus) googleSignInStatus.textContent = message;
+  }
+
+  function renderGoogleSignInButton() {
+    if (!googleSignInButton || !googleClientId || !window.google?.accounts?.id) return;
+    window.google.accounts.id.initialize({
+      client_id: googleClientId,
+      callback: (response) => handleGoogleZkLogin(response?.credential),
+      ux_mode: "popup",
+      auto_select: false,
+      cancel_on_tap_outside: true
+    });
+    googleSignInButton.innerHTML = "";
+    window.google.accounts.id.renderButton(googleSignInButton, {
+      type: "standard",
+      theme: "filled_blue",
+      size: "large",
+      shape: "pill",
+      text: "continue_with",
+      logo_alignment: "left",
+      width: 320
+    });
+    googleButtonRendered = true;
+  }
+
+  // The OAuth client id is deployment configuration, so it is read at runtime
+  // instead of being baked into this bundle.
+  async function ensureGoogleSignInReady() {
+    if (googleButtonRendered) return true;
+    if (!googleClientId) {
+      try {
+        const res = await fetch("/api/config");
+        const config = await res.json();
+        googleClientId = config?.googleClientId || "";
+      } catch (error) {
+        console.warn("Runtime config unavailable:", error);
+      }
+    }
+    if (!googleClientId) {
+      setGoogleSignInStatus("Google sign-in is not configured on this deployment.");
+      return false;
+    }
+    try {
+      await loadGoogleGisScript();
+    } catch (error) {
+      setGoogleSignInStatus(error.message);
+      return false;
+    }
+    renderGoogleSignInButton();
+    return true;
+  }
+
+  ensureGoogleSignInReady();
 
   // ==========================================
   // SOVEREIGN SEED PHRASE (BIP-39) HANDLERS
@@ -3253,7 +3257,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (vaultModalBackdrop) vaultModalBackdrop.addEventListener("click", closeVaultModal);
   if (quotaPill) quotaPill.addEventListener("click", () => window.open("https://console.walrus.xyz/buckets/", "_blank", "noopener,noreferrer"));
 
-  if (googleZkLoginBtn) googleZkLoginBtn.addEventListener("click", () => handleGoogleZkLogin());
+  if (googleZkLoginBtn) googleZkLoginBtn.addEventListener("click", openGoogleZkModal);
   if (connectSuiWalletBtn) connectSuiWalletBtn.addEventListener("click", handleConnectSuiWallet);
   if (seedPhraseBtn) seedPhraseBtn.addEventListener("click", openSeedPhraseModal);
   if (connectSolanaBtn) connectSolanaBtn.addEventListener("click", handleConnectSolanaWallet);
@@ -3262,37 +3266,6 @@ document.addEventListener("DOMContentLoaded", () => {
   // Google zkLogin Interactive Sheet Listeners
   if (googleZkModalClose) googleZkModalClose.addEventListener("click", closeGoogleZkModal);
   if (googleZkModalBackdrop) googleZkModalBackdrop.addEventListener("click", closeGoogleZkModal);
-  if (personaAlexBtn) {
-    personaAlexBtn.addEventListener("click", () => {
-      handleGoogleZkLogin("alex.sovereign@gmail.com", "109847291847192847", "Alex Sovereign");
-    });
-  }
-  if (personaSamuelBtn) {
-    personaSamuelBtn.addEventListener("click", () => {
-      handleGoogleZkLogin("samuel.campozano@gmail.com", "109847291847192848", "Samuel Campozano");
-    });
-  }
-  if (submitCustomEmailZkLoginBtn) {
-    submitCustomEmailZkLoginBtn.addEventListener("click", () => {
-      const email = customGoogleEmailInput?.value?.trim();
-      if (!email || !email.includes("@")) {
-        showToast("Please enter a valid Google email address.", "danger");
-        return;
-      }
-      handleGoogleZkLogin(email);
-    });
-  }
-  if (customGoogleEmailInput) {
-    customGoogleEmailInput.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") {
-        const email = customGoogleEmailInput.value?.trim();
-        if (email && email.includes("@")) handleGoogleZkLogin(email);
-      }
-    });
-  }
-  if (launchGoogleOAuthPopupBtn) {
-    launchGoogleOAuthPopupBtn.addEventListener("click", launchGoogleOAuthPopup);
-  }
 
   // Sui Wallet Standard Modal Listeners
   if (walletSelectorModalClose) walletSelectorModalClose.addEventListener("click", closeWalletSelectorModal);
@@ -5498,7 +5471,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     async function loadUsage() {
       try {
-        const token = localStorage.getItem("nodus_session_token");
+        const token = state.currentUser?.accessToken || "";
         const headers = token ? { Authorization: `Bearer ${token}` } : {};
         const res = await fetch("/api/tenant/usage", { headers });
         if (!res.ok) return;
@@ -5531,7 +5504,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const tbody = document.getElementById("devKeysTableBody");
       if (!tbody) return;
       try {
-        const token = localStorage.getItem("nodus_session_token");
+        const token = state.currentUser?.accessToken || "";
         const headers = token ? { Authorization: `Bearer ${token}` } : {};
         const res = await fetch("/api/tenant/api-keys", { headers });
         if (!res.ok) {
@@ -5593,7 +5566,19 @@ document.addEventListener("DOMContentLoaded", () => {
       loadUsage();
       loadApiKeys();
       loadStorageConfig();
+      revealProvisionedApiKey();
       if (window.lucide) window.lucide.createIcons();
+    }
+
+    // A service key issued during first sign-in is revealed once, then discarded.
+    function revealProvisionedApiKey() {
+      const pending = localStorage.getItem("nodus_provisioned_api_key");
+      if (!pending || !revealedCode || !secretRevealBox) return;
+      currentRevealedKey = pending;
+      revealedCode.textContent = pending;
+      secretRevealBox.classList.remove("hidden");
+      updateCodeSnippet("curl");
+      localStorage.removeItem("nodus_provisioned_api_key");
     }
 
     function closeModal() {
@@ -5620,7 +5605,7 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
           generateSubmitBtn.disabled = true;
           generateSubmitBtn.innerHTML = '<span class="spinner-sm"></span> Generating...';
-          const token = localStorage.getItem("nodus_session_token");
+          const token = state.currentUser?.accessToken || "";
           const headers = {
             "Content-Type": "application/json",
             ...(token ? { Authorization: `Bearer ${token}` } : {})
@@ -5759,7 +5744,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     async function loadStorageConfig() {
       try {
-        const token = localStorage.getItem("nodus_session_token");
+        const token = state.currentUser?.accessToken || "";
         const headers = token ? { Authorization: `Bearer ${token}` } : {};
         const res = await fetch("/api/tenant/storage-config", { headers });
         if (!res.ok) return;
@@ -5809,7 +5794,7 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
           byosTestBtn.disabled = true;
           byosTestBtn.innerHTML = '<span class="spinner-sm"></span> Probing Handshake...';
-          const token = localStorage.getItem("nodus_session_token");
+          const token = state.currentUser?.accessToken || "";
           const headers = {
             "Content-Type": "application/json",
             ...(token ? { Authorization: `Bearer ${token}` } : {})
@@ -5862,7 +5847,7 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
           byosSaveBtn.disabled = true;
           byosSaveBtn.innerHTML = '<span class="spinner-sm"></span> Activating...';
-          const token = localStorage.getItem("nodus_session_token");
+          const token = state.currentUser?.accessToken || "";
           const headers = {
             "Content-Type": "application/json",
             ...(token ? { Authorization: `Bearer ${token}` } : {})
@@ -5903,7 +5888,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
         if (!confirmedRevert) return;
         try {
-          const token = localStorage.getItem("nodus_session_token");
+          const token = state.currentUser?.accessToken || "";
           const headers = {
             "Content-Type": "application/json",
             ...(token ? { Authorization: `Bearer ${token}` } : {})
@@ -5939,7 +5924,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const tbody = document.getElementById("teamMembersTableBody");
       if (!tbody) return;
       try {
-        const token = localStorage.getItem("nodus_session_token");
+        const token = state.currentUser?.accessToken || "";
         const headers = token ? { Authorization: `Bearer ${token}` } : {};
         const res = await fetch("/api/tenant/members", { headers });
         if (!res.ok) {
@@ -6031,7 +6016,7 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
           inviteSubmitBtn.disabled = true;
           inviteSubmitBtn.innerHTML = '<span class="spinner-sm"></span> Inviting...';
-          const token = localStorage.getItem("nodus_session_token");
+          const token = state.currentUser?.accessToken || "";
           const res = await fetch("/api/tenant/members", {
             method: "POST",
             headers: {
