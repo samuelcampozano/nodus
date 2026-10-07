@@ -349,15 +349,20 @@ app.use(
         defaultSrc: ["'self'"],
         scriptSrc: ["'self'", "'unsafe-inline'", "https://unpkg.com", "https://accounts.google.com"],
         frameSrc: ["'self'", "https://accounts.google.com"],
-        styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+        styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://accounts.google.com"],
         fontSrc: ["'self'", "https://fonts.gstatic.com"],
-        imgSrc: ["'self'", "data:", "blob:"],
+        imgSrc: ["'self'", "data:", "blob:", "https://*.googleusercontent.com"],
         connectSrc: ["'self'", "https://*.sui.io", "https://*.solana.com", "https://*.walrus.xyz", "https://accounts.google.com"],
         objectSrc: ["'none'"],
         upgradeInsecureRequests: []
       }
     },
-    crossOriginEmbedderPolicy: false
+    crossOriginEmbedderPolicy: false,
+    // Google Identity Services returns the credential to this page from a popup
+    // via window.opener. Helmet defaults to COOP "same-origin", which severs that
+    // link, so the callback never fires and sign-in silently does nothing even
+    // though Google already granted consent.
+    crossOriginOpenerPolicy: { policy: "same-origin-allow-popups" }
   })
 );
 
