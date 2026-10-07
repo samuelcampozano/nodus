@@ -1654,7 +1654,16 @@ app.post("/api/assets/:assetId/key-envelopes", requireTenant, requireTenantEnvel
   try {
     if (!isValidFileId(req.params.assetId)) throw new Error("Invalid asset ID");
     if (!['owner', 'admin', 'contributor'].includes(req.auth.role)) return res.status(403).json({ success: false, error: "Only organization contributors may share an asset" });
-    await requireDevnetRole(req, "contributor");
+    // Uploading writes the owner's own key envelope to this route, which is not a
+    // collaboration action: requiring the on-chain Devnet role here blocked every
+    // upload made by an organization that exists only in this control plane (for
+    // example one just created by Google sign-in). Granting an envelope to anyone
+    // else is a real share and still needs the Devnet role.
+    const envelopes = Array.isArray(req.body?.envelopes) ? req.body.envelopes : [];
+    const grantsOtherRecipient = envelopes.some(
+      (envelope) => envelope && typeof envelope.recipientAddress === "string" && envelope.recipientAddress !== req.auth.address
+    );
+    if (grantsOtherRecipient) await requireDevnetRole(req, "contributor");
     const asset = await authTenantStore.putKeyEnvelopes({ organizationId: req.tenant.organizationId, assetId: req.params.assetId, ownerUserId: req.auth.userId, envelopes: req.body?.envelopes });
     return res.status(201).json({ success: true, asset });
   } catch (error) {
@@ -1665,7 +1674,12 @@ app.post("/api/assets/:assetId/key-envelopes", requireTenant, requireTenantEnvel
 app.get("/api/assets/:assetId/key-envelopes", requireTenant, requireTenantEnvelopeStore, async (req, res, next) => {
   try {
     if (!isValidFileId(req.params.assetId)) throw new Error("Invalid asset ID");
-    const devnetProof = await requireDevnetRole(req, "viewer");
+    // This route only ever returns envelopes addressed to the requesting user, so the
+    // Devnet role is an attestation rather than an access decision. Attach it when the
+    // organization is registered on chain, but do not deny an owner their own key just
+    // because the organization was created in this control plane instead.
+    let devnetProof = null;
+    try { devnetProof = await requireDevnetRole(req, "viewer"); } catch { devnetProof = null; }
     const result = await authTenantStore.envelopesForRecipient({ organizationId: req.tenant.organizationId, assetId: req.params.assetId, recipientUserId: req.auth.userId });
     if (!result) return res.status(404).json({ success: false, error: "Key envelopes not found" });
     return res.json({ success: true, ...result, solanaProof: devnetProof });
