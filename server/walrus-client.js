@@ -27,6 +27,21 @@ export const DEFAULT_SPACE_ID = "443d9a48-7835-437f-9bb4-2716833aee06";
 export const DEFAULT_BUCKET_ID = "ec7acd16-05b1-4fa2-b368-94700eb29f5e";
 export const DEFAULT_SEAL_POLICY_ID = "0x9c1baccb244e45342ac150a0123a4802e8e834f25c00210e50c81081354eee44";
 
+const SEAL_POLICY_ID_PATTERN = /^0x[0-9a-f]{64}$/;
+
+// upload_file needs the Seal policy as the real 0x-prefixed id. A tenant context
+// written before that was understood can hold a placeholder such as "active", and
+// passing it through fails the whole upload with "Invalid hex string". Fall back to
+// the shared bucket's policy rather than letting one bad row block a write.
+export function resolveSealPolicyId(tenant) {
+  const candidate = tenant?.sealPolicyId;
+  if (typeof candidate === "string" && SEAL_POLICY_ID_PATTERN.test(candidate)) return candidate;
+  if (candidate) {
+    console.warn(`\u26a0\ufe0f [WalrusClient] Tenant seal policy "${String(candidate).slice(0, 24)}" is not a usable policy id; using the bucket policy instead.`);
+  }
+  return DEFAULT_SEAL_POLICY_ID;
+}
+
 class WalrusClientManager {
   constructor() {
     this.client = null;
@@ -265,7 +280,7 @@ class WalrusClientManager {
 
   async uploadPhoto({ localPath, fileName, description = "", tags = ["photo", "nodus"], encryption = {}, tenant = null }) {
     const bucketId = tenant?.bucketId || DEFAULT_BUCKET_ID;
-    const sealPolicyId = tenant?.sealPolicyId || DEFAULT_SEAL_POLICY_ID;
+    const sealPolicyId = resolveSealPolicyId(tenant);
     if (this.isMockMode()) {
       const stat = fs.existsSync(localPath) ? fs.statSync(localPath) : { size: 65536 };
       const fileId = "sandbox_" + Date.now() + "_" + Math.random().toString(36).substring(2, 7);
@@ -386,7 +401,7 @@ class WalrusClientManager {
 
   async downloadAndDecryptPhoto({ fileId, destPath, tenant = null }) {
     const bucketId = tenant?.bucketId || DEFAULT_BUCKET_ID;
-    const sealPolicyId = tenant?.sealPolicyId || DEFAULT_SEAL_POLICY_ID;
+    const sealPolicyId = resolveSealPolicyId(tenant);
 
     const readFallback = async () => {
       const file = this.mockFiles.find((f) => f.id === fileId);

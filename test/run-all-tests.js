@@ -24,6 +24,7 @@ const suites = [
   { name: "Direct Walrus Testnet Fallback", file: "test/test-walrus-testnet-fallback.js" },
   { name: "Auth Standards, Sui Wallets & BIP-39", file: "test/test-auth-standards.js" },
   { name: "Google Identity Token Verification", file: "test/test-google-identity.js" },
+  { name: "Walrus Storage Context", file: "test/test-storage-context.js" },
   { name: "Security Audit & Pen-Test", file: "test/test-audit-security.js" },
   { name: "Deployment Environment & M3 Sandbox", file: "test/test-deployment-environment.js" },
   { name: "Client-Side Private Search & Blind Index", file: "test/test-private-search.js" },

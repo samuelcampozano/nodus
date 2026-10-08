@@ -9,7 +9,7 @@ import path from "node:path";
 import process from "node:process";
 import { Readable } from "node:stream";
 import { fileURLToPath } from "node:url";
-import { walrus, DEFAULT_SPACE_ID, DEFAULT_BUCKET_ID } from "./walrus-client.js";
+import { walrus, DEFAULT_SPACE_ID, DEFAULT_BUCKET_ID, DEFAULT_SEAL_POLICY_ID } from "./walrus-client.js";
 import { directWalrusAdapter } from "./walrus-direct-adapter.js";
 import { deploymentEnvironment } from "./deployment-environment.js";
 import { ResumableUploadManager, RESUMABLE_UPLOAD_LIMITS } from "./resumable-upload.js";
@@ -60,6 +60,24 @@ const DEFAULT_API_KEY_SCOPES = ["assets:read", "assets:write", "assets:delete", 
 function googleOrganizationId(subject) {
   const digest = crypto.createHash("sha256").update(String(subject)).digest("hex");
   return `google-${digest.slice(0, 24)}`;
+}
+
+// Every organization shares this deployment's Walrus bucket, so its Seal policy is
+// that bucket's policy. Recording a placeholder here silently breaks uploads: the
+// Console's upload_file requires the real 0x-prefixed id and rejects anything else
+// with "Invalid hex string". The CASE clause repairs contexts written before this
+// was understood, without ever clobbering a policy that is already valid.
+const TENANT_STORAGE_CONTEXT_SQL = `
+  INSERT INTO tenant_storage_contexts (organization_id, space_id, bucket_id, seal_policy_id, quota_bytes, active)
+  VALUES ($1, $2, $3, $4, $5, true)
+  ON CONFLICT (organization_id) DO UPDATE SET active = true,
+    seal_policy_id = CASE
+      WHEN tenant_storage_contexts.seal_policy_id ~ '^0x[0-9a-f]{64}$' THEN tenant_storage_contexts.seal_policy_id
+      ELSE EXCLUDED.seal_policy_id
+    END`;
+
+function tenantStorageContextParams(organizationId) {
+  return [organizationId, DEFAULT_SPACE_ID, DEFAULT_BUCKET_ID, DEFAULT_SEAL_POLICY_ID, 50000000000];
 }
 
 const __filename = fileURLToPath(import.meta.url);
@@ -505,7 +523,7 @@ app.get("/api/status", async (req, res) => {
         id: DEFAULT_BUCKET_ID,
         name: bucket?.name || "Default",
         visibility: bucket?.visibility || "private",
-        seal_policy_id: bucket?.seal_policy_id || "active",
+        seal_policy_id: bucket?.seal_policy_id || DEFAULT_SEAL_POLICY_ID,
         file_count: bucket?.file_count || 0
       },
       direct_publisher: {
@@ -617,10 +635,7 @@ app.post("/api/auth/solana/demo", async (req, res) => {
           "INSERT INTO organizations (id, name) VALUES ($1, $2) ON CONFLICT (id) DO NOTHING",
           [orgId, "Nodus Sovereign Developers"]
         );
-        await client.query(
-          "INSERT INTO tenant_storage_contexts (organization_id, space_id, bucket_id, seal_policy_id, quota_bytes, active) VALUES ($1, $2, $3, $4, $5, true) ON CONFLICT (organization_id) DO UPDATE SET active = true",
-          [orgId, DEFAULT_SPACE_ID, DEFAULT_BUCKET_ID, "active", 50000000000]
-        );
+        await client.query(TENANT_STORAGE_CONTEXT_SQL, tenantStorageContextParams(orgId));
         const userId = crypto.randomUUID();
         await client.query(
           "INSERT INTO users (id, solana_address) VALUES ($1, $2) ON CONFLICT (solana_address) DO NOTHING",
@@ -691,10 +706,7 @@ app.post("/api/auth/zklogin", async (req, res) => {
           "INSERT INTO organizations (id, name) VALUES ($1, $2) ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name",
           [orgId, organizationName]
         );
-        await client.query(
-          "INSERT INTO tenant_storage_contexts (organization_id, space_id, bucket_id, seal_policy_id, quota_bytes, active) VALUES ($1, $2, $3, $4, $5, true) ON CONFLICT (organization_id) DO UPDATE SET active = true",
-          [orgId, DEFAULT_SPACE_ID, DEFAULT_BUCKET_ID, "active", 50000000000]
-        );
+        await client.query(TENANT_STORAGE_CONTEXT_SQL, tenantStorageContextParams(orgId));
         const userId = crypto.randomUUID();
         await client.query(
           "INSERT INTO users (id, solana_address) VALUES ($1, $2) ON CONFLICT (solana_address) DO NOTHING",
@@ -776,10 +788,7 @@ app.post("/api/auth/wallet/session", async (req, res) => {
           "INSERT INTO organizations (id, name) VALUES ($1, $2) ON CONFLICT (id) DO NOTHING",
           [orgId, "Nodus Sovereign Developers"]
         );
-        await client.query(
-          "INSERT INTO tenant_storage_contexts (organization_id, space_id, bucket_id, seal_policy_id, quota_bytes, active) VALUES ($1, $2, $3, $4, $5, true) ON CONFLICT (organization_id) DO UPDATE SET active = true",
-          [orgId, DEFAULT_SPACE_ID, DEFAULT_BUCKET_ID, "active", 50000000000]
-        );
+        await client.query(TENANT_STORAGE_CONTEXT_SQL, tenantStorageContextParams(orgId));
         const userId = crypto.randomUUID();
         await client.query(
           "INSERT INTO users (id, solana_address) VALUES ($1, $2) ON CONFLICT (solana_address) DO NOTHING",
