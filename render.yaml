@@ -79,10 +79,15 @@ services:
         value: 3000
       - key: NODE_ENV
         value: production
+      # This deployment intentionally runs as sandbox so the direct Walrus Testnet
+      # path is available for the demo. Production mode force-disables Testnet in
+      # walrus-direct-adapter.js, so the two settings always move together. This
+      # also allows local sandbox fallbacks when the Console is unavailable, which
+      # is a deliberate availability trade for the demo.
       - key: NODUS_DEPLOYMENT_ENV
-        value: production
+        value: sandbox
       - key: WALRUS_DIRECT_TESTNET_ENABLED
-        value: "false"
+        value: "true"
       - key: DATABASE_URL
         fromDatabase:
           name: nodus-prod-db
