@@ -2,20 +2,18 @@
 # RENDER BLUEPRINT SPECIFICATION (Infrastructure-as-Code)
 # Documentation: https://render.com/docs/blueprint-spec
 # ========================================================
-
-databases:
-  - name: nodus-sandbox-db
-    databaseName: nodus_sandbox
-    user: nodus
-    plan: free
-    region: oregon
-    postgresMajorVersion: "16"
-  - name: nodus-prod-db
-    databaseName: nodus
-    user: nodus
-    plan: free
-    region: oregon
-    postgresMajorVersion: "16"
+#
+# The PostgreSQL instance is managed outside this file on purpose.
+#
+# This blueprint used to declare two databases (nodus-sandbox-db and
+# nodus-prod-db) and wire each service to one of them. Neither was ever
+# created: both services were pointed by hand at the single instance that
+# actually exists (nodus-db / nodus_4r53). A Blueprint sync would therefore
+# have created two empty databases and repointed both services at them, which
+# looks exactly like every user, organization, and API key disappearing.
+#
+# DATABASE_URL is `sync: false` below so a sync leaves it untouched. Provision
+# and rotate the database deliberately, not as a side effect of a deploy.
 
 services:
   # ------------------------------------------------------
@@ -38,10 +36,9 @@ services:
         value: sandbox
       - key: WALRUS_DIRECT_TESTNET_ENABLED
         value: "true"
+      # Managed by hand; see the note at the top of this file.
       - key: DATABASE_URL
-        fromDatabase:
-          name: nodus-sandbox-db
-          property: connectionString
+        sync: false
       - key: CONSOLE_API_BASE_URL
         value: https://api.console.walrus.xyz
       - key: CONSOLE_MCP_ALLOWED_DIRS
@@ -88,10 +85,9 @@ services:
         value: sandbox
       - key: WALRUS_DIRECT_TESTNET_ENABLED
         value: "true"
+      # Managed by hand; see the note at the top of this file.
       - key: DATABASE_URL
-        fromDatabase:
-          name: nodus-prod-db
-          property: connectionString
+        sync: false
       - key: CONSOLE_API_BASE_URL
         value: https://api.console.walrus.xyz
       - key: CONSOLE_MCP_ALLOWED_DIRS
