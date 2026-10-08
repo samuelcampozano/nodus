@@ -34,5 +34,10 @@ assert(appSource.includes("const WALRUS_UPLOAD_TIMEOUT_MS = 3 * 60 * 1000") && a
 assert(appSource.includes('const RESUMABLE_THRESHOLD_BYTES = 8 * 1024 * 1024'), "Medium and large images switch to progress-aware resumable upload at 8 MiB");
 assert(appSource.includes('retrySafe: true') && appSource.includes("was not retried automatically"), "Only explicitly idempotent upload operations are retried");
 assert(appSource.includes("await Promise.allSettled([fetchPhotos(), fetchStatus()])"), "Catalog and quota refresh once per upload batch instead of once per image");
+assert(htmlSource.includes('<input type="file" id="fileInput" multiple class="hidden">'), "Main upload picker accepts every file type");
+assert(appSource.includes('upload_btn: "Upload Files"') && appSource.includes('upload_btn: "Subir archivos"') && appSource.includes('upload_btn: "Enviar arquivos"') && appSource.includes('upload_btn: "上传文件"') && appSource.includes('upload_btn: "Téléverser des fichiers"'), "All supported languages describe the action as uploading files");
+assert(appSource.includes('drop_title: "Drop your files here"') && appSource.includes('drop_title: "Arrastra tus archivos aquí"') && appSource.includes('drop_title: "Arraste seus arquivos aqui"') && appSource.includes('drop_title: "将文件拖放到此处"') && appSource.includes('drop_title: "Glissez vos fichiers ici"'), "All supported languages use file-neutral drop-zone copy");
+assert(!htmlSource.includes("Upload Photos") && !htmlSource.includes("Drop your photos & videos here"), "Legacy photo-gallery calls to action are absent from the HTML fallback");
+assert(appSource.includes('taskCategory.category === "image"'), "Non-image uploads render a file-type card instead of a broken image preview");
 
 console.log("🎉 ALL FRONT-END COMPONENT CONTRACT TESTS PASSED");
