@@ -42,6 +42,32 @@ export function resolveSealPolicyId(tenant) {
   return DEFAULT_SEAL_POLICY_ID;
 }
 
+/**
+ * uploadPhoto has three internal paths — the Console MCP, the direct Testnet
+ * publisher, and the local sandbox — and they did not agree on how they name the
+ * asset. The Console reports `fileId`, the local paths report `id`, so callers
+ * reading `result.id` received undefined on the only path that runs in
+ * production and the write was then rejected as "A valid asset ID is required"
+ * long after the bytes had already been stored on Walrus.
+ *
+ * Normalize here so one contract leaves this method.
+ */
+export function normalizeUploadResult(parsed, fileName) {
+  const source = parsed && typeof parsed === "object" ? parsed : {};
+  const id = source.fileId || source.id || (source.file && source.file.id) || null;
+  if (!id || typeof id !== "string") {
+    throw new Error(
+      `The storage provider accepted ${fileName} but returned no asset identifier, so it cannot be recorded in the asset catalog`
+    );
+  }
+  if (source.pending) {
+    console.warn(
+      `\u26a0\ufe0f [WalrusClient] ${fileName} is stored as ${id} but the provider is still processing it (state: ${source.state || "unknown"}).`
+    );
+  }
+  return { ...source, id, fileId: id, name: source.name || fileName };
+}
+
 class WalrusClientManager {
   constructor() {
     this.client = null;
@@ -346,7 +372,7 @@ class WalrusClientManager {
 
       const parsed = await this.parseMcpResponse(res);
       console.log("✅ [WalrusClient] Upload completed successfully:", parsed);
-      return parsed;
+      return normalizeUploadResult(parsed, fileName);
     } catch (err) {
       if (!this.allowsSandboxFallback()) throw err;
       console.warn("⚠️ [WalrusClient] MCP upload failed, attempting direct Walrus Testnet publisher:", err.message);

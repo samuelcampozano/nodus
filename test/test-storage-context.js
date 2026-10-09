@@ -1,5 +1,5 @@
 import assert from "assert";
-import { DEFAULT_SEAL_POLICY_ID, DEFAULT_BUCKET_ID, DEFAULT_SPACE_ID, resolveSealPolicyId } from "../server/walrus-client.js";
+import { DEFAULT_SEAL_POLICY_ID, DEFAULT_BUCKET_ID, DEFAULT_SPACE_ID, resolveSealPolicyId, normalizeUploadResult } from "../server/walrus-client.js";
 
 console.log("==================================================");
 console.log("🔒 NODUS — WALRUS STORAGE CONTEXT TEST SUITE");
@@ -63,6 +63,46 @@ it("Never returns a value that would fail the Console's hex validation", () => {
   for (const candidate of candidates) {
     const resolved = resolveSealPolicyId({ sealPolicyId: candidate });
     assert.match(resolved, /^0x[0-9a-f]{64}$/, `resolved policy for ${JSON.stringify(candidate)} must be usable`);
+  }
+});
+
+it("Normalizes the Console MCP upload response, which reports fileId and has no id", () => {
+  // Exact shape returned by @mysten-incubation/walrus-console-mcp upload_file.
+  const mcp = { fileId: "24eddb92-b1ca-4ed4-af0e-6def2ff41874", name: "shot.png", state: "completed", pending: false };
+  const normalized = normalizeUploadResult(mcp, "shot.png");
+  assert.strictEqual(normalized.id, mcp.fileId, "id must be populated from the Console's fileId");
+  assert.strictEqual(normalized.fileId, mcp.fileId);
+  assert.strictEqual(normalized.state, "completed");
+  // This is the regression: the route read result.id, which was undefined here.
+  assert.ok(normalized.id, "a caller reading result.id must receive the asset id");
+});
+
+it("Keeps working for the local and Testnet paths, which report id", () => {
+  const local = { fileId: "sandbox_1_ab", id: "sandbox_1_ab", name: "a.png", state: "completed" };
+  const normalized = normalizeUploadResult(local, "a.png");
+  assert.strictEqual(normalized.id, "sandbox_1_ab");
+  assert.strictEqual(normalized.fileId, "sandbox_1_ab");
+});
+
+it("Accepts a nested file object and supplies a fallback name", () => {
+  const nested = normalizeUploadResult({ file: { id: "nested-1" } }, "x.png");
+  assert.strictEqual(nested.id, "nested-1");
+  assert.strictEqual(nested.name, "x.png");
+});
+
+it("Still flags a pending upload but keeps a usable id", () => {
+  const pending = normalizeUploadResult({ fileId: "p-1", state: "queued", pending: true }, "q.png");
+  assert.strictEqual(pending.id, "p-1");
+  assert.strictEqual(pending.pending, true);
+});
+
+it("Refuses to invent an id when the provider returns none", () => {
+  for (const bad of [null, undefined, {}, { state: "completed" }, "plain text", { fileId: "" }]) {
+    assert.throws(
+      () => normalizeUploadResult(bad, "orphan.png"),
+      /no asset identifier/,
+      `must reject ${JSON.stringify(bad)} rather than registering a null id`
+    );
   }
 });
 

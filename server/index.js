@@ -286,6 +286,12 @@ async function cleanupOrphanedPublisherBlobs() {
 
 const app = express();
 
+// Render terminates TLS at its load balancer, so the client address arrives in
+// X-Forwarded-For. Without this, express-rate-limit cannot identify callers and
+// warns on every request while bucketing every user under the proxy address,
+// which turns one busy client into spurious 429s for everybody else.
+app.set("trust proxy", 1);
+
 function requireTenantEnvelopeStore(req, res, next) {
   if (!authTenantStore || !req.auth || !req.tenant) {
     return res.status(503).json({ success: false, error: "Persistent tenant authentication is required for key envelopes" });
